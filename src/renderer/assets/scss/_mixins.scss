@@ -1,0 +1,58 @@
+/**
+ * Responsive mixins
+ **/
+$gap: 32px;
+$tablet: 769px;
+$desktop: 960px + (2 * $gap);
+
+@mixin mobile {
+    @media screen and (max-width: $tablet - 1px) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media screen and (min-width: $tablet), print {
+        @content;
+    }
+}
+
+@mixin tablet-only {
+    @media screen and (min-width: $tablet) and (max-width: $desktop - 1px) {
+        @content;
+    }
+}
+
+@mixin touch {
+    @media screen and (max-width: $desktop - 1px) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media screen and (min-width: $desktop) {
+        @content;
+    }
+}
+
+// Max height mixins
+@mixin max-height-600 {
+    @media (max-height: 600px) and (orientation: landscape) {
+        @content;
+    }
+}
+@mixin max-height-700 {
+    @media (max-height: 700px) and (orientation: landscape) {
+        @content;
+    }
+}
+@mixin max-height-800 {
+    @media (max-height: 800px) and (orientation: landscape) {
+        @content;
+    }
+}
+@mixin max-height-900 {
+    @media (max-height: 900px) and (orientation: landscape) {
+        @content;
+    }
+}

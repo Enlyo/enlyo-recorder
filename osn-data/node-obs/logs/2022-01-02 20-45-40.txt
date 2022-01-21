@@ -1,0 +1,244 @@
+[000:00:00:00.053.405.690][Info] About to reset the video context
+[000:00:00:00.053.466.840][Info] About to stop and reset video
+[000:00:00:00.053.479.778][Info] Video stopped and ready too init
+[000:00:00:00.083.328.090][Info] ---------------------------------
+[000:00:00:00.083.402.847][Info] Initializing OpenGL...
+[000:00:00:00.117.620.453][Info] Loading up OpenGL on adapter Intel Inc. Intel(R) Iris(TM) Graphics 550
+[000:00:00:00.117.660.356][Info] OpenGL loaded successfully, version 4.1 INTEL-16.5.2, shading language 4.10
+[000:00:00:00.254.730.017][Info] ---------------------------------
+[000:00:00:00.254.769.816][Info] video settings reset:
+[000:00:00:00.254.769.816][Info] 	base resolution:   1920x1200
+[000:00:00:00.254.769.816][Info] 	output resolution: 1920x1200
+[000:00:00:00.254.769.816][Info] 	downscale filter:  Bicubic
+[000:00:00:00.254.769.816][Info] 	fps:               60/1
+[000:00:00:00.254.769.816][Info] 	format:            NV12
+[000:00:00:00.254.769.816][Info] 	YUV mode:          601/Partial
+[000:00:00:00.254.991.742][Info] NV12 texture support not available
+[000:00:00:00.255.112.605][Error] Plugin Path provided is invalid: /Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/64bit
+[000:00:00:00.255.797.800][Info] Excluding /Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/libEGL.dylib from openmodule 
+[000:00:00:00.255.837.868][Debug] ---------------------------------
+[000:00:00:00.256.137.719][Error] os_dlopen(/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/vk_swiftshader_icd.json->/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/vk_swiftshader_icd.json.so): dlopen(/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/vk_swiftshader_icd.json.so, 257): image not found
+[000:00:00:00.256.137.719][Error] 
+[000:00:00:00.256.166.552][Warning] Module '/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/vk_swiftshader_icd.json' not loaded
+[000:00:00:00.256.193.444][Debug] ---------------------------------
+[000:00:00:00.263.424.771][Debug] Loading module: coreaudio-encoder.so
+[000:00:00:00.264.270.828][Debug] ---------------------------------
+[000:00:00:00.271.632.503][Debug] Loading module: obs-transitions.so
+[000:00:00:00.272.796.701][Debug] ---------------------------------
+[000:00:00:00.274.549.920][Debug] Loading module: image-source.so
+[000:00:00:00.275.371.694][Info] Excluding /Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/libswiftshader_libEGL.dylib from openmodule 
+[000:00:00:00.275.472.239][Debug] ---------------------------------
+[000:00:00:00.314.019.097][Debug] Loading module: obs-ffmpeg.so
+[000:00:00:00.315.035.875][Debug] ---------------------------------
+[000:00:00:00.329.873.986][Debug] Loading module: mac-decklink.so
+[000:00:00:00.330.786.303][Warning] A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+[000:00:00:00.330.853.274][Info] No blackmagic support
+[000:00:00:00.330.883.278][Debug] Failed to start search for DeckLink devices
+[000:00:00:00.330.950.789][Debug] ---------------------------------
+[000:00:00:00.332.913.744][Debug] Loading module: mac-vth264.so
+[000:00:00:00.402.356.386][Info] [VideoToolbox encoder]: Adding VideoToolbox H264 encoders
+[000:00:00:00.402.430.010][Debug] ---------------------------------
+[000:00:00:00.403.527.148][Debug] Loading module: rtmp-services.so
+[000:00:00:00.414.041.664][Debug] ---------------------------------
+[000:00:00:00.432.973.161][Debug] Required module function 'obs_module_load' in module '/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/libvk_swiftshader.dylib' not found, loading of module failed
+[000:00:00:00.433.140.409][Debug] ---------------------------------
+[000:00:00:00.445.702.234][Debug] Loading module: obs-browser.so
+[000:00:00:00.446.363.328][Info] [obs-browser]: Version 2.16.3
+[000:00:00:00.447.051.649][Warning] Failed to initialize module 'obs-browser.so'
+[000:00:00:00.447.112.344][Debug] ---------------------------------
+[000:00:00:00.449.257.053][Debug] Loading module: obs-x264.so
+[000:00:00:00.454.260.834][Debug] ---------------------------------
+[000:00:00:00.455.935.465][Error] os_dlopen(/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/obs-libfdk.so->/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/obs-libfdk.so): dlopen(/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/obs-libfdk.so, 257): Library not loaded: @executable_path/libfdk-aac.2.dylib
+[000:00:00:00.455.935.465][Error]   Referenced from: /Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/obs-libfdk.so
+[000:00:00:00.455.935.465][Error]   Reason: image not found
+[000:00:00:00.455.935.465][Error] 
+[000:00:00:00.456.024.004][Warning] Module '/Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/obs-libfdk.so' not loaded
+[000:00:00:00.456.057.149][Debug] ---------------------------------
+[000:00:00:00.463.602.982][Debug] Loading module: vlc-video.so
+[000:00:00:00.473.813.386][Info] VLC found, VLC video source enabled
+[000:00:00:00.473.960.586][Info] Excluding /Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/libGLESv2.dylib from openmodule 
+[000:00:00:00.474.031.860][Debug] ---------------------------------
+[000:00:00:00.489.305.938][Debug] Loading module: slobs-virtual-cam.so
+[000:00:00:00.490.288.934][Debug] ---------------------------------
+[000:00:00:00.504.220.177][Debug] Loading module: mac-avcapture.so
+[000:00:00:00.619.905.109][Info] Excluding /Users/enlyo/code/enlyo/enlyo-recorder/node_modules/obs-studio-node/obs-plugins/libswiftshader_libGLESv2.dylib from openmodule 
+[000:00:00:00.619.949.629][Debug] ---------------------------------
+[000:00:00:00.620.908.539][Debug] Loading module: mac-capture.so
+[000:00:00:00.626.228.759][Debug] ---------------------------------
+[000:00:00:00.633.653.030][Debug] Loading module: obs-outputs.so
+[000:00:00:00.634.743.450][Debug] ---------------------------------
+[000:00:00:00.656.111.975][Debug] Loading module: obs-filters.so
+[000:00:00:00.657.491.863][Debug] ---------------------------------
+[000:00:00:00.673.620.194][Debug] Loading module: mac-syphon.so
+[000:00:00:00.674.242.886][Debug] ---------------------------------
+[000:00:00:00.696.066.291][Debug] Loading module: text-freetype2.so
+[000:00:00:00.696.939.936][Debug] ---------------------------------
+[000:00:00:00.705.100.583][Debug] Loading module: obs-ndi.so
+[000:00:00:00.706.131.872][Info] [obs-ndi] hello ! (version 4.7.1)
+[000:00:00:00.706.279.694][Info] [obs-ndi] Trying to load lib at: /usr/lib/libndi.4.dylib
+[000:00:00:00.706.335.519][Info] [obs-ndi] Trying to load lib at: /usr/local/lib/libndi.4.dylib
+[000:00:00:00.706.450.291][Error] [obs-ndi] Can't find the NDI library
+[000:00:00:00.706.481.232][Error] [obs-ndi] Error when loading the library.
+[000:00:00:00.706.502.589][Warning] Failed to initialize module 'obs-ndi.so'
+[000:00:00:00.706.553.350][Error] Plugin Path provided is invalid: /Users/enlyo/code/enlyo/enlyo-reco/slobs-plugins/obs-plugins/64bit
+[000:00:00:00.718.844.220][Debug] service 'default_service' (rtmp_common) created
+[000:00:00:00.737.851.554][Debug] output 'simple_stream' (rtmp_output) created
+[000:00:00:00.738.001.781][Debug] output 'simple_file_output' (ffmpeg_muxer) created
+[000:00:00:00.738.114.814][Debug] output 'ReplayBuffer' (replay_buffer) created
+[000:00:00:00.738.144.016][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.749.021.918][Debug] [CoreAudio encoder]: Default bitrate matching log for bitrate 128:
+[000:00:00:00.749.021.918][Debug] Trying kAudioFormatMPEG4AAC_HE_V2 (0x61616370)
+[000:00:00:00.749.021.918][Debug] Found new best match 20000
+[000:00:00:00.749.021.918][Debug] Found new best match 24000
+[000:00:00:00.749.021.918][Debug] Found new best match 28000
+[000:00:00:00.749.021.918][Debug] Found new best match 32000
+[000:00:00:00.749.021.918][Debug] Found new best match 40000
+[000:00:00:00.749.021.918][Debug] Found new best match 48000
+[000:00:00:00.749.021.918][Debug] Trying kAudioFormatMPEG4AAC_HE (0x61616368)
+[000:00:00:00.749.021.918][Debug] Found new best match 56000
+[000:00:00:00.749.021.918][Debug] Found new best match 64000
+[000:00:00:00.749.021.918][Debug] Found new best match 80000
+[000:00:00:00.749.021.918][Debug] Trying kAudioFormatMPEG4AAC (0x61616320)
+[000:00:00:00.749.021.918][Debug] Found new best match 96000
+[000:00:00:00.749.021.918][Debug] Found new best match 112000
+[000:00:00:00.749.021.918][Debug] Found new best match 128000
+[000:00:00:00.750.043.420][Debug] [CoreAudio encoder]: Sample rate enumeration log:
+[000:00:00:00.750.043.420][Debug] Trying kAudioFormatMPEG4AAC_HE_V2 (0x61616370)
+[000:00:00:00.750.043.420][Debug] Adding sample rate 32000
+[000:00:00:00.750.043.420][Debug] Adding sample rate 44100
+[000:00:00:00.750.043.420][Debug] Adding sample rate 48000
+[000:00:00:00.750.043.420][Debug] Trying kAudioFormatMPEG4AAC_HE (0x61616368)
+[000:00:00:00.750.043.420][Debug] Adding sample rate 16000
+[000:00:00:00.750.043.420][Debug] Adding sample rate 22050
+[000:00:00:00.750.043.420][Debug] Adding sample rate 24000
+[000:00:00:00.750.043.420][Debug] Sample rate 32000 already added
+[000:00:00:00.750.043.420][Debug] Sample rate 44100 already added
+[000:00:00:00.750.043.420][Debug] Sample rate 48000 already added
+[000:00:00:00.750.043.420][Debug] Adding sample rate 88200
+[000:00:00:00.750.043.420][Debug] Adding sample rate 96000
+[000:00:00:00.750.043.420][Debug] Trying kAudioFormatMPEG4AAC (0x61616320)
+[000:00:00:00.750.043.420][Debug] Adding sample rate 8000
+[000:00:00:00.750.043.420][Debug] Adding sample rate 11025
+[000:00:00:00.750.043.420][Debug] Adding sample rate 12000
+[000:00:00:00.750.043.420][Debug] Sample rate 16000 already added
+[000:00:00:00.750.043.420][Debug] Sample rate 22050 already added
+[000:00:00:00.750.043.420][Debug] Sample rate 24000 already added
+[000:00:00:00.750.043.420][Debug] Sample rate 32000 already added
+[000:00:00:00.750.043.420][Debug] Sample rate 44100 already added
+[000:00:00:00.750.043.420][Debug] Sample rate 48000 already added
+[000:00:00:00.750.162.330][Error] [CoreAudio encoder]: Couldn't find available bitrates
+[000:00:00:00.750.175.700][Error] [CoreAudio encoder]: Couldn't find available bitrates
+[000:00:00:00.750.192.341][Error] [CoreAudio encoder]: Couldn't find available bitrates
+[000:00:00:00.750.234.509][Debug] AAC encoder bitrate mapping:
+[000:00:00:00.750.234.509][Debug] 	 64 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	 96 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	128 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	160 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	192 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	224 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	256 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	288 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.234.509][Debug] 	320 kbit/s: 'FFmpeg Default AAC Encoder' (ffmpeg_aac)
+[000:00:00:00.750.293.867][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:00.750.331.876][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.753.128.490][Debug] obs_encoder_update: Null 'encoder' parameter
+[000:00:00:00.753.166.529][Debug] encoder 'simple_h264_recording' (obs_x264) created (0xI64X)
+[000:00:00:00.753.180.049][Info] ---------------------------------
+[000:00:00:00.753.187.328][Info] audio settings reset:
+[000:00:00:00.753.187.328][Info] 	samples per sec: 44100
+[000:00:00:00.753.187.328][Info] 	speakers:        2
+[000:00:00:00.753.936.271][Info] About to reset the video context
+[000:00:00:00.753.951.511][Info] About to stop and reset video
+[000:00:00:00.773.420.819][Info] Video stopped and ready too init
+[000:00:00:00.773.486.360][Info] ---------------------------------
+[000:00:00:00.773.527.562][Info] video settings reset:
+[000:00:00:00.773.527.562][Info] 	base resolution:   1920x1200
+[000:00:00:00.773.527.562][Info] 	output resolution: 1920x1200
+[000:00:00:00.773.527.562][Info] 	downscale filter:  Bicubic
+[000:00:00:00.773.527.562][Info] 	fps:               60/1
+[000:00:00:00.773.527.562][Info] 	format:            NV12
+[000:00:00:00.773.527.562][Info] 	YUV mode:          601/Partial
+[000:00:00:00.774.478.572][Info] NV12 texture support not available
+[000:00:00:00.774.791.113][Debug] encoder 'adv_aac0' (ffmpeg_aac) created (0xI64X)
+[000:00:00:00.774.868.222][Debug] encoder 'adv_aac1' (ffmpeg_aac) created (0xI64X)
+[000:00:00:00.774.911.522][Debug] encoder 'adv_aac2' (ffmpeg_aac) created (0xI64X)
+[000:00:00:00.774.953.472][Debug] encoder 'adv_aac3' (ffmpeg_aac) created (0xI64X)
+[000:00:00:00.774.989.903][Debug] encoder 'adv_aac4' (ffmpeg_aac) created (0xI64X)
+[000:00:00:00.775.028.687][Debug] encoder 'adv_aac5' (ffmpeg_aac) created (0xI64X)
+[000:00:00:00.775.068.284][Info] Audio monitoring device:
+[000:00:00:00.775.068.284][Info] 	name: Default
+[000:00:00:00.775.068.284][Info] 	id: default
+[000:00:00:00.778.165.238][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.778.204.150][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:00.778.878.016][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:00.778.911.772][Debug] encoder 'simple_h264_recording' destroyed (0xI64X)
+[000:00:00:00.783.015.502][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.783.072.136][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:00.783.321.840][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:00.783.345.224][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:00.785.283.761][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.785.314.372][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:00.785.497.030][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:00.785.515.691][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:00.787.046.645][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.787.068.712][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:00.787.229.873][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:00.787.246.151][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:00.788.595.191][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.788.619.386][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:00.788.780.715][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:00.788.797.146][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:00.790.153.068][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:00.790.176.099][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:00.790.335.136][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:00.790.351.329][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:00.844.645.681][Debug] source 'desktop-video' (display_capture) created
+[000:00:00:00.852.101.996][Debug] source 'test-scene' (scene) created
+[000:00:00:00.893.808.830][Warning] video: Could not initialize device with unique ID 'does_not_exist'
+[000:00:00:00.893.852.624][Debug] source 'video' (av_capture_input) created
+[000:00:00:00.894.865.189][Debug] source 'video' destroyed
+[000:00:00:00.895.758.122][Info] video: No device selected
+[000:00:00:00.895.786.377][Debug] source 'video' (av_capture_input) created
+[000:00:00:01.898.034.850][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:01.898.082.920][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:01.898.237.075][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:01.900.052.190][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:01.902.301.592][Info] coreaudio: failed to find device uid: does_not_exist, waiting for connection
+[000:00:00:01.902.373.293][Debug] source 'desktop-audio' (coreaudio_output_capture) created
+[000:00:00:01.903.059.456][Debug] source 'desktop-audio' destroyed
+[000:00:00:01.903.104.790][Debug] coreaudio: exit the reconnect thread
+[000:00:00:01.903.771.380][Info] coreaudio: failed to find device uid: does_not_exist, waiting for connection
+[000:00:00:01.903.810.752][Debug] source 'mic-audio' (coreaudio_input_capture) created
+[000:00:00:01.904.580.189][Debug] source 'mic-audio' destroyed
+[000:00:00:01.904.617.120][Debug] coreaudio: exit the reconnect thread
+[000:00:00:02.556.275.852][Info] coreaudio: device 'Built-in Microphone' initialized
+[000:00:00:02.556.655.710][Debug] source 'mic-audio' (coreaudio_input_capture) created
+[000:00:00:02.560.267.052][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:02.560.336.361][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:02.560.594.973][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:02.560.617.849][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:02.563.917.998][Debug] encoder 'streaming_h264' (obs_x264) created (0xI64X)
+[000:00:00:02.563.949.713][Debug] encoder 'streaming_h264' destroyed (0xI64X)
+[000:00:00:02.564.159.419][Debug] encoder 'recording_h264' (com.apple.videotoolbox.videoencoder.h264.gva) created (0xI64X)
+[000:00:00:02.564.180.208][Debug] encoder 'recording_h264' destroyed (0xI64X)
+[000:00:00:02.585.811.552][Info] adding 23 milliseconds of audio buffering, total audio buffering is now 23 milliseconds (source: mic-audio)
+[000:00:00:02.585.811.552][Info] 
+[000:00:00:02.587.480.139][Error] glClear failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.587.522.595][Error] device_clear (GL) failed
+[000:00:00:02.587.548.367][Error] glViewport failed, glGetError returned GL_INVALID_VALUE(0x501)
+[000:00:00:02.587.568.153][Error] device_set_viewport (GL) failed
+[000:00:00:02.587.608.631][Error] glClear failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.587.636.788][Error] device_clear (GL) failed
+[000:00:00:02.588.940.288][Error] glDrawArrays failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.589.022.366][Error] device_draw (GL) failed
+[000:00:00:02.589.366.113][Error] glDrawArrays failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.589.456.573][Error] device_draw (GL) failed
+[000:00:00:02.592.240.325][Error] glClear failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.592.317.358][Error] device_clear (GL) failed
+[000:00:00:02.592.349.685][Error] glClear failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.592.363.903][Error] device_clear (GL) failed
+[000:00:00:02.592.387.546][Error] glDrawArrays failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.592.399.928][Error] device_draw (GL) failed
+[000:00:00:02.592.424.464][Error] glDrawArrays failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)
+[000:00:00:02.592.436.608][Error] device_draw (GL) failed
+[000:00:00:02.592.476.729][Error] glReadPixels failed, glGetError returned GL_INVALID_FRAMEBUFFER_OPERATION(0x506)

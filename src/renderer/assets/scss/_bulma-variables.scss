@@ -1,0 +1,343 @@
+//* --------------------
+//*
+//* Bulma variables
+//*
+//* --------------------
+
+//* --------------------
+//* Global UI
+//* --------------------
+
+$radius: 6px;
+$radius-small: 6px;
+
+$control-radius: $radius;
+$control-radius-small: $radius-small;
+
+$control-border-width: 1px !default;
+
+$control-height: 2.857em;
+$control-line-height: 1.5 !default;
+
+$control-padding-vertical: calc(0.5em - #{$control-border-width});
+$control-padding-horizontal: calc(1em - #{$control-border-width});
+
+//* --------------------
+//* Colors
+//* --------------------
+$primary: $highlight-purple;
+$primary-invert: findColorInvert($primary);
+$primary-light: findLightColor($primary);
+$primary-dark: findDarkColor($primary);
+
+$info: $highlight-yellow;
+$info-invert: findColorInvert($info);
+$info-light: findLightColor($info);
+$info-dark: findDarkColor($info);
+
+$success: $highlight-green;
+$success-invert: findColorInvert($success);
+$success-light: findLightColor($success);
+$success-dark: findDarkColor($success);
+
+$warning: $highlight-orange;
+$warning-invert: findColorInvert($warning);
+$warning-light: findLightColor($warning);
+$warning-dark: findDarkColor($warning);
+
+$danger: $highlight-red;
+$danger-invert: findColorInvert($danger);
+$danger-light: findLightColor($danger);
+$danger-dark: findDarkColor($danger);
+
+$white: $text-white;
+$black: $background-dark-4;
+
+$light: $text-grey;
+$light-invert: findColorInvert($light);
+
+$dark: $background-dark-2;
+$dark-invert: findColorInvert($dark);
+
+$darker: $background-dark-5;
+$darker-invert: findColorInvert($darker);
+
+$custom-colors: (
+    'darker': (
+        $darker,
+        $darker-invert
+    ),
+    'lighter-dark-gray': (
+        $gray-100,
+        $gray-800
+    ),
+    'light-dark-gray': (
+        $gray-200,
+        $gray-800
+    ),
+    'video': (
+        $primary,
+        $primary-invert
+    ),
+    'moment': (
+        $success,
+        $success-invert
+    ),
+    'stream': (
+        $danger,
+        $danger-invert
+    )
+);
+
+$colors: mergeColorMaps(
+    (
+        'white': (
+            $white,
+            $black
+        ),
+        'black': (
+            $black,
+            $white
+        ),
+        'light': (
+            $light,
+            $light-invert
+        ),
+        'dark': (
+            $dark,
+            $dark-invert
+        ),
+        'primary': (
+            $primary,
+            $primary-invert,
+            $primary-light,
+            $primary-dark
+        ),
+        'info': (
+            $info,
+            $info-invert,
+            $info-light,
+            $info-dark
+        ),
+        'success': (
+            $success,
+            $success-invert,
+            $success-light,
+            $success-dark
+        ),
+        'warning': (
+            $warning,
+            $warning-invert,
+            $warning-light,
+            $warning-dark
+        ),
+        'danger': (
+            $danger,
+            $danger-invert,
+            $danger-light,
+            $danger-dark
+        )
+    ),
+    $custom-colors
+);
+
+// Link colors
+$link: $primary;
+$link-invert: findColorInvert($link);
+$link-visited: $primary;
+
+$link-hover: $primary;
+$link-hover-border: $light;
+
+$link-focus: $dark;
+$link-focus-border: $info;
+
+$link-active: $dark;
+$link-active-border: $dark;
+
+//* --------------------
+//* Typography
+//* --------------------
+
+// Font family
+$family-sans-serif: 'Roboto', sans-serif;
+
+// Text sizes
+$size-1: 2rem; // 32px
+$size-2: 1.75rem; // 28px
+$size-3: 1.5rem; // 24px
+$size-4: 1.25rem; // 20px
+$size-5: 1.125rem; // 18px
+$size-6: 1rem; // 16px
+$size-7: 0.875rem; // 14px
+$size-8: 0.75rem; // 12px
+
+// Font weight
+$weight-light: 300;
+$weight-normal: 400;
+$weight-medium: 500;
+$weight-semibold: 600;
+$weight-bold: 700;
+
+// Sizes
+$size-small: $size-8;
+$size-normal: $size-7;
+$size-medium: $size-6;
+$size-large: $size-5;
+
+//* --------------------
+//* Title
+//* --------------------
+$title-color: $text-white;
+$title-family: $family-sans-serif;
+$title-size: $size-5;
+$title-weight: $weight-bold;
+$title-line-height: 1.25;
+// Subtitle
+$subtitle-color: $text-grey;
+
+//* --------------------
+//* Body
+//* --------------------
+$body-background-color: $background-dark-3;
+$body-size: 16px;
+$body-family: $family-sans-serif;
+$body-color: $text-white;
+$body-line-height: 1.5;
+
+//* --------------------
+//* Label
+//* --------------------
+$label-color: $text-soft-white;
+$label-weight: $weight-semibold;
+
+//* --------------------
+//* Input
+//* --------------------
+$input-color: $text-white;
+$input-background-color: $background-dark-2;
+$input-border-color: none;
+$input-height: $control-height;
+$input-shadow: none;
+$input-placeholder-color: $text-grey;
+
+$input-hover-color: $text-white;
+$input-hover-border-color: none;
+$input-hover-background-color: $background-dark-1;
+
+$input-focus-color: $text-white;
+$input-focus-border-color: none;
+$input-focus-box-shadow-color: none;
+$input-focus-background-color: $background-dark-1;
+
+$input-disabled-color: $text-soft-white;
+$input-disabled-background-color: $background-dark-2;
+$input-disabled-border-color: $background-dark-2;
+$input-disabled-placeholder-color: rgba($input-disabled-color, 0.3);
+
+$input-arrow: $text-grey;
+
+$input-icon-color: $text-grey;
+$input-icon-active-color: $text-white;
+
+$input-radius: $radius;
+
+//* --------------------
+//* Responsiveness
+//* --------------------
+
+// The container horizontal gap, which acts as the offset for breakpoints
+$gap: 32px;
+// 960, 1152, and 1344 have been chosen because they are divisible by both 12 and 16
+$tablet: 769px;
+// 960px container + 4rem
+$desktop: 960px + (2 * $gap);
+// 1152px container + 4rem
+$widescreen: 1152px + (2 * $gap);
+$widescreen-enabled: true;
+// 1344px container + 4rem
+$fullhd: 1344px + (2 * $gap);
+$fullhd-enabled: true;
+
+//* --------------------
+//* Card
+//* --------------------
+$card-color: $gray-500;
+$card-background-color: $background-dark-3;
+$card-shadow: none;
+
+$card-header-background-color: transparent;
+$card-header-color: $title-color;
+$card-header-padding: 1.5rem;
+$card-header-shadow: none;
+$card-header-weight: $weight-bold;
+
+$card-content-background-color: transparent;
+$card-content-padding: 1.5rem;
+
+$card-footer-background-color: transparent;
+$card-footer-border-top: none;
+$card-footer-padding: 1.5rem;
+
+$card-media-margin: 1.5rem;
+
+//* --------------------
+//* Modal Card
+//* --------------------
+$modal-background-background-color: rgba(32, 34, 37, 0.9);
+$modal-card-body-background-color: $background-dark-4;
+$modal-card-head-background-color: $background-dark-4;
+$modal-card-title-color: $text-white;
+$modal-card-head-border-bottom: none;
+$modal-card-foot-border-top: none;
+$modal-card-head-padding: 1.5rem;
+$modal-card-body-padding: 1.5rem;
+
+//* --------------------
+//* Dropdown
+//* --------------------
+$dropdown-content-background-color: $background-dark-2;
+$dropdown-item-color: $text-white;
+$dropdown-item-hover-background-color: $background-dark-1;
+$dropdown-item-active-background-color: $background-dark-1;
+$dropdown-divider-background-color: $background-dark-1;
+
+//* --------------------
+//* Buttons
+//* --------------------
+$button-padding-horizontal: 1.125em;
+
+//* --------------------
+//* Slider
+//* --------------------
+$slider-thumb-border: blue;
+$slider-track-border: blue;
+
+//* --------------------
+//* Loader
+//* --------------------
+$loading-background: rgba(47, 49, 54, 0.5);
+
+//* --------------------
+//* Pagination
+//* --------------------
+$pagination-color: $white;
+$pagination-border-color: $line-grey;
+$pagination-current-color: $white;
+$pagination-current-background-color: $primary;
+$pagination-hover-color: $white;
+$pagination-hover-border-color: $primary;
+$pagination-focus-border-color: $success;
+
+//* --------------------
+//* Skeleton
+//* --------------------
+$skeleton-background: linear-gradient(
+    90deg,
+    $background-dark-4 25%,
+    rgba($background-dark-4, 0.5) 50%,
+    $background-dark-4 75%
+);
+$skeleton-border-radius: $radius;
+$skeleton-duration: 1.5s;
+$skeleton-margin-top: 0.5rem;
