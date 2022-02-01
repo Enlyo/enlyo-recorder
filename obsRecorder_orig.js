@@ -4,7 +4,7 @@ const { first } = require("rxjs/operators");
 const { byOS, OS, getOS } = require("./operating-systems");
 const osn = require("obs-studio-node");
 const { v4: uuid } = require("uuid");
-const videoPath = `${require("electron").app.getPath("videos")}/enlyo`;
+const videoPath = require("electron").app.getPath("videos");
 
 let nwr;
 
