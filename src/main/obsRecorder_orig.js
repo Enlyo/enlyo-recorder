@@ -5,7 +5,6 @@ const { byOS, OS, getOS } = require("./operating-systems");
 const osn = require("obs-studio-node");
 const { v4: uuid } = require("uuid");
 const videoPath = require("electron").app.getPath("videos");
-const { app } = require("electron");
 
 let nwr;
 
@@ -55,10 +54,7 @@ function initOBS() {
 
     console.debug("step 1");
     const workingDirectory = fixPathWhenPackaged(
-        path.join(
-            app.getAppPath().replace("app.asar", "app.asar.unpacked"),
-            "obs-studio-node"
-        )
+        path.join(__dirname, "../node_modules", "obs-studio-node")
     );
     console.debug(workingDirectory);
     osn.NodeObs.SetWorkingDirectory(workingDirectory);

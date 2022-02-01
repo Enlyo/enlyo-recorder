@@ -42,7 +42,8 @@ export default {
          * Initialize recorder
          */
         initializeRecorder() {
-            window.ipc.send("initialize-recorder");
+            // window.ipc.send("initialize-recorder");
+            console.log(window.ipc.obs());
         },
 
         /**

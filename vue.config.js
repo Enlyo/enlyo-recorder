@@ -26,9 +26,9 @@ module.exports = {
                     .loader("node-loader")
                     .end();
             },
-            preload: { preload: "src/main/preload.js" },
-            externals: ["obs-studio-node"],
+            preload: {
+                preload: "src/main/preload.js",
+            },
         },
     },
-    // publicPath: `${process.cwd()}/dist/`,
 };

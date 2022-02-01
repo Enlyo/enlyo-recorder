@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const obsRecorder = require("./obsRecorder_orig");
 
 /**
  * Valid request channels
@@ -29,5 +30,9 @@ contextBridge.exposeInMainWorld("ipc", {
         if (VALID_CHANNELS.response.includes(channel)) {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
+    },
+
+    obs: () => {
+        return obsRecorder;
     },
 });
