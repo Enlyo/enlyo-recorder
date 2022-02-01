@@ -1,5 +1,5 @@
 const { ipcMain } = require("electron");
-const obsRecorder = require("../../obsRecorder_orig");
+const obsRecorder = require("./obsRecorder_orig");
 
 /**
  * Set ipc listeners
