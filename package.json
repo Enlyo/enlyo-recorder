@@ -7,11 +7,17 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "dev": "NODE_ENV=DEV vue-cli-service serve & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
     "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
   },
+  "main": "background.js",
   "dependencies": {
     "buefy": "^0.9.14",
     "core-js": "^3.6.5",
+    "node-loader": "1.0.3",
     "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-1.0.15-osx.tar.gz",
     "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.19.13-release-osx.tar.gz",
     "rxjs": "^6.6.3",
@@ -25,6 +31,7 @@
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "babel-eslint": "^10.1.0",
+    "electron": "^13.0.0",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "7.20.0",
     "eslint-config-prettier": "^8.3.0",
@@ -34,6 +41,7 @@
     "prettier": "2.4.1",
     "sass": "^1.45.1",
     "sass-loader": "10.1.1",
+    "vue-cli-plugin-electron-builder": "~2.1.1",
     "vue-template-compiler": "^2.6.11"
   },
   "browserslist": [

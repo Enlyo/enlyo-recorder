@@ -5,6 +5,7 @@ const { byOS, OS, getOS } = require("./operating-systems");
 const osn = require("obs-studio-node");
 const { v4: uuid } = require("uuid");
 const videoPath = require("electron").app.getPath("videos");
+const { app } = require("electron");
 
 let nwr;
 
@@ -53,17 +54,18 @@ function initOBS() {
     osn.NodeObs.IPC.host(`obs-studio-node-example-${uuid()}`);
 
     console.debug("step 1");
-    const workingDirectory = path.join(
-        __dirname,
-        "../../node_modules",
-        "obs-studio-node"
+    const workingDirectory = fixPathWhenPackaged(
+        path.join(
+            app.getAppPath().replace("app.asar", "app.asar.unpacked"),
+            "obs-studio-node"
+        )
     );
     console.debug(workingDirectory);
-    osn.NodeObs.SetWorkingDirectory(fixPathWhenPackaged(workingDirectory));
+    osn.NodeObs.SetWorkingDirectory(workingDirectory);
 
     console.debug("step 2");
     const obsDataPath = fixPathWhenPackaged(
-        path.join(__dirname, "../../osn-data")
+        path.join(__dirname, "../osn-data")
     ); // OBS Studio configs and logs
 
     console.debug(obsDataPath);
