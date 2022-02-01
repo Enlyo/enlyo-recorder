@@ -4,7 +4,7 @@
         <RecordButton
             class="mt-5"
             :is-recording="isRecording"
-            @click="isRecording = !isRecording"
+            @click="toggleRecorder"
         />
     </div>
 </template>
@@ -26,32 +26,78 @@ export default {
     },
 
     mounted() {
-        window.ipc.on("resize-preview", (payload) => {
-            console.log(payload.height);
-            const previewContainer = document.getElementById("preview");
-            previewContainer.style = `height: ${payload.height}px`;
-        });
+        this.initializeRecorder();
+        this.initializeRecorderPreview();
 
-        window.ipc.send("initialize-obs");
-
-        const previewContainer = document.getElementById("preview");
-        const { width, height, x, y } =
-            previewContainer.getBoundingClientRect();
-
-        window.ipc.send("initialize-obs-preview", {
-            width,
-            height,
-            x,
-            y,
-        });
-
-        var ro = new ResizeObserver(this.resizePreview);
-        ro.observe(document.querySelector("body"));
+        this.setIpcListeners();
+        this.setResizeObserver();
     },
 
     methods: {
-        async resizePreview() {
-            console.log("resize");
+        /* -------------------------------------------------------------------------- */
+        /*                              SETUP AND DESTROY                             */
+        /* -------------------------------------------------------------------------- */
+
+        /**
+         * Initialize recorder
+         */
+        initializeRecorder() {
+            window.ipc.send("initialize-recorder");
+        },
+
+        /**
+         * Initialize recorder preview
+         */
+        initializeRecorderPreview() {
+            const previewContainer = document.getElementById("preview");
+            const { width, height, x, y } =
+                previewContainer.getBoundingClientRect();
+
+            window.ipc.send("initialize-recorder-preview", {
+                width,
+                height,
+                x,
+                y,
+            });
+        },
+
+        /**
+         * Set ipc listeners
+         */
+        setIpcListeners() {
+            window.ipc.on(
+                "resized-recorder-preview",
+                this.handleResizedRecorderPreview
+            );
+        },
+
+        /**
+         * Set resize observer
+         */
+        setResizeObserver() {
+            var ro = new ResizeObserver(this.resizeRecorderPreview);
+            ro.observe(document.querySelector("body"));
+        },
+
+        // TODO: Add on destroy logic
+
+        /* -------------------------------------------------------------------------- */
+        /*                               EVENT HANDLERS                               */
+        /* -------------------------------------------------------------------------- */
+
+        /**
+         * Handle resized recorder preview
+         */
+        handleResizedRecorderPreview(payload) {
+            const previewContainer = document.getElementById("preview");
+            previewContainer.style = `height: ${payload.height}px`;
+        },
+
+        /**
+         * Resize recorder preview
+         */
+        // TODO: Waarschijnlijk niet nodig als we scherm niet resizable maken
+        async resizeRecorderPreview() {
             const previewContainer = document.getElementById("preview");
             const { width, height, x, y } =
                 previewContainer.getBoundingClientRect();
@@ -62,6 +108,35 @@ export default {
                 x,
                 y,
             });
+        },
+
+        /* -------------------------------------------------------------------------- */
+        /*                                  RECORDING                                 */
+        /* -------------------------------------------------------------------------- */
+
+        /**
+         * Toggle recorder
+         */
+        toggleRecorder() {
+            this.isRecording ? this.stopRecorder() : this.startRecorder();
+        },
+
+        /**
+         * Start recorder
+         */
+        startRecorder() {
+            this.isRecording = true;
+
+            window.ipc.send("start-recorder", {});
+        },
+
+        /**
+         * Stop recorder
+         */
+        stopRecorder() {
+            this.isRecording = false;
+
+            window.ipc.send("stop-recorder", {});
         },
     },
 };

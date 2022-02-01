@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-tooltip :label="recordLabel" type="is-dark">
+        <b-tooltip :label="recordLabel" position="is-bottom" type="is-dark">
             <PlayerButton
                 :is-recording="isRecording"
                 type="record"

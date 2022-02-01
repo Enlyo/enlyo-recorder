@@ -1,25 +1,32 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 /**
- * Valid channels
+ * Valid request channels
  */
-const VALID_CHANNELS = [
-    "initialize-obs",
-    "initialize-obs-preview",
-    "resize-obs-preview",
-    "resize-preview",
-];
+const VALID_CHANNELS = {
+    request: [
+        "initialize-recorder",
+        "initialize-recorder-preview",
+        "resize-recorder-preview",
+        "start-recorder",
+        "stop-recorder",
+    ],
+    response: [
+        "resized-recorder-preview",
+        "started-recorder",
+        "stopped-recorder",
+    ],
+};
 
 contextBridge.exposeInMainWorld("ipc", {
     send: (channel, data) => {
-        if (VALID_CHANNELS.includes(channel)) {
+        if (VALID_CHANNELS.request.includes(channel)) {
             ipcRenderer.send(channel, data);
         }
     },
 
     on: (channel, func) => {
-        if (VALID_CHANNELS.includes(channel)) {
-            // Strip event as it includes `sender` and is a security risk
+        if (VALID_CHANNELS.response.includes(channel)) {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
     },

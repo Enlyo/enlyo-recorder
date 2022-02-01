@@ -4,7 +4,7 @@ const { first } = require("rxjs/operators");
 const { byOS, OS, getOS } = require("./operating-systems");
 const osn = require("obs-studio-node");
 const { v4: uuid } = require("uuid");
-const videoPath = require("electron").app.getPath("videos");
+const videoPath = `${require("electron").app.getPath("videos")}/enlyo`;
 
 let nwr;
 
@@ -23,6 +23,7 @@ function fixPathWhenPackaged(p) {
 
 // Init the library, launch OBS Studio instance, configure it, set up sources and scene
 function initialize(win) {
+    console.debug(videoPath);
     if (obsInitialized) {
         console.warn("OBS is already initialized, skipping initialization.");
         return;
@@ -435,6 +436,8 @@ async function start() {
         '(expected: "start")'
     );
     console.debug("Started!");
+
+    return true;
 }
 
 async function stop() {
@@ -471,6 +474,8 @@ async function stop() {
     );
 
     console.debug("Stopped!");
+
+    return true;
 }
 
 function shutdown() {
