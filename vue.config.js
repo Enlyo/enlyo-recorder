@@ -13,5 +13,5 @@ module.exports = {
             },
         },
     },
-    // publicPath: `${process.cwd()}/dist/`,
+    publicPath: process.env.NODE_ENV === "production" ? "./" : "/",
 };

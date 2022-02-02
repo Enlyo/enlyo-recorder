@@ -24,3 +24,6 @@ pnpm-debug.log*
 
 # App specific files
 /osn-data
+
+# Electron files
+/release

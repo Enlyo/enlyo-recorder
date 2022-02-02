@@ -1,15 +1,11 @@
 const { app, BrowserWindow } = require("electron");
 const { setIpcListeners } = require("./ipcListeners");
-const {
-    default: installExtension,
-    VUEJS_DEVTOOLS,
-} = require("electron-devtools-installer");
 const path = require("path");
 
 /**
  * Is Development
  */
-const isDevelopment = process.env.NODE_ENV !== "production";
+const isDevelopment = process.env.NODE_ENV === "DEV";
 
 /**
  * Create window
@@ -32,18 +28,7 @@ async function createWindow() {
         // if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
         // Load the index.html when not in development
-        win.loadURL("app://./index.html");
-    }
-}
-
-/**
- * Install Vue Dev Tools
- */
-async function installVueDevTools() {
-    try {
-        await installExtension(VUEJS_DEVTOOLS);
-    } catch (e) {
-        console.error("Vue Devtools failed to install:", e.toString());
+        win.loadFile("./dist/index.html");
     }
 }
 
@@ -55,9 +40,6 @@ let win;
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
-    if (isDevelopment && !process.env.IS_TEST) {
-        installVueDevTools();
-    }
     createWindow();
     setIpcListeners(win);
 });
