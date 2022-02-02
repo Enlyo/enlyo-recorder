@@ -1,11 +1,11 @@
 // Modified from https://github.com/stream-labs/streamlabs-obs/blob/staging/app/util/operating-systems.ts
 
-const OS = {
+export const OS = {
     Windows: "win32",
     Mac: "darwin",
 };
 
-function byOS(handlers) {
+export function byOS(handlers) {
     const handler = handlers[process.platform];
 
     if (typeof handler === "function") return handler();
@@ -13,10 +13,6 @@ function byOS(handlers) {
     return handler;
 }
 
-function getOS() {
+export function getOS() {
     return process.platform;
 }
-
-module.exports.OS = OS;
-module.exports.byOS = byOS;
-module.exports.getOS = getOS;

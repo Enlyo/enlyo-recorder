@@ -1,10 +1,11 @@
-const path = require("path");
-const { Subject } = require("rxjs");
-const { first } = require("rxjs/operators");
-const { byOS, OS, getOS } = require("./operating-systems");
-const osn = require("obs-studio-node");
-const { v4: uuid } = require("uuid");
-const videoPath = require("electron").app.getPath("videos");
+import * as path from "path";
+import { Subject } from "rxjs";
+import { first } from "rxjs/operators";
+import { byOS, OS, getOS } from "./operating-systems";
+import * as osn from "obs-studio-node";
+import { v4 as uuid } from "uuid";
+import { app } from "electron";
+const videoPath = app.getPath("videos");
 
 let nwr;
 
@@ -23,7 +24,6 @@ function fixPathWhenPackaged(p) {
 
 // Init the library, launch OBS Studio instance, configure it, set up sources and scene
 function initialize(win) {
-    console.debug(videoPath);
     if (obsInitialized) {
         console.warn("OBS is already initialized, skipping initialization.");
         return;
@@ -47,8 +47,6 @@ function initialize(win) {
 
 function initOBS() {
     console.debug("Initializing OBS...");
-
-    console.debug(osn.NodeObs);
 
     osn.NodeObs.IPC.host(`obs-studio-node-example-${uuid()}`);
 
@@ -580,14 +578,16 @@ function busySleep(sleepDuration) {
     }
 }
 
-module.exports.initialize = initialize;
-module.exports.start = start;
-module.exports.isVirtualCamPluginInstalled = isVirtualCamPluginInstalled;
-module.exports.installVirtualCamPlugin = installVirtualCamPlugin;
-module.exports.uninstallVirtualCamPlugin = uninstallVirtualCamPlugin;
-module.exports.startVirtualCam = startVirtualCam;
-module.exports.stopVirtualCam = stopVirtualCam;
-module.exports.stop = stop;
-module.exports.shutdown = shutdown;
-module.exports.setupPreview = setupPreview;
-module.exports.resizePreview = resizePreview;
+export default {
+    initialize,
+    start,
+    isVirtualCamPluginInstalled,
+    installVirtualCamPlugin,
+    uninstallVirtualCamPlugin,
+    startVirtualCam,
+    stopVirtualCam,
+    stop,
+    shutdown,
+    setupPreview,
+    resizePreview,
+};

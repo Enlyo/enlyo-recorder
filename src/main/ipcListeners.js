@@ -1,10 +1,10 @@
-const { ipcMain } = require("electron");
-const obsRecorder = require("./obsRecorder_orig");
+import { ipcMain } from "electron";
+import obsRecorder from "./obsRecorder_orig";
 
 /**
  * Set ipc listeners
  */
-function setIpcListeners(win) {
+export default function setIpcListeners(win) {
     ipcMain.on("initialize-recorder", () => {
         obsRecorder.initialize(win);
         return true;
@@ -32,5 +32,3 @@ function setIpcListeners(win) {
         event.reply("stopped-recorder");
     });
 }
-
-module.exports.setIpcListeners = setIpcListeners;
