@@ -29,6 +29,7 @@
     "dev": "NODE_ENV=DEV vue-cli-service serve & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
     "electron:dev": "vue-cli-service serve && electron .",
     "electron:build": "vue-cli-service build --mode production && electron-builder build",
+    "electron:windows": "vue-cli-service build && electron-builder build --windows --publish=onTag",
     "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
   },
   "dependencies": {
