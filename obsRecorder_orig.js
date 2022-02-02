@@ -6,6 +6,55 @@ const osn = require("obs-studio-node");
 const { v4: uuid } = require("uuid");
 const videoPath = require("electron").app.getPath("videos");
 
+/* -------------------------------------------------------------------------- */
+/*                                FFMPEG THINGS                               */
+/* -------------------------------------------------------------------------- */
+
+//require the ffmpeg package so we can use ffmpeg using JS
+const ffmpeg = require("fluent-ffmpeg");
+//Get the paths to the packaged versions of the binaries we want to use
+const ffmpegPath = require("ffmpeg-static").replace(
+    "app.asar",
+    "app.asar.unpacked"
+);
+const ffprobePath = require("ffprobe-static").path.replace(
+    "app.asar",
+    "app.asar.unpacked"
+);
+//tell the ffmpeg package where it can find the needed binaries.
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath);
+
+/* -------------------------------------------------------------------------- */
+/*                              END FFMPEG THINGS                             */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/*                              READ FILE THINGS                              */
+/* -------------------------------------------------------------------------- */
+
+const fs = require("fs");
+
+const getMostRecentFile = (dir) => {
+    const files = orderReccentFiles(dir);
+    return files.length ? files[0] : undefined;
+};
+
+const orderReccentFiles = (dir) => {
+    return fs
+        .readdirSync(dir)
+        .filter((file) => fs.lstatSync(path.join(dir, file)).isFile())
+        .map((file) => ({
+            file,
+            mtime: fs.lstatSync(path.join(dir, file)).mtime,
+        }))
+        .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+};
+
+/* -------------------------------------------------------------------------- */
+/*                            END READ FILE THINGS                            */
+/* -------------------------------------------------------------------------- */
+
 let nwr;
 
 // NWR is used to handle display rendering via IOSurface on mac
@@ -472,6 +521,12 @@ async function stop() {
         signalInfo.signal,
         '(expected: "stop")'
     );
+
+    const video = `${videoPath}/${getMostRecentFile(videoPath).file}`;
+
+    console.debug(video);
+
+    ffmpeg(video).output(`${videoPath}/outputfile.mp4`).run();
 
     console.debug("Stopped!");
 
