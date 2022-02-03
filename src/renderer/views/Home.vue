@@ -1,17 +1,29 @@
 <template>
-    <AppLayout>
-        <AppHeader title="Enlyo" has-settings />
+    <AppLayout :class="{ 'is-recording': isRecording }">
+        <AppHeader v-if="!isRecording" title="Enlyo" has-settings />
 
-        <AppContent>
+        <AppContent v-if="!isRecording">
             <div class="preview-box">
                 <p class="box-label">Preview</p>
                 <div id="preview" class="mt-3" />
             </div>
         </AppContent>
         <AppFooter>
-            <div class="record-button-box" @click="toggleRecorder">
+            <div
+                v-if="!isRecording"
+                class="record-button-box"
+                @click="toggleRecorder"
+            >
                 <RecordButton :is-recording="isRecording" />
                 <p class="record-button-label">Start recording</p>
+            </div>
+
+            <div v-else class="active-recording-box" @click="toggleRecorder">
+                <RecordButton :is-recording="isRecording" size="is-large" />
+                <div class="record-time-label mt-6">
+                    {{ recordTimeFormatted }}
+                </div>
+                <div class="recording-label">Recording</div>
             </div>
         </AppFooter>
     </AppLayout>
@@ -38,7 +50,19 @@ export default {
     data() {
         return {
             isRecording: false,
+            recordTime: 0,
+            timer: null,
         };
+    },
+
+    computed: {
+        recordTimeFormatted() {
+            const date = new Date(this.recordTime * 1000).toISOString();
+
+            return this.recordTime >= 3600
+                ? date.substr(11, 8)
+                : date.substr(14, 5);
+        },
     },
 
     mounted() {
@@ -78,6 +102,13 @@ export default {
         },
 
         /**
+         * Stop recorder preview
+         */
+        stopRecorderPreview() {
+            window.ipc.send('stop-recorder-preview', {});
+        },
+
+        /**
          * Set ipc listeners
          */
         setIpcListeners() {
@@ -95,7 +126,7 @@ export default {
             ro.observe(document.querySelector('body'));
         },
 
-        // TODO: Add on destroy logic
+        // TODO: Add on destroy logic -> (also record timer ect)
 
         /* -------------------------------------------------------------------------- */
         /*                               EVENT HANDLERS                               */
@@ -141,7 +172,10 @@ export default {
          * Start recorder
          */
         startRecorder() {
+            // TODO: move this to own function -> handleStartRecorder
+            this.stopRecorderPreview();
             this.isRecording = true;
+            this.startRecordTime();
 
             window.ipc.send('start-recorder', {});
         },
@@ -150,9 +184,36 @@ export default {
          * Stop recorder
          */
         stopRecorder() {
+            // TODO: move this to own function -> handleStopRecorder
             this.isRecording = false;
+            this.resetRecordTime();
 
             window.ipc.send('stop-recorder', {});
+
+            this.$nextTick(() => this.initializeRecorderPreview());
+        },
+
+        /**
+         * Start record time
+         */
+        startRecordTime() {
+            this.timer = setInterval(() => this.recordTime++, 1000);
+        },
+
+        /**
+         * Stop record time
+         */
+        stopRecordTime() {
+            clearInterval(this.timer);
+        },
+
+        /**
+         * Reset record time
+         */
+        resetRecordTime() {
+            this.stopTimer();
+            this.recordTime = 0;
+            this.timer = null;
         },
     },
 };
@@ -198,6 +259,30 @@ export default {
         &:hover {
             color: $white;
         }
+    }
+}
+
+.is-recording {
+    .app-footer {
+        height: 100%;
+        justify-content: center;
+    }
+}
+
+.active-recording-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .record-time-label {
+        font-size: $s-36px;
+        font-weight: 500;
+    }
+
+    .recording-label {
+        font-size: $s-16px;
+        font-weight: 400;
+        text-transform: uppercase;
     }
 }
 </style>

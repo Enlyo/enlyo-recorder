@@ -1,4 +1,4 @@
-<template functional>
+<template>
     <div class="app-layout">
         <slot />
     </div>
