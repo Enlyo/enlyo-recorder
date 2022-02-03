@@ -1,12 +1,20 @@
 {
     "name": "enlyo-recorder",
+    "productName": "Enlyo Recorder",
+    "description": "Screen recording software for gaming",
+    "author": "Enlyo",
+    "license": "GPL-2.0",  
     "version": "0.1.0",
     "private": true,
     "main": "src/main/main.js",
     "build": {
         "appId": "my.vue.app",
         "win": {
-            "target": "nsis"
+            "target": "nsis",
+            "icon": "release/icons/icon.ico"
+        },
+        "mac": {
+            "icon": "release/icons/icon.icns"
         },
         "files": [
             "**/*",
