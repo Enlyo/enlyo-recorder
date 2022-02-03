@@ -526,7 +526,11 @@ async function stop() {
 
     console.debug(video);
 
-    ffmpeg(video).output(`${videoPath}/outputfile.mp4`).run();
+    ffmpeg(video)
+        .output(`${videoPath}/outputfile.mp4`)
+        .withVideoCodec('copy')
+        .withAudioCodec('copy')
+        .run();
 
     console.debug("Stopped!");
 

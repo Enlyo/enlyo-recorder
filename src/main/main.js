@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require("electron");
 const { setIpcListeners } = require("./ipcListeners");
 const path = require("path");
+const exec = require('child_process').exec;
 
 /**
  * Is Development
@@ -32,6 +33,18 @@ async function createWindow() {
     }
 }
 
+function monitorTasklist() {
+    exec('tasklist', function(error, stdout, stderr) {
+        const hasLol = stdout.includes('League of Legends.exe');
+        
+        if (hasLol)  {
+            console.debug('Has LoL active');
+        } else {
+            console.debug('Has LoL not active');
+        }
+    });
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -42,6 +55,9 @@ let win;
 app.on("ready", async () => {
     createWindow();
     setIpcListeners(win);
+
+    // TODO: stop interval  
+    const monitor = setInterval(monitorTasklist, 2000);
 });
 
 // Quit when all windows are closed.
