@@ -1,14 +1,14 @@
 // Modified from https://github.com/stream-labs/streamlabs-obs/blob/staging/app/util/operating-systems.ts
 
 const OS = {
-    Windows: "win32",
-    Mac: "darwin",
+    Windows: 'win32',
+    Mac: 'darwin',
 };
 
 function byOS(handlers) {
     const handler = handlers[process.platform];
 
-    if (typeof handler === "function") return handler();
+    if (typeof handler === 'function') return handler();
 
     return handler;
 }

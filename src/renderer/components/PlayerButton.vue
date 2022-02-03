@@ -11,10 +11,10 @@
 </template>
 
 <script>
-import RecordIcon from "./RecordIcon";
+import RecordIcon from './RecordIcon';
 
 export default {
-    name: "PlayerButton",
+    name: 'PlayerButton',
 
     components: {
         RecordIcon,

@@ -6,7 +6,7 @@
 
 <script>
 export default {
-    name: "RecordIcon",
+    name: 'RecordIcon',
     props: {
         isRecording: {
             type: Boolean,

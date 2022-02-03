@@ -38,9 +38,7 @@
             <span id="virtual-cam-plugin-status">...</span>
         </div>
 
-        <div id="preview">
-            Initializing...
-        </div>
+        <div id="preview">Initializing...</div>
 
         <table class="performanceStatistics">
             <tr>
@@ -60,27 +58,19 @@
             </tr>
             <tr>
                 <td>Dropped frames</td>
-                <td id="numberDroppedFrames">
-                    Loading...
-                </td>
+                <td id="numberDroppedFrames">Loading...</td>
             </tr>
             <tr>
                 <td>Dropped frames</td>
-                <td id="percentageDroppedFrames">
-                    Loading...
-                </td>
+                <td id="percentageDroppedFrames">Loading...</td>
             </tr>
             <tr>
                 <td>Bandwidth</td>
-                <td id="bandwidth">
-                    Loading...
-                </td>
+                <td id="bandwidth">Loading...</td>
             </tr>
             <tr>
                 <td>Framerate</td>
-                <td id="frameRate">
-                    Loading...
-                </td>
+                <td id="frameRate">Loading...</td>
             </tr>
         </table>
     </div>
@@ -90,7 +80,7 @@
 // const { ipcRenderer } = require("electron");
 
 export default {
-    name: "IndexPage",
+    name: 'IndexPage',
 
     data() {
         return {
@@ -111,7 +101,7 @@ export default {
         // const currentWindow = remote.getCurrentWindow();
         // currentWindow.on("resize", this.resizePreview);
 
-        document.addEventListener("scroll", this.resizePreview);
+        document.addEventListener('scroll', this.resizePreview);
 
         // TODO: Find out how to set resive observer
         // var ro = new ResizeObserver(this.resizePreview);
@@ -205,14 +195,14 @@ export default {
          * Update recording UI
          */
         updateRecordingUI() {
-            const button = document.getElementById("rec-button");
+            const button = document.getElementById('rec-button');
             button.disabled = false;
 
             if (this.recording) {
-                button.innerText = "⏹️ Stop recording";
+                button.innerText = '⏹️ Stop recording';
                 this.startTimer();
             } else {
-                button.innerText = "⏺️ Start recording";
+                button.innerText = '⏺️ Start recording';
                 this.stopTimer();
             }
         },
@@ -291,21 +281,21 @@ export default {
          */
         onPerformanceStatistics(data) {
             document.querySelector(
-                ".performanceStatistics #cpu"
+                '.performanceStatistics #cpu'
             ).innerText = `${data.CPU} %`;
-            document.querySelector(".performanceStatistics #cpuMeter").value =
+            document.querySelector('.performanceStatistics #cpuMeter').value =
                 data.CPU;
             document.querySelector(
-                ".performanceStatistics #numberDroppedFrames"
+                '.performanceStatistics #numberDroppedFrames'
             ).innerText = data.numberDroppedFrames;
             document.querySelector(
-                ".performanceStatistics #percentageDroppedFrames"
+                '.performanceStatistics #percentageDroppedFrames'
             ).innerText = `${data.percentageDroppedFrames} %`;
             document.querySelector(
-                ".performanceStatistics #bandwidth"
+                '.performanceStatistics #bandwidth'
             ).innerText = data.bandwidth;
             document.querySelector(
-                ".performanceStatistics #frameRate"
+                '.performanceStatistics #frameRate'
             ).innerText = `${Math.round(data.frameRate)} fps`;
         },
 
@@ -372,17 +362,17 @@ export default {
          */
         updateTimer() {
             const diff = Date.now() - this.recordingStartedAt;
-            const timerElem = document.getElementById("rec-timer");
+            const timerElem = document.getElementById('rec-timer');
             const decimals = `${Math.floor((diff % 1000) / 100)}`;
             const seconds = `${Math.floor((diff % 60000) / 1000)}`.padStart(
                 2,
-                "0"
+                '0'
             );
             const minutes = `${Math.floor((diff % 3600000) / 60000)}`.padStart(
                 2,
-                "0"
+                '0'
             );
-            const hours = `${Math.floor(diff / 3600000)}`.padStart(2, "0");
+            const hours = `${Math.floor(diff / 3600000)}`.padStart(2, '0');
             timerElem.innerText = `${hours}:${minutes}:${seconds}.${decimals}`;
         },
     },

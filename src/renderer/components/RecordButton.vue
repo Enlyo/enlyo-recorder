@@ -1,20 +1,16 @@
 <template>
-    <div>
-        <b-tooltip :label="recordLabel" position="is-bottom" type="is-dark">
-            <PlayerButton
-                :is-recording="isRecording"
-                type="record"
-                @click.native="handleRecordButtonClick"
-            />
-        </b-tooltip>
-    </div>
+    <PlayerButton
+        :is-recording="isRecording"
+        type="record"
+        @click.native="handleRecordButtonClick"
+    />
 </template>
 
 <script>
-import PlayerButton from "./PlayerButton";
+import PlayerButton from './PlayerButton';
 
 export default {
-    name: "RecordMomentButton",
+    name: 'RecordMomentButton',
 
     components: {
         PlayerButton,
@@ -30,21 +26,21 @@ export default {
     computed: {
         recordLabel() {
             if (this.isRecording) {
-                return "Stop recording";
+                return 'Stop recording';
             }
-            return "Start recording";
+            return 'Start recording';
         },
     },
 
     methods: {
         handleRecordButtonClick() {
-            this.$emit("click");
+            this.$emit('click');
 
             if (this.isRecording) {
-                this.$emit("stop");
+                this.$emit('stop');
                 return;
             }
-            this.$emit("start");
+            this.$emit('start');
         },
     },
 };

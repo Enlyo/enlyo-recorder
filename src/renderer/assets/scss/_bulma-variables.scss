@@ -65,78 +65,78 @@ $darker-invert: findColorInvert($darker);
 $custom-colors: (
     'darker': (
         $darker,
-        $darker-invert
+        $darker-invert,
     ),
     'lighter-dark-gray': (
         $gray-100,
-        $gray-800
+        $gray-800,
     ),
     'light-dark-gray': (
         $gray-200,
-        $gray-800
+        $gray-800,
     ),
     'video': (
         $primary,
-        $primary-invert
+        $primary-invert,
     ),
     'moment': (
         $success,
-        $success-invert
+        $success-invert,
     ),
     'stream': (
         $danger,
-        $danger-invert
-    )
+        $danger-invert,
+    ),
 );
 
 $colors: mergeColorMaps(
     (
         'white': (
             $white,
-            $black
+            $black,
         ),
         'black': (
             $black,
-            $white
+            $white,
         ),
         'light': (
             $light,
-            $light-invert
+            $light-invert,
         ),
         'dark': (
             $dark,
-            $dark-invert
+            $dark-invert,
         ),
         'primary': (
             $primary,
             $primary-invert,
             $primary-light,
-            $primary-dark
+            $primary-dark,
         ),
         'info': (
             $info,
             $info-invert,
             $info-light,
-            $info-dark
+            $info-dark,
         ),
         'success': (
             $success,
             $success-invert,
             $success-light,
-            $success-dark
+            $success-dark,
         ),
         'warning': (
             $warning,
             $warning-invert,
             $warning-light,
-            $warning-dark
+            $warning-dark,
         ),
         'danger': (
             $danger,
             $danger-invert,
             $danger-light,
-            $danger-dark
-        )
+            $danger-dark,
+        ),
     ),
     $custom-colors
 );

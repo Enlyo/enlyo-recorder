@@ -5,19 +5,23 @@ module.exports = {
         node: true,
     },
     parserOptions: {
-        parser: "babel-eslint",
+        parser: 'babel-eslint',
     },
-    extends: ["eslint:recommended", "plugin:vue/recommended"],
+    extends: [
+        'eslint:recommended',
+        'plugin:vue/recommended',
+        'plugin:prettier/recommended',
+    ],
     // required to lint *.vue files
-    plugins: ["vue"],
+    plugins: ['vue'],
     // add your custom rules here
     rules: {
         // Custom indenting
-        indent: ["error", 4, { SwitchCase: 1 }],
-        "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
-        "vue/no-v-html": "off",
-        "vue/html-indent": [
-            "error",
+        indent: ['error', 4, { SwitchCase: 1 }],
+        'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+        'vue/no-v-html': 'off',
+        'vue/html-indent': [
+            'error',
             4,
             {
                 attribute: 1,
@@ -27,7 +31,7 @@ module.exports = {
                 ignores: [],
             },
         ],
-        "vue/max-attributes-per-line": "off",
-        "vue/html-self-closing": "off",
+        'vue/max-attributes-per-line': 'off',
+        'vue/html-self-closing': 'off',
     },
 };

@@ -1,4 +1,4 @@
-const { recorder } = require("./recorder");
+const { recorder } = require('./recorder');
 
 /**
  * Handle initialize recorder

@@ -1,16 +1,16 @@
-const path = require("path");
-const { v4: uuid } = require("uuid");
+const path = require('path');
+const { v4: uuid } = require('uuid');
 
-const osn = require("obs-studio-node");
-const { Subject } = require("rxjs");
-const { first } = require("rxjs/operators");
+const osn = require('obs-studio-node');
+const { Subject } = require('rxjs');
+const { first } = require('rxjs/operators');
 
-const { byOS, OS, getOS } = require("../../operating-systems");
+const { byOS, OS, getOS } = require('../../operating-systems');
 
 // NWR is used to handle display rendering via IOSurface on mac
 let nwr;
 if (getOS() === OS.Mac) {
-    nwr = require("node-window-rendering");
+    nwr = require('node-window-rendering');
 }
 
 /**
@@ -36,11 +36,11 @@ const recorder = {
 
         this.settings = Object.assign(
             {
-                outputPath: require("electron").app.getPath("videos"),
-                format: "mkv",
+                outputPath: require('electron').app.getPath('videos'),
+                format: 'mkv',
                 bitRate: 10000,
                 fps: 60,
-                displayId: "display1",
+                displayId: 'display1',
             },
             settings
         );
@@ -63,8 +63,8 @@ const recorder = {
         osn.NodeObs.OBS_service_startRecording();
 
         let signalInfo = await this.getNextSignalInfo();
-        if (signalInfo.signal === "Stop") {
-            throw Error("Recording exception: " + signalInfo.error);
+        if (signalInfo.signal === 'Stop') {
+            throw Error('Recording exception: ' + signalInfo.error);
         }
     },
 
@@ -170,7 +170,7 @@ const recorder = {
             osn.NodeObs.IPC.disconnect();
             this.isInitialized = false;
         } catch (e) {
-            throw Error("Shut down exception: " + e);
+            throw Error('Shut down exception: ' + e);
         }
     },
 
@@ -186,10 +186,10 @@ const recorder = {
     _initOBS() {
         const hostName = `obs-studio-node-${uuid()}`;
         const workingDirectory = this.fixPathWhenPackaged(
-            path.join(__dirname, "../../node_modules", "obs-studio-node")
+            path.join(__dirname, '../../node_modules', 'obs-studio-node')
         );
         const obsDataPath = this.fixPathWhenPackaged(
-            path.join(__dirname, "../../osn-data")
+            path.join(__dirname, '../../osn-data')
         ); // OBS Studio configs and logs
 
         osn.NodeObs.IPC.host(hostName);
@@ -197,9 +197,9 @@ const recorder = {
 
         // TODO: make application version dynamic
         const initResult = osn.NodeObs.OBS_API_initAPI(
-            "en-US",
+            'en-US',
             obsDataPath,
-            "1.0.0"
+            '1.0.0'
         );
         if (initResult !== 0) {
             this.shutdown();
@@ -218,8 +218,8 @@ const recorder = {
      */
     _generateErrorMessage(result) {
         const errorReasons = {
-            "-2": "DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.",
-            "-5": "Failed to initialize OBS. Your video drivers may be out of date, or OBS-studio-node may not be supported on your system.",
+            '-2': 'DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.',
+            '-5': 'Failed to initialize OBS. Your video drivers may be out of date, or OBS-studio-node may not be supported on your system.',
         };
 
         return (
@@ -234,26 +234,26 @@ const recorder = {
      * @private
      */
     _configureOBS(settings) {
-        this.setSetting("Output", "Mode", "Advanced");
-        this.setSetting("Output", "Track1Name", "Mixed: all sources");
+        this.setSetting('Output', 'Mode', 'Advanced');
+        this.setSetting('Output', 'Track1Name', 'Mixed: all sources');
 
         // TODO: learn more about available encoders
         // potential additional setting to include
         const availableEncoders = this.getAvailableValues(
-            "Output",
-            "Recording",
-            "RecEncoder"
+            'Output',
+            'Recording',
+            'RecEncoder'
         );
         this.setSetting(
-            "Output",
-            "RecEncoder",
-            availableEncoders.slice(-1)[0] || "x264"
+            'Output',
+            'RecEncoder',
+            availableEncoders.slice(-1)[0] || 'x264'
         );
 
-        this.setSetting("Output", "RecFilePath", settings.outputPath);
-        this.setSetting("Output", "RecFormat", settings.format);
-        this.setSetting("Output", "VBitrate", settings.bitRate);
-        this.setSetting("Video", "FPSCommon", settings.fps);
+        this.setSetting('Output', 'RecFilePath', settings.outputPath);
+        this.setSetting('Output', 'RecFormat', settings.format);
+        this.setSetting('Output', 'VBitrate', settings.bitRate);
+        this.setSetting('Video', 'FPSCommon', settings.fps);
     },
 
     _scene: null,
@@ -267,28 +267,28 @@ const recorder = {
     _setupScene() {
         const videoSource = osn.InputFactory.create(
             byOS({
-                [OS.Windows]: "monitor_capture",
-                [OS.Mac]: "display_capture",
+                [OS.Windows]: 'monitor_capture',
+                [OS.Mac]: 'display_capture',
             }),
-            "desktop-video"
+            'desktop-video'
         );
 
         // Update source settings:
         let settings = videoSource.settings;
-        settings["width"] = this.display.physicalWidth;
-        settings["height"] = this.display.physicalHeight;
+        settings['width'] = this.display.physicalWidth;
+        settings['height'] = this.display.physicalHeight;
         videoSource.update(settings);
         videoSource.save();
 
         // Set output video size to 1920x1080
         const outputWidth = 1920;
         const outputHeight = Math.round(outputWidth / this.display.aspectRatio);
-        this.setSetting("Video", "Base", `${outputWidth}x${outputHeight}`);
-        this.setSetting("Video", "Output", `${outputWidth}x${outputHeight}`);
+        this.setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
+        this.setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
         const videoScaleFactor = this.display.physicalWidth / outputWidth;
 
         // A scene is necessary here to properly scale captured screen size to output video size
-        const scene = osn.SceneFactory.create("test-scene");
+        const scene = osn.SceneFactory.create('test-scene');
         const sceneItem = scene.add(videoSource);
         sceneItem.scale = {
             x: 1.0 / videoScaleFactor,
@@ -310,22 +310,22 @@ const recorder = {
         let currentTrack = 2;
         this.getAudioDevices(
             byOS({
-                [OS.Windows]: "wasapi_output_capture",
-                [OS.Mac]: "coreaudio_output_capture",
+                [OS.Windows]: 'wasapi_output_capture',
+                [OS.Mac]: 'coreaudio_output_capture',
             }),
-            "desktop-audio"
+            'desktop-audio'
         ).forEach((metadata) => {
-            if (metadata.device_id === "default") return;
+            if (metadata.device_id === 'default') return;
             const source = osn.InputFactory.create(
                 byOS({
-                    [OS.Windows]: "wasapi_output_capture",
-                    [OS.Mac]: "coreaudio_output_capture",
+                    [OS.Windows]: 'wasapi_output_capture',
+                    [OS.Mac]: 'coreaudio_output_capture',
                 }),
-                "desktop-audio",
+                'desktop-audio',
                 { device_id: metadata.device_id }
             );
             this.setSetting(
-                "Output",
+                'Output',
                 `Track${currentTrack}Name`,
                 metadata.name
             );
@@ -336,22 +336,22 @@ const recorder = {
 
         this.getAudioDevices(
             byOS({
-                [OS.Windows]: "wasapi_input_capture",
-                [OS.Mac]: "coreaudio_input_capture",
+                [OS.Windows]: 'wasapi_input_capture',
+                [OS.Mac]: 'coreaudio_input_capture',
             }),
-            "mic-audio"
+            'mic-audio'
         ).forEach((metadata) => {
-            if (metadata.device_id === "default") return;
+            if (metadata.device_id === 'default') return;
             const source = osn.InputFactory.create(
                 byOS({
-                    [OS.Windows]: "wasapi_input_capture",
-                    [OS.Mac]: "coreaudio_input_capture",
+                    [OS.Windows]: 'wasapi_input_capture',
+                    [OS.Mac]: 'coreaudio_input_capture',
                 }),
-                "mic-audio",
+                'mic-audio',
                 { device_id: metadata.device_id }
             );
             this.setSetting(
-                "Output",
+                'Output',
                 `Track${currentTrack}Name`,
                 metadata.name
             );
@@ -361,9 +361,9 @@ const recorder = {
         });
 
         this.setSetting(
-            "Output",
-            "RecTracks",
-            parseInt("1".repeat(currentTrack - 1), 2)
+            'Output',
+            'RecTracks',
+            parseInt('1'.repeat(currentTrack - 1), 2)
         ); // Bit mask of used tracks: 1111 to use first four (from available six)
     },
 
@@ -381,7 +381,7 @@ const recorder = {
      * @returns {String}
      */
     fixPathWhenPackaged(p) {
-        return p.replace("app.asar", "app.asar.unpacked");
+        return p.replace('app.asar', 'app.asar.unpacked');
     },
 
     /**
@@ -398,7 +398,7 @@ const recorder = {
 
     // Get information about primary display
     _getDisplayInfo() {
-        const { screen } = require("electron");
+        const { screen } = require('electron');
         const primaryDisplay = screen.getPrimaryDisplay();
         const { width, height } = primaryDisplay.size;
         const { scaleFactor } = primaryDisplay;
@@ -425,10 +425,10 @@ const recorder = {
      */
     getAudioDevices(type, subtype) {
         const dummyDevice = osn.InputFactory.create(type, subtype, {
-            device_id: "does_not_exist",
+            device_id: 'does_not_exist',
         });
         const devices = dummyDevice.properties
-            .get("device_id")
+            .get('device_id')
             .details.items.map(({ name, value }) => {
                 return { device_id: value, name };
             });
@@ -447,7 +447,7 @@ const recorder = {
             this.signals
                 .pipe(first())
                 .subscribe((signalInfo) => resolve(signalInfo));
-            setTimeout(() => reject("Output signal timeout"), 30000);
+            setTimeout(() => reject('Output signal timeout'), 30000);
         });
     },
 
