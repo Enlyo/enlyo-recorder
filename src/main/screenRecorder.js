@@ -14,9 +14,9 @@ if (getOS() === OS.Mac) {
 }
 
 /**
- * Recorder
+ * Screen recorder
  */
-const recorder = {
+const screenRecorder = {
     isInitialized: false,
     settings: {},
 
@@ -36,7 +36,7 @@ const recorder = {
 
         this.settings = Object.assign(
             {
-                outputPath: require("electron").app.getPath("videos"),
+                outputPath: "/",
                 format: "mkv",
                 bitRate: 10000,
                 fps: 60,
@@ -512,4 +512,4 @@ const recorder = {
     },
 };
 
-module.exports.recorder = recorder;
+module.exports.screenRecorder = screenRecorder;

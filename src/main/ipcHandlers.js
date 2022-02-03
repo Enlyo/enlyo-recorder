@@ -1,10 +1,22 @@
-const { recorder } = require("./recorder");
+const { screenRecorder } = require("./screenRecorder");
+const videoEditor = require("./videoEditor");
+const { getMostRecentFile } = require("./fileManager");
+const { generateOutputName } = require("./helpers");
+
+const VIDEO_PATH = require("electron").app.getPath("videos");
+const RECORDING_FOLDER = "enlyo";
+const OUTPUT_PATH = `${VIDEO_PATH}/${RECORDING_FOLDER}`;
+const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
+
+const OUTPUT_APPEND_MESSAGE = "enlyo-recording";
+const INPUT_FORMAT = "mkv";
+const OUTPUT_FORMAT = "mp4";
 
 /**
  * Handle initialize recorder
  */
 function handleInitializeRecorder() {
-    recorder.initialize();
+    screenRecorder.initialize({ outputPath: RAW_RECORDING_PATH });
 }
 
 /**
@@ -13,7 +25,7 @@ function handleInitializeRecorder() {
  * @param {*} payload
  */
 function handleStartRecorderPreview(win, payload) {
-    return recorder.setupPreview(win, payload);
+    return screenRecorder.setupPreview(win, payload);
 }
 
 /**
@@ -23,21 +35,36 @@ function handleStartRecorderPreview(win, payload) {
  * @returns
  */
 function handleResizeRecorderPreview(win, payload) {
-    return recorder.resizePreview(win, payload);
+    return screenRecorder.resizePreview(win, payload);
 }
 
 /**
  * Handle start recorder
  */
 function handleStartRecorder() {
-    recorder.start();
+    screenRecorder.start();
 }
 
 /**
  * Handle stop recorder
  */
-function handleStopRecorder() {
-    recorder.stop();
+async function handleStopRecorder() {
+    await screenRecorder.stop();
+
+    const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
+    const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
+    console.debug(inputFile);
+
+    const outputName = generateOutputName(
+        rawRecordingName,
+        OUTPUT_APPEND_MESSAGE,
+        INPUT_FORMAT,
+        OUTPUT_FORMAT
+    );
+    const outputFile = `${OUTPUT_PATH}/${outputName}`;
+    console.debug(outputFile);
+
+    videoEditor.remux(inputFile, outputFile);
 }
 
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
