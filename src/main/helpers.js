@@ -7,13 +7,13 @@
  */
 function generateOutputName(
     rawRecordingName,
-    appendMessage = "enlyo-recording",
+    appendMessage = 'enlyo-recording',
     inputFormat,
     outputFormat
 ) {
-    rawRecordingName = rawRecordingName.replace(inputFormat, "");
-    rawRecordingName = rawRecordingName.replace(" ", "-");
-    return `${appendMessage}-${rawRecordingName}.${outputFormat}`;
+    rawRecordingName = rawRecordingName.replace(inputFormat, '');
+    rawRecordingName = rawRecordingName.replace(' ', '-');
+    return `${appendMessage}-${rawRecordingName}${outputFormat}`;
 }
 
 module.exports.generateOutputName = generateOutputName;

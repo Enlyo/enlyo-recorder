@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Get most recent file
@@ -9,6 +9,21 @@ const path = require("path");
 function getMostRecentFile(dir) {
     const files = orderRecentFiles(dir);
     return files.length ? files[0] : undefined;
+}
+
+/**
+ * Create dire if not exists
+ */
+async function createDirIfNotExists(dirpath) {
+    await fs.promises.mkdir(dirpath, { recursive: true });
+}
+
+/**
+ * Delete file
+ * @param {*} filePath
+ */
+async function deleteFile(filePath) {
+    fs.unlink(filePath);
 }
 
 /**
@@ -28,3 +43,4 @@ function orderRecentFiles(dir) {
 }
 
 module.exports.getMostRecentFile = getMostRecentFile;
+module.exports.createDirIfNotExists = createDirIfNotExists;
