@@ -53,7 +53,7 @@ export default {
             const { width, height, x, y } =
                 previewContainer.getBoundingClientRect();
 
-            window.ipc.send("initialize-recorder-preview", {
+            window.ipc.send("start-recorder-preview", {
                 width,
                 height,
                 x,
@@ -102,7 +102,7 @@ export default {
             const { width, height, x, y } =
                 previewContainer.getBoundingClientRect();
 
-            window.ipc.send("resize-obs-preview", {
+            window.ipc.send("resize-recorder-preview", {
                 width,
                 height,
                 x,

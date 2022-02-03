@@ -6,7 +6,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 const VALID_CHANNELS = {
     request: [
         "initialize-recorder",
-        "initialize-recorder-preview",
+        "start-recorder-preview",
         "resize-recorder-preview",
         "start-recorder",
         "stop-recorder",

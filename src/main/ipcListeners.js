@@ -1,34 +1,41 @@
 const { ipcMain } = require("electron");
-const obsRecorder = require("../../obsRecorder_orig");
+const {
+    handleInitializeRecorder,
+    handleStartRecorderPreview,
+    handleResizeRecorderPreview,
+    handleStartRecorder,
+    handleStopRecorder,
+} = require("./ipcHandlers");
 
 /**
  * Set ipc listeners
  */
 function setIpcListeners(win) {
     ipcMain.on("initialize-recorder", () => {
-        obsRecorder.initialize(win);
-        return true;
+        handleInitializeRecorder();
     });
 
-    ipcMain.on("initialize-recorder-preview", (event, payload) => {
-        const result = obsRecorder.setupPreview(win, payload);
+    ipcMain.on("start-recorder-preview", (event, payload) => {
+        const result = handleStartRecorderPreview(win, payload);
+
         event.reply("resized-recording-preview", result);
     });
 
     ipcMain.on("resize-recorder-preview", (event, payload) => {
-        const result = obsRecorder.resizePreview(win, payload);
+        const result = handleResizeRecorderPreview(win, payload);
+
         event.reply("resized-recording-preview", result);
     });
 
     ipcMain.on("start-recorder", (event) => {
-        console.debug("started recorder");
-        obsRecorder.start();
+        handleStartRecorder();
+
         event.reply("started-recorder");
     });
 
     ipcMain.on("stop-recorder", (event) => {
-        console.debug("stopped recorder");
-        obsRecorder.stop();
+        handleStopRecorder();
+
         event.reply("stopped-recorder");
     });
 }
