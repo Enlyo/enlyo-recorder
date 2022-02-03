@@ -23,7 +23,11 @@ async function createDirIfNotExists(dirpath) {
  * @param {*} filePath
  */
 async function deleteFile(filePath) {
-    fs.unlink(filePath);
+    return new Promise((resolve) => {
+        fs.unlink(filePath, () => {
+            resolve();
+        });
+    });
 }
 
 /**
@@ -43,4 +47,5 @@ function orderRecentFiles(dir) {
 }
 
 module.exports.getMostRecentFile = getMostRecentFile;
+module.exports.deleteFile = deleteFile;
 module.exports.createDirIfNotExists = createDirIfNotExists;

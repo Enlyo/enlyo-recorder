@@ -1,3 +1,5 @@
+const { Notification } = require('electron');
+
 const fileManager = require('./fileManager');
 const { screenRecorder } = require('./screenRecorder');
 const videoEditor = require('./videoEditor');
@@ -52,6 +54,10 @@ function handleStopRecorderPreview() {
  * Handle start recorder
  */
 function handleStartRecorder() {
+    new Notification({
+        title: 'Started recording',
+    }).show();
+
     screenRecorder.start();
 }
 
@@ -59,6 +65,10 @@ function handleStartRecorder() {
  * Handle stop recorder
  */
 async function handleStopRecorder() {
+    new Notification({
+        title: 'Stopped recording',
+    }).show();
+
     await screenRecorder.stop();
 
     const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
@@ -72,7 +82,9 @@ async function handleStopRecorder() {
     );
     const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
-    videoEditor.remux(inputFile, outputFile);
+    await videoEditor.remux(inputFile, outputFile);
+
+    fileManager.deleteFile(inputFile);
 }
 
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
