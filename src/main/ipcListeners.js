@@ -3,6 +3,7 @@ const {
     handleInitializeRecorder,
     handleStartRecorderPreview,
     handleResizeRecorderPreview,
+    handleStopRecorderPreview,
     handleStartRecorder,
     handleStopRecorder,
 } = require('./ipcHandlers');
@@ -25,6 +26,12 @@ function setIpcListeners(win) {
         const result = handleResizeRecorderPreview(win, payload);
 
         event.reply('resized-recording-preview', result);
+    });
+
+    ipcMain.on('stop-recorder-preview', (event, payload) => {
+        const result = handleStopRecorderPreview(win, payload);
+
+        event.reply('stopped-recording-preview', result);
     });
 
     ipcMain.on('start-recorder', (event) => {

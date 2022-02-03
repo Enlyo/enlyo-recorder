@@ -42,6 +42,13 @@ function handleResizeRecorderPreview(win, payload) {
 }
 
 /**
+ * Handle stop recorder preview
+ */
+function handleStopRecorderPreview() {
+    return screenRecorder.destroyPreview();
+}
+
+/**
  * Handle start recorder
  */
 function handleStartRecorder() {
@@ -71,5 +78,6 @@ async function handleStopRecorder() {
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorderPreview = handleStartRecorderPreview;
 module.exports.handleResizeRecorderPreview = handleResizeRecorderPreview;
+module.exports.handleStopRecorderPreview = handleStopRecorderPreview;
 module.exports.handleStartRecorder = handleStartRecorder;
 module.exports.handleStopRecorder = handleStopRecorder;

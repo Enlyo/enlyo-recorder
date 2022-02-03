@@ -158,6 +158,19 @@ const screenRecorder = {
     },
 
     /**
+     * Destroy preview
+     */
+    destroyPreview() {
+        osn.NodeObs.OBS_content_destroyDisplay(this.settings.displayId);
+
+        if (getOS() === OS.Mac) {
+            nwr.destroyWindow(this.settings.displayId);
+            nwr.destroyIOSurface(this.settings.displayId);
+            this.hasExistingWindow = false;
+        }
+    },
+
+    /**
      * Shutdown
      *
      * @returns Boolean
