@@ -1,72 +1,72 @@
 {
-  "name": "enlyo-recorder",
-  "version": "0.1.0",
-  "private": true,
-  "main": "src/main/main.js",
-  "build": {
-    "appId": "my.vue.app",
-    "win": {
-      "target": "nsis"
-    },
-    "files": [
-      "**/*",
-      "dist/**/*"
-    ],
-    "directories": {
-      "buildResources": "dist",
-      "output": "release"
-    },
-    "asarUnpack":[
-        "node_modules/ffmpeg-static/bin/${os}/${arch}/ffmpeg",
-        "node_modules/ffmpeg-static/index.js",
-        "node_modules/ffmpeg-static/package.json"
+    "name": "enlyo-recorder",
+    "version": "0.1.0",
+    "private": true,
+    "main": "src/main/main.js",
+    "build": {
+        "appId": "my.vue.app",
+        "win": {
+            "target": "nsis"
+        },
+        "files": [
+            "**/*",
+            "dist/**/*"
+        ],
+        "directories": {
+            "buildResources": "dist",
+            "output": "release"
+        },
+        "asarUnpack": [
+            "node_modules/ffmpeg-static/bin/${os}/${arch}/ffmpeg",
+            "node_modules/ffmpeg-static/index.js",
+            "node_modules/ffmpeg-static/package.json"
         ]
-  },
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "dev": "NODE_ENV=DEV vue-cli-service serve & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
-    "electron:dev": "vue-cli-service serve && electron .",
-    "electron:build": "vue-cli-service build --mode production && electron-builder build",
-    "electron:windows": "vue-cli-service build && electron-builder build --windows --publish=onTag",
-    "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
-  },
-  "dependencies": {
-    "buefy": "^0.9.14",
-    "core-js": "^3.6.5",
-    "ffmpeg-static": "^4.4.1",
-    "ffprobe-static": "^3.0.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-1.0.15-osx.tar.gz",
-    "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.19.13-release-osx.tar.gz",
-    "rxjs": "^6.6.3",
-    "uuid": "^8.3.0",
-    "vue": "^2.6.11",
-    "vue-router": "^3.2.0"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-router": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "babel-eslint": "^10.1.0",
-    "electron": "^16.0.5",
-    "electron-builder": "^22.14.5",
-    "electron-devtools-installer": "^3.2.0",
-    "eslint": "7.20.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-vue": "7.5.0",
-    "eslint-webpack-plugin": "^2.5.1",
-    "prettier": "2.4.1",
-    "sass": "^1.45.1",
-    "sass-loader": "10.1.1",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    },
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint",
+        "dev": "NODE_ENV=DEV vue-cli-service serve & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
+        "electron:dev": "vue-cli-service serve && electron .",
+        "electron:build": "vue-cli-service build --mode production && electron-builder build",
+        "electron:windows": "vue-cli-service build && electron-builder build --windows --publish=onTag",
+        "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
+    },
+    "dependencies": {
+        "buefy": "^0.9.14",
+        "core-js": "^3.6.5",
+        "ffmpeg-static": "^4.4.1",
+        "ffprobe-static": "^3.0.0",
+        "fluent-ffmpeg": "^2.1.2",
+        "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-1.0.15-osx.tar.gz",
+        "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.19.13-release-osx.tar.gz",
+        "rxjs": "^6.6.3",
+        "uuid": "^8.3.0",
+        "vue": "^2.6.11",
+        "vue-router": "^3.2.0"
+    },
+    "devDependencies": {
+        "@vue/cli-plugin-babel": "~4.5.0",
+        "@vue/cli-plugin-eslint": "~4.5.0",
+        "@vue/cli-plugin-router": "~4.5.0",
+        "@vue/cli-service": "~4.5.0",
+        "babel-eslint": "^10.1.0",
+        "electron": "^16.0.5",
+        "electron-builder": "^22.14.5",
+        "electron-devtools-installer": "^3.2.0",
+        "eslint": "7.28.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "eslint-plugin-vue": "7.5.0",
+        "eslint-webpack-plugin": "^2.5.1",
+        "prettier": "2.4.1",
+        "sass": "^1.45.1",
+        "sass-loader": "10.1.1",
+        "vue-template-compiler": "^2.6.11"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead"
+    ]
 }

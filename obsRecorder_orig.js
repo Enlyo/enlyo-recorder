@@ -1,25 +1,25 @@
-const path = require("path");
-const { Subject } = require("rxjs");
-const { first } = require("rxjs/operators");
-const { byOS, OS, getOS } = require("./operating-systems");
-const osn = require("obs-studio-node");
-const { v4: uuid } = require("uuid");
-const videoPath = require("electron").app.getPath("videos");
+const path = require('path');
+const { Subject } = require('rxjs');
+const { first } = require('rxjs/operators');
+const { byOS, OS, getOS } = require('./operating-systems');
+const osn = require('obs-studio-node');
+const { v4: uuid } = require('uuid');
+const videoPath = require('electron').app.getPath('videos');
 
 /* -------------------------------------------------------------------------- */
 /*                                FFMPEG THINGS                               */
 /* -------------------------------------------------------------------------- */
 
 //require the ffmpeg package so we can use ffmpeg using JS
-const ffmpeg = require("fluent-ffmpeg");
+const ffmpeg = require('fluent-ffmpeg');
 //Get the paths to the packaged versions of the binaries we want to use
-const ffmpegPath = require("ffmpeg-static").replace(
-    "app.asar",
-    "app.asar.unpacked"
+const ffmpegPath = require('ffmpeg-static').replace(
+    'app.asar',
+    'app.asar.unpacked'
 );
-const ffprobePath = require("ffprobe-static").path.replace(
-    "app.asar",
-    "app.asar.unpacked"
+const ffprobePath = require('ffprobe-static').path.replace(
+    'app.asar',
+    'app.asar.unpacked'
 );
 //tell the ffmpeg package where it can find the needed binaries.
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -33,7 +33,7 @@ ffmpeg.setFfprobePath(ffprobePath);
 /*                              READ FILE THINGS                              */
 /* -------------------------------------------------------------------------- */
 
-const fs = require("fs");
+const fs = require('fs');
 
 const getMostRecentFile = (dir) => {
     const files = orderReccentFiles(dir);
@@ -59,7 +59,7 @@ let nwr;
 
 // NWR is used to handle display rendering via IOSurface on mac
 if (getOS() === OS.Mac) {
-    nwr = require("node-window-rendering");
+    nwr = require('node-window-rendering');
 }
 
 let obsInitialized = false;
@@ -67,14 +67,14 @@ let scene = null;
 
 // When packaged, we need to fix some paths
 function fixPathWhenPackaged(p) {
-    return p.replace("app.asar", "app.asar.unpacked");
+    return p.replace('app.asar', 'app.asar.unpacked');
 }
 
 // Init the library, launch OBS Studio instance, configure it, set up sources and scene
 function initialize(win) {
     console.debug(videoPath);
     if (obsInitialized) {
-        console.warn("OBS is already initialized, skipping initialization.");
+        console.warn('OBS is already initialized, skipping initialization.');
         return;
     }
 
@@ -86,43 +86,43 @@ function initialize(win) {
 
     const perfStatTimer = setInterval(() => {
         win.webContents.send(
-            "performanceStatistics",
+            'performanceStatistics',
             osn.NodeObs.OBS_API_getPerformanceStatistics()
         );
     }, 1000);
 
-    win.on("close", () => clearInterval(perfStatTimer));
+    win.on('close', () => clearInterval(perfStatTimer));
 }
 
 function initOBS() {
-    console.debug("Initializing OBS...");
+    console.debug('Initializing OBS...');
 
     osn.NodeObs.IPC.host(`obs-studio-node-example-${uuid()}`);
     osn.NodeObs.SetWorkingDirectory(
         fixPathWhenPackaged(
-            path.join(__dirname, "node_modules", "obs-studio-node")
+            path.join(__dirname, 'node_modules', 'obs-studio-node')
         )
     );
 
-    const obsDataPath = fixPathWhenPackaged(path.join(__dirname, "osn-data")); // OBS Studio configs and logs
+    const obsDataPath = fixPathWhenPackaged(path.join(__dirname, 'osn-data')); // OBS Studio configs and logs
     // Arguments: locale, path to directory where configuration and logs will be stored, your application version
     const initResult = osn.NodeObs.OBS_API_initAPI(
-        "en-US",
+        'en-US',
         obsDataPath,
-        "1.0.0"
+        '1.0.0'
     );
 
     if (initResult !== 0) {
         const errorReasons = {
-            "-2": "DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.",
-            "-5": "Failed to initialize OBS. Your video drivers may be out of date, or Streamlabs OBS may not be supported on your system.",
+            '-2': 'DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.',
+            '-5': 'Failed to initialize OBS. Your video drivers may be out of date, or Streamlabs OBS may not be supported on your system.',
         };
 
         const errorMessage =
             errorReasons[initResult.toString()] ||
             `An unknown error #${initResult} was encountered while initializing OBS.`;
 
-        console.error("OBS init failure", errorMessage);
+        console.error('OBS init failure', errorMessage);
 
         shutdown();
 
@@ -133,28 +133,28 @@ function initOBS() {
         signals.next(signalInfo);
     });
 
-    console.debug("OBS initialized");
+    console.debug('OBS initialized');
 }
 
 function configureOBS() {
-    console.debug("Configuring OBS");
-    setSetting("Output", "Mode", "Advanced");
+    console.debug('Configuring OBS');
+    setSetting('Output', 'Mode', 'Advanced');
     const availableEncoders = getAvailableValues(
-        "Output",
-        "Recording",
-        "RecEncoder"
+        'Output',
+        'Recording',
+        'RecEncoder'
     );
     setSetting(
-        "Output",
-        "RecEncoder",
-        availableEncoders.slice(-1)[0] || "x264"
+        'Output',
+        'RecEncoder',
+        availableEncoders.slice(-1)[0] || 'x264'
     );
-    setSetting("Output", "RecFilePath", videoPath);
-    setSetting("Output", "RecFormat", "mkv");
-    setSetting("Output", "VBitrate", 10000); // 10 Mbps
-    setSetting("Video", "FPSCommon", 60);
+    setSetting('Output', 'RecFilePath', videoPath);
+    setSetting('Output', 'RecFormat', 'mkv');
+    setSetting('Output', 'VBitrate', 10000); // 10 Mbps
+    setSetting('Video', 'FPSCommon', 60);
 
-    console.debug("OBS Configured");
+    console.debug('OBS Configured');
 }
 
 function isVirtualCamPluginInstalled() {
@@ -172,7 +172,7 @@ function uninstallVirtualCamPlugin() {
 }
 
 function startVirtualCam() {
-    osn.NodeObs.OBS_service_createVirtualWebcam("obs-studio-node-example-cam");
+    osn.NodeObs.OBS_service_createVirtualWebcam('obs-studio-node-example-cam');
     osn.NodeObs.OBS_service_startVirtualWebcam();
 }
 
@@ -183,7 +183,7 @@ function stopVirtualCam() {
 
 // Get information about prinary display
 function displayInfo() {
-    const { screen } = require("electron");
+    const { screen } = require('electron');
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width, height } = primaryDisplay.size;
     const { scaleFactor } = primaryDisplay;
@@ -198,43 +198,43 @@ function displayInfo() {
 }
 
 function getCameraSource() {
-    console.debug("Trying to set up web camera...");
+    console.debug('Trying to set up web camera...');
 
     // Setup input without initializing any device just to get list of available ones
     const dummyInput = byOS({
         [OS.Windows]: () =>
-            osn.InputFactory.create("dshow_input", "video", {
-                audio_device_id: "does_not_exist",
-                video_device_id: "does_not_exist",
+            osn.InputFactory.create('dshow_input', 'video', {
+                audio_device_id: 'does_not_exist',
+                video_device_id: 'does_not_exist',
             }),
         [OS.Mac]: () =>
-            osn.InputFactory.create("av_capture_input", "video", {
-                device: "does_not_exist",
+            osn.InputFactory.create('av_capture_input', 'video', {
+                device: 'does_not_exist',
             }),
     });
 
     const cameraItems = dummyInput.properties.get(
-        byOS({ [OS.Windows]: "video_device_id", [OS.Mac]: "device" })
+        byOS({ [OS.Windows]: 'video_device_id', [OS.Mac]: 'device' })
     ).details.items;
 
     dummyInput.release();
 
     if (cameraItems.length === 0) {
-        console.debug("No camera found!!");
+        console.debug('No camera found!!');
         return null;
     }
 
     const deviceId = cameraItems[0].value;
     cameraItems[0].selected = true;
-    console.debug("cameraItems[0].name: " + cameraItems[0].name);
+    console.debug('cameraItems[0].name: ' + cameraItems[0].name);
 
     const obsCameraInput = byOS({
         [OS.Windows]: () =>
-            osn.InputFactory.create("dshow_input", "video", {
+            osn.InputFactory.create('dshow_input', 'video', {
                 video_device_id: deviceId,
             }),
         [OS.Mac]: () =>
-            osn.InputFactory.create("av_capture_input", "video", {
+            osn.InputFactory.create('av_capture_input', 'video', {
                 device: deviceId,
             }),
     });
@@ -272,28 +272,28 @@ function getCameraSource() {
 
 function setupScene() {
     const videoSource = osn.InputFactory.create(
-        byOS({ [OS.Windows]: "monitor_capture", [OS.Mac]: "display_capture" }),
-        "desktop-video"
+        byOS({ [OS.Windows]: 'monitor_capture', [OS.Mac]: 'display_capture' }),
+        'desktop-video'
     );
 
     const { physicalWidth, physicalHeight, aspectRatio } = displayInfo();
 
     // Update source settings:
     let settings = videoSource.settings;
-    settings["width"] = physicalWidth;
-    settings["height"] = physicalHeight;
+    settings['width'] = physicalWidth;
+    settings['height'] = physicalHeight;
     videoSource.update(settings);
     videoSource.save();
 
     // Set output video size to 1920x1080
     const outputWidth = 1920;
     const outputHeight = Math.round(outputWidth / aspectRatio);
-    setSetting("Video", "Base", `${outputWidth}x${outputHeight}`);
-    setSetting("Video", "Output", `${outputWidth}x${outputHeight}`);
+    setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
+    setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
     const videoScaleFactor = physicalWidth / outputWidth;
 
     // A scene is necessary here to properly scale captured screen size to output video size
-    const scene = osn.SceneFactory.create("test-scene");
+    const scene = osn.SceneFactory.create('test-scene');
     const sceneItem = scene.add(videoSource);
     sceneItem.scale = { x: 1.0 / videoScaleFactor, y: 1.0 / videoScaleFactor };
 
@@ -321,10 +321,10 @@ function setupScene() {
 
 function getAudioDevices(type, subtype) {
     const dummyDevice = osn.InputFactory.create(type, subtype, {
-        device_id: "does_not_exist",
+        device_id: 'does_not_exist',
     });
     const devices = dummyDevice.properties
-        .get("device_id")
+        .get('device_id')
         .details.items.map(({ name, value }) => {
             return { device_id: value, name };
         });
@@ -335,26 +335,26 @@ function getAudioDevices(type, subtype) {
 function setupSources() {
     osn.Global.setOutputSource(1, scene);
 
-    setSetting("Output", "Track1Name", "Mixed: all sources");
+    setSetting('Output', 'Track1Name', 'Mixed: all sources');
     let currentTrack = 2;
 
     getAudioDevices(
         byOS({
-            [OS.Windows]: "wasapi_output_capture",
-            [OS.Mac]: "coreaudio_output_capture",
+            [OS.Windows]: 'wasapi_output_capture',
+            [OS.Mac]: 'coreaudio_output_capture',
         }),
-        "desktop-audio"
+        'desktop-audio'
     ).forEach((metadata) => {
-        if (metadata.device_id === "default") return;
+        if (metadata.device_id === 'default') return;
         const source = osn.InputFactory.create(
             byOS({
-                [OS.Windows]: "wasapi_output_capture",
-                [OS.Mac]: "coreaudio_output_capture",
+                [OS.Windows]: 'wasapi_output_capture',
+                [OS.Mac]: 'coreaudio_output_capture',
             }),
-            "desktop-audio",
+            'desktop-audio',
             { device_id: metadata.device_id }
         );
-        setSetting("Output", `Track${currentTrack}Name`, metadata.name);
+        setSetting('Output', `Track${currentTrack}Name`, metadata.name);
         source.audioMixers = 1 | (1 << (currentTrack - 1)); // Bit mask to output to only tracks 1 and current track
         osn.Global.setOutputSource(currentTrack, source);
         currentTrack++;
@@ -362,37 +362,37 @@ function setupSources() {
 
     getAudioDevices(
         byOS({
-            [OS.Windows]: "wasapi_input_capture",
-            [OS.Mac]: "coreaudio_input_capture",
+            [OS.Windows]: 'wasapi_input_capture',
+            [OS.Mac]: 'coreaudio_input_capture',
         }),
-        "mic-audio"
+        'mic-audio'
     ).forEach((metadata) => {
-        if (metadata.device_id === "default") return;
+        if (metadata.device_id === 'default') return;
         const source = osn.InputFactory.create(
             byOS({
-                [OS.Windows]: "wasapi_input_capture",
-                [OS.Mac]: "coreaudio_input_capture",
+                [OS.Windows]: 'wasapi_input_capture',
+                [OS.Mac]: 'coreaudio_input_capture',
             }),
-            "mic-audio",
+            'mic-audio',
             { device_id: metadata.device_id }
         );
-        setSetting("Output", `Track${currentTrack}Name`, metadata.name);
+        setSetting('Output', `Track${currentTrack}Name`, metadata.name);
         source.audioMixers = 1 | (1 << (currentTrack - 1)); // Bit mask to output to only tracks 1 and current track
         osn.Global.setOutputSource(currentTrack, source);
         currentTrack++;
     });
 
     setSetting(
-        "Output",
-        "RecTracks",
-        parseInt("1".repeat(currentTrack - 1), 2)
+        'Output',
+        'RecTracks',
+        parseInt('1'.repeat(currentTrack - 1), 2)
     ); // Bit mask of used tracks: 1111 to use first four (from available six)
 }
 
-const displayId = "display1";
+const displayId = 'display1';
 
 function setupPreview(window, bounds) {
-    console.debug("Setting up preview...");
+    console.debug('Setting up preview...');
     console.debug(bounds);
 
     osn.NodeObs.OBS_content_createSourcePreviewDisplay(
@@ -405,7 +405,7 @@ function setupPreview(window, bounds) {
     // Match padding color with main window background color
     osn.NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255);
 
-    console.debug("Finished setting up preview");
+    console.debug('Finished setting up preview');
 
     return resizePreview(window, bounds);
 }
@@ -464,27 +464,27 @@ async function start() {
 
     let signalInfo;
 
-    console.debug("Starting recording...");
+    console.debug('Starting recording...');
     osn.NodeObs.OBS_service_startRecording();
 
-    console.debug("Started?");
+    console.debug('Started?');
     signalInfo = await getNextSignalInfo();
 
-    if (signalInfo.signal === "Stop") {
+    if (signalInfo.signal === 'Stop') {
         throw Error(signalInfo.error);
     }
 
     console.debug(
-        "Started signalInfo.type:",
+        'Started signalInfo.type:',
         signalInfo.type,
         '(expected: "recording")'
     );
     console.debug(
-        "Started signalInfo.signal:",
+        'Started signalInfo.signal:',
         signalInfo.signal,
         '(expected: "start")'
     );
-    console.debug("Started!");
+    console.debug('Started!');
 
     return true;
 }
@@ -492,19 +492,19 @@ async function start() {
 async function stop() {
     let signalInfo;
 
-    console.debug("Stopping recording...");
+    console.debug('Stopping recording...');
     osn.NodeObs.OBS_service_stopRecording();
-    console.debug("Stopped?");
+    console.debug('Stopped?');
 
     signalInfo = await getNextSignalInfo();
 
     console.debug(
-        "On stop signalInfo.type:",
+        'On stop signalInfo.type:',
         signalInfo.type,
         '(expected: "recording")'
     );
     console.debug(
-        "On stop signalInfo.signal:",
+        'On stop signalInfo.signal:',
         signalInfo.signal,
         '(expected: "stopping")'
     );
@@ -512,12 +512,12 @@ async function stop() {
     signalInfo = await getNextSignalInfo();
 
     console.debug(
-        "After stop signalInfo.type:",
+        'After stop signalInfo.type:',
         signalInfo.type,
         '(expected: "recording")'
     );
     console.debug(
-        "After stop signalInfo.signal:",
+        'After stop signalInfo.signal:',
         signalInfo.signal,
         '(expected: "stop")'
     );
@@ -532,28 +532,28 @@ async function stop() {
         .withAudioCodec('copy')
         .run();
 
-    console.debug("Stopped!");
+    console.debug('Stopped!');
 
     return true;
 }
 
 function shutdown() {
     if (!obsInitialized) {
-        console.debug("OBS is already shut down!");
+        console.debug('OBS is already shut down!');
         return false;
     }
 
-    console.debug("Shutting down OBS...");
+    console.debug('Shutting down OBS...');
 
     try {
         osn.NodeObs.OBS_service_removeCallback();
         osn.NodeObs.IPC.disconnect();
         obsInitialized = false;
     } catch (e) {
-        throw Error("Exception when shutting down OBS process" + e);
+        throw Error('Exception when shutting down OBS process' + e);
     }
 
-    console.debug("OBS shutdown successfully");
+    console.debug('OBS shutdown successfully');
 
     return true;
 }
@@ -615,7 +615,7 @@ const signals = new Subject();
 function getNextSignalInfo() {
     return new Promise((resolve, reject) => {
         signals.pipe(first()).subscribe((signalInfo) => resolve(signalInfo));
-        setTimeout(() => reject("Output signal timeout"), 30000);
+        setTimeout(() => reject('Output signal timeout'), 30000);
     });
 }
 
