@@ -37,13 +37,13 @@ function setIpcListeners(win) {
     });
 
     ipcMain.on('start-recorder', async (event) => {
-        await handleStartRecorder(isManual);
+        await handleStartRecorder();
 
         event.reply('started-recorder');
     });
 
     ipcMain.on('stop-recorder', async (event) => {
-        await handleStopRecorder(isManual);
+        await handleStopRecorder();
 
         event.reply('stopped-recorder');
     });
