@@ -20,6 +20,11 @@ video {
     display: block;
 }
 
+// Hide scrollbar
+::-webkit-scrollbar {
+    display: none;
+}
+
 //*
 //* Basic fade animation
 //*
