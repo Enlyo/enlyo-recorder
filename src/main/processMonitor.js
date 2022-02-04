@@ -6,19 +6,19 @@ const PROCESS = 'League of Legends.exe';
  * Process monitor
  */
 const processMonitor = {
-    handleExists: null,
-    handleDoesNotExist: null,
+    handleProcessStarted: null,
+    handleProcessEnded: null,
     intervalTime: 10000,
-    isRecording: false,
     process: PROCESS,
     processMonitor: null,
+    processExists: false,
 
     /**
      * Start interval
      */
-    startInterval(handleExists, handleDoesNotExist) {
-        this.handleExists = handleExists;
-        this.handleDoesNotExist = handleDoesNotExist;
+    startInterval(handleProcessStarted, handleProcessEnded) {
+        this.handleProcessStarted = handleProcessStarted;
+        this.handleProcessEnded = handleProcessEnded;
 
         this.interval = setInterval(
             this.monitorProcess.bind(this),
@@ -30,8 +30,8 @@ const processMonitor = {
      * Stop process monitor interval
      */
     stopProcessMonitorInterval() {
-        this.handleExists = null;
-        this.handleDoesNotExist = null;
+        this.handleProcessStarted = null;
+        this.handleProcessEnded = null;
 
         clearInterval(this.interval);
     },
@@ -42,9 +42,16 @@ const processMonitor = {
      * @param {Function} handleDoesNotExist
      */
     monitorProcess() {
-        this.getProcessExists(this.process)
-            ? this.handleExists()
-            : this.handleDoesNotExist();
+        let previousProcessExists = this.processExists;
+        this.processExists = this.getProcessExists(this.process);
+
+        if (!previousProcessExists && this.processExists) {
+            this.handleProcessStarted();
+        }
+
+        if (previousProcessExists && !this.processExists) {
+            this.handleProcessEnded();
+        }
     },
 
     /**

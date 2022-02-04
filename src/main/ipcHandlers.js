@@ -94,12 +94,12 @@ async function handleStopRecorder() {
  */
 function handleStartProcessMonitor(event) {
     processMonitor.startInterval(
-        () => _handleProcessExists(event),
-        () => _handleProcessDoesNotExist(event)
+        () => _handleProcessStarted(event),
+        () => _handleProcessEnded(event)
     );
 }
 
-function _handleProcessExists(event) {
+function _handleProcessStarted(event) {
     console.debug('process exists');
     console.debug('recorder recording?' + screenRecorder.isRecording);
     if (!screenRecorder.isRecording) {
@@ -107,7 +107,7 @@ function _handleProcessExists(event) {
     }
 }
 
-function _handleProcessDoesNotExist(event) {
+function _handleProcessEnded(event) {
     console.debug('process does not exist');
     console.debug('recorder recording?' + screenRecorder.isRecording);
     if (screenRecorder.isRecording) {
