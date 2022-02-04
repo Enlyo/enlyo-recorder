@@ -18,6 +18,7 @@ if (getOS() === OS.Mac) {
  */
 const screenRecorder = {
     isInitialized: false,
+    isRecording: false,
     settings: {},
 
     /* -------------------------------------------------------------------------- */
@@ -80,6 +81,8 @@ const screenRecorder = {
             '(expected: "start")'
         );
         console.debug('STARTED RECORDING!');
+
+        this.isRecording = true;
     },
 
     /**
@@ -120,6 +123,8 @@ const screenRecorder = {
         );
 
         console.debug('STOPPPED RECORDING');
+
+        this.isRecording = false;
     },
 
     /**

@@ -1,6 +1,7 @@
 const { Notification } = require('electron');
 
 const fileManager = require('./fileManager');
+const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
 const screenPreviewer = require('./screenPreviewer');
 const videoEditor = require('./videoEditor');
@@ -88,9 +89,44 @@ async function handleStopRecorder() {
     await fileManager.deleteFile(inputFile);
 }
 
+/**
+ * Handle start process monitor
+ */
+function handleStartProcessMonitor(event) {
+    processMonitor.startInterval(
+        () => _handleProcessExists(event),
+        () => _handleProcessDoesNotExist(event)
+    );
+}
+
+function _handleProcessExists(event) {
+    console.debug('process exists');
+    console.debug('recorder recording?' + screenRecorder.isRecording);
+    if (!screenRecorder.isRecording) {
+        event.reply('start-recorder-request');
+    }
+}
+
+function _handleProcessDoesNotExist(event) {
+    console.debug('process does not exist');
+    console.debug('recorder recording?' + screenRecorder.isRecording);
+    if (screenRecorder.isRecording) {
+        event.reply('stop-recorder-request');
+    }
+}
+
+/**
+ * Handle stop process monitor
+ */
+function handleStopProcessMonitor() {
+    processMonitor.stopInterval();
+}
+
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorderPreview = handleStartRecorderPreview;
 module.exports.handleResizeRecorderPreview = handleResizeRecorderPreview;
 module.exports.handleStopRecorderPreview = handleStopRecorderPreview;
 module.exports.handleStartRecorder = handleStartRecorder;
 module.exports.handleStopRecorder = handleStopRecorder;
+module.exports.handleStartProcessMonitor = handleStartProcessMonitor;
+module.exports.handleStopProcessMonitor = handleStopProcessMonitor;

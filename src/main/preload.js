@@ -11,6 +11,8 @@ const VALID_CHANNELS = {
         'stop-recorder-preview',
         'start-recorder',
         'stop-recorder',
+        'start-process-monitor',
+        'stop-proccess-monitor',
     ],
     response: [
         'resized-recorder-preview',
@@ -18,6 +20,8 @@ const VALID_CHANNELS = {
         'stopped-recorder-preview',
         'started-recorder',
         'stopped-recorder',
+        'stop-recorder-request',
+        'start-recorder-request',
     ],
 };
 

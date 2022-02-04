@@ -86,7 +86,13 @@ export default {
         this.initializeRecorder();
         this.initializeRecorderPreview();
 
+        this.startProcessMonitor();
+
         this.setIpcListeners();
+    },
+
+    beforeDestroy() {
+        this.stopProcessMonitor();
     },
 
     methods: {
@@ -116,12 +122,30 @@ export default {
         },
 
         /**
+         * Start process monitor
+         */
+        startProcessMonitor() {
+            console.debug('start process monitor');
+            window.ipc.send('start-process-monitor');
+        },
+
+        /**
+         * Stop process monitor
+         */
+        stopProcessMonitor() {
+            console.debug('stop process monitor');
+            window.ipc.send('stop-process-monitor');
+        },
+
+        /**
          * Set ipc listeners
          */
         setIpcListeners() {
             window.ipc.on('started-recorder', this.handleRecorderStarted);
             window.ipc.on('stopped-recorder', this.handleRecorderStopped);
             window.ipc.on('started-recorder-preview', this.handlePreviewStream);
+            window.ipc.on('start-recorder-request', this.handleStartRecorder);
+            window.ipc.on('stop-recorder-request', this.handleRecorderStopped);
         },
 
         // TODO: Add on destroy logic -> (also record timer ect)
@@ -136,7 +160,7 @@ export default {
                 video: {
                     mandatory: {
                         chromeMediaSource: 'desktop',
-                        chromeMediaSourceId: sources[0].id,
+                        chromeMediaSourceId: sources[1].id,
                     },
                 },
             };

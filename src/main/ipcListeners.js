@@ -6,6 +6,8 @@ const {
     handleStopRecorderPreview,
     handleStartRecorder,
     handleStopRecorder,
+    handleStartProcessMonitor,
+    handleStopProcessMonitor,
 } = require('./ipcHandlers');
 
 /**
@@ -46,6 +48,14 @@ function setIpcListeners(win) {
         await handleStopRecorder();
 
         event.reply('stopped-recorder');
+    });
+
+    ipcMain.on('start-process-monitor', async (event) => {
+        handleStartProcessMonitor(event);
+    });
+
+    ipcMain.on('stop-process-monitor', async (event) => {
+        handleStopProcessMonitor(event);
     });
 }
 
