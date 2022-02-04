@@ -177,7 +177,7 @@ export default {
                 video: {
                     mandatory: {
                         chromeMediaSource: 'desktop',
-                        chromeMediaSourceId: sources[1].id,
+                        chromeMediaSourceId: sources[0].id,
                     },
                 },
             };
