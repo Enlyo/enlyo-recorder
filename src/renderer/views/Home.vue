@@ -3,6 +3,16 @@
         <AppHeader v-if="!isRecording" title="Enlyo" has-settings />
 
         <AppContent v-if="!isRecording">
+            <transition name="bounce-in">
+                <Notification
+                    v-if="showSuccessMessage"
+                    label="Recording saved"
+                    type="is-success"
+                    class="mb-4"
+                    @close="setShowSuccessMessage(false)"
+                />
+            </transition>
+
             <div class="preview-box">
                 <p class="box-label mb-3">Preview</p>
                 <transition name="fade">
@@ -51,6 +61,7 @@ import AppContent from '@/components/layout/AppContent.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import RecordButton from '@/components/RecordButton.vue';
 import Loader from '@/components/Loader.vue';
+import Notification from '@/components/Notification.vue';
 
 export default {
     name: 'Home',
@@ -62,6 +73,7 @@ export default {
         AppFooter,
         RecordButton,
         Loader,
+        Notification,
     },
 
     data() {
@@ -72,6 +84,7 @@ export default {
             timer: null,
 
             showPreview: false,
+            showSuccessMessage: false,
         };
     },
 
@@ -219,7 +232,11 @@ export default {
             this.setIsRecording(false);
             this.setIsLoading(false);
             this.resetRecordTime();
-            this.$nextTick(() => this.initializeRecorderPreview());
+
+            this.$nextTick(() => {
+                this.initializeRecorderPreview();
+                setTimeout(() => this.setShowSuccessMessage(true), 1000);
+            });
         },
 
         /**
@@ -244,11 +261,24 @@ export default {
             this.recordTime = 0;
             this.timer = null;
         },
+
+        /**
+         * Set show success message
+         */
+        setShowSuccessMessage(bool) {
+            this.showSuccessMessage = bool;
+        },
     },
 };
 </script>
 
 <style lang="scss" scoped>
+.app-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .preview-box {
     padding: 1rem;
     background-color: $background-dark-4;
@@ -310,6 +340,34 @@ export default {
         font-size: $s-16px;
         font-weight: 400;
         text-transform: uppercase;
+    }
+}
+
+.bounce-in-enter-active {
+    animation: bounce-in 0.4s;
+}
+.bounce-in-leave-active {
+    animation: bounce-leave 0.4s ease;
+}
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes bounce-leave {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(60px);
     }
 }
 </style>
