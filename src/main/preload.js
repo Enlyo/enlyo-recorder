@@ -14,6 +14,7 @@ const VALID_CHANNELS = {
     ],
     response: [
         'resized-recorder-preview',
+        'started-recorder-preview',
         'stopped-recorder-preview',
         'started-recorder',
         'stopped-recorder',

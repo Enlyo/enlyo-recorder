@@ -17,9 +17,9 @@ function setIpcListeners(win) {
     });
 
     ipcMain.on('start-recorder-preview', (event, payload) => {
-        const result = handleStartRecorderPreview(win, payload);
+        const stream = handleStartRecorderPreview(win, payload);
 
-        event.reply('resized-recording-preview', result);
+        event.reply('started-recording-preview', { stream });
     });
 
     ipcMain.on('resize-recorder-preview', (event, payload) => {

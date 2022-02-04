@@ -2,6 +2,7 @@ const { Notification } = require('electron');
 
 const fileManager = require('./fileManager');
 const { screenRecorder } = require('./screenRecorder');
+const screenPreviewer = require('./screenPreviewer');
 const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName } = require('./helpers');
@@ -29,8 +30,8 @@ async function handleInitializeRecorder() {
  * @param {*} win
  * @param {*} payload
  */
-function handleStartRecorderPreview(win, payload) {
-    return screenRecorder.setupPreview(win, payload);
+function handleStartRecorderPreview() {
+    return screenPreviewer.getVideoSources();
 }
 
 /**
@@ -39,15 +40,15 @@ function handleStartRecorderPreview(win, payload) {
  * @param {*} payload
  * @returns
  */
-function handleResizeRecorderPreview(win, payload) {
-    return screenRecorder.resizePreview(win, payload);
+function handleResizeRecorderPreview() {
+    console.debug('RESIZE - NOT REQUIRED ANYMORE :)');
 }
 
 /**
  * Handle stop recorder preview
  */
 function handleStopRecorderPreview() {
-    return screenRecorder.destroyPreview();
+    console.debug('STOP - NOT REQUIRED ANYMORE :)');
 }
 
 /**
