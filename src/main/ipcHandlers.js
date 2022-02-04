@@ -71,20 +71,20 @@ async function handleStopRecorder() {
 
     await screenRecorder.stop();
 
-    // const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
-    // const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
+    const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
+    const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
 
-    // const outputName = generateOutputName(
-    //     rawRecordingName,
-    //     OUTPUT_APPEND_MESSAGE,
-    //     INPUT_FORMAT,
-    //     OUTPUT_FORMAT
-    // );
-    // const outputFile = `${OUTPUT_PATH}/${outputName}`;
+    const outputName = generateOutputName(
+        rawRecordingName,
+        OUTPUT_APPEND_MESSAGE,
+        INPUT_FORMAT,
+        OUTPUT_FORMAT
+    );
+    const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
-    // await videoEditor.remux(inputFile, outputFile);
+    await videoEditor.remux(inputFile, outputFile);
 
-    // await fileManager.deleteFile(inputFile);
+    await fileManager.deleteFile(inputFile);
 }
 
 module.exports.handleInitializeRecorder = handleInitializeRecorder;

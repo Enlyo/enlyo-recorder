@@ -18,12 +18,21 @@
                 <p class="record-button-label">Start recording</p>
             </div>
 
-            <div v-else class="active-recording-box" @click="toggleRecorder">
-                <RecordButton :is-recording="isRecording" size="is-large" />
-                <div class="record-time-label mt-6">
-                    {{ recordTimeFormatted }}
+            <div v-else>
+                <div
+                    v-if="!isLoading"
+                    class="active-recording-box"
+                    @click="toggleRecorder"
+                >
+                    <RecordButton :is-recording="isRecording" size="is-large" />
+                    <div class="record-time-label mt-6">
+                        {{ recordTimeFormatted }}
+                    </div>
+                    <div class="recording-label">Recording</div>
                 </div>
-                <div class="recording-label">Recording</div>
+                <div v-else>
+                    <Loader />
+                </div>
             </div>
         </AppFooter>
     </AppLayout>
@@ -35,6 +44,7 @@ import AppHeader from '@/components/layout/AppHeader.vue';
 import AppContent from '@/components/layout/AppContent.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import RecordButton from '@/components/RecordButton.vue';
+import Loader from '@/components/Loader.vue';
 
 export default {
     name: 'Home',
@@ -45,11 +55,13 @@ export default {
         AppContent,
         AppFooter,
         RecordButton,
+        Loader,
     },
 
     data() {
         return {
             isRecording: false,
+            isLoading: false,
             recordTime: 0,
             timer: null,
         };
@@ -70,7 +82,6 @@ export default {
         this.initializeRecorderPreview();
 
         this.setIpcListeners();
-        this.setResizeObserver();
     },
 
     methods: {
@@ -112,84 +123,75 @@ export default {
          * Set ipc listeners
          */
         setIpcListeners() {
-            window.ipc.on(
-                'resized-recorder-preview',
-                this.handleResizedRecorderPreview
-            );
-        },
-
-        /**
-         * Set resize observer
-         */
-        setResizeObserver() {
-            var ro = new ResizeObserver(this.resizeRecorderPreview);
-            ro.observe(document.querySelector('body'));
+            window.ipc.on('started-recorder', this.handleRecorderStarted);
+            window.ipc.on('stopped-recorder', this.handleRecorderStopped);
         },
 
         // TODO: Add on destroy logic -> (also record timer ect)
-
-        /* -------------------------------------------------------------------------- */
-        /*                               EVENT HANDLERS                               */
-        /* -------------------------------------------------------------------------- */
-
-        /**
-         * Handle resized recorder preview
-         */
-        handleResizedRecorderPreview(payload) {
-            const previewContainer = document.getElementById('preview');
-            previewContainer.style = `height: ${payload.height}px`;
-        },
-
-        /**
-         * Resize recorder preview
-         */
-        // TODO: Waarschijnlijk niet nodig als we scherm niet resizable maken
-        async resizeRecorderPreview() {
-            const previewContainer = document.getElementById('preview');
-            const { width, height, x, y } =
-                previewContainer.getBoundingClientRect();
-
-            window.ipc.send('resize-recorder-preview', {
-                width,
-                height,
-                x,
-                y,
-            });
-        },
 
         /* -------------------------------------------------------------------------- */
         /*                                  RECORDING                                 */
         /* -------------------------------------------------------------------------- */
 
         /**
+         * Set is recording
+         */
+        setIsRecording(bool) {
+            this.isRecording = bool;
+        },
+
+        setIsLoading(bool) {
+            this.isLoading = bool;
+        },
+
+        /**
          * Toggle recorder
          */
         toggleRecorder() {
-            this.isRecording ? this.stopRecorder() : this.startRecorder();
+            this.isRecording ? this.stopRecorder() : this.handleStartRecorder();
         },
 
         /**
          * Start recorder
          */
-        startRecorder() {
-            // TODO: move this to own function -> handleStartRecorder
+        handleStartRecorder() {
             this.stopRecorderPreview();
-            this.isRecording = true;
-            this.startRecordTime();
+            this.setIsLoading(true);
+            this.setIsRecording(true);
 
+            setTimeout(() => this.startRecorder(), 1000);
+        },
+
+        /**
+         * Dispatch start recorder ipc
+         */
+        startRecorder() {
             window.ipc.send('start-recorder', {});
         },
 
         /**
-         * Stop recorder
+         * Handle recorder started
+         */
+        handleRecorderStarted() {
+            this.setIsLoading(false);
+            this.startRecordTime();
+        },
+
+        /**
+         * Dispatch stop recorder ipc
          */
         stopRecorder() {
-            // TODO: move this to own function -> handleStopRecorder
-            this.isRecording = false;
-            this.resetRecordTime();
-
+            this.setIsLoading(true);
             window.ipc.send('stop-recorder', {});
+        },
 
+        /**
+         * Handle recorder stopped
+         */
+        handleRecorderStopped() {
+            this.setIsRecording(false);
+            this.setIsLoading(false);
+            this.resetRecordTime();
             this.$nextTick(() => this.initializeRecorderPreview());
         },
 

@@ -34,8 +34,8 @@ function setIpcListeners(win) {
         event.reply('stopped-recording-preview', result);
     });
 
-    ipcMain.on('start-recorder', (event) => {
-        handleStartRecorder();
+    ipcMain.on('start-recorder', async (event) => {
+        await handleStartRecorder();
 
         event.reply('started-recorder');
     });
