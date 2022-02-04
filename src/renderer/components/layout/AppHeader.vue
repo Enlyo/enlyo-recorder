@@ -43,12 +43,6 @@ export default {
     .left {
         padding-left: 1.5rem;
     }
-    .center {
-        // padding: 1.5rem 0;
-    }
-    .right {
-        // padding: 1.5rem;
-    }
 
     .title {
         color: $white;

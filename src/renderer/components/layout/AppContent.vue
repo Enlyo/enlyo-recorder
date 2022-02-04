@@ -12,7 +12,7 @@ export default {
 
 <style lang="scss" scoped>
 .app-content {
-    padding: 2rem;
+    padding: 1.5rem;
     flex: 1;
 }
 </style>
