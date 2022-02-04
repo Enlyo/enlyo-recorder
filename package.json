@@ -11,10 +11,10 @@
         "appId": "my.vue.app",
         "win": {
             "target": "nsis",
-            "icon": "release/icons/icon.ico"
+            "icon": "public/icons/icon.ico"
         },
         "mac": {
-            "icon": "release/icons/icon.icns"
+            "icon": "public/icons/icon.icns"
         },
         "files": [
             "**/*",
@@ -34,7 +34,7 @@
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint",
-        "dev": "NODE_ENV=DEV vue-cli-service serve & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
+        "dev": "NODE_ENV=DEV vue-cli-service serve --port 8001 & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
         "electron:dev": "vue-cli-service serve && electron .",
         "electron:build": "vue-cli-service build --mode production && electron-builder build",
         "electron:windows": "vue-cli-service build && electron-builder build --windows --publish=onTag",

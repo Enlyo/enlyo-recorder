@@ -26,7 +26,7 @@ async function createWindow() {
 
     if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
-        await win.loadURL('http://localhost:8080/');
+        await win.loadURL('http://localhost:8001/');
         // if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
         // Load the index.html when not in development
