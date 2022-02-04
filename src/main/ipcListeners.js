@@ -16,10 +16,12 @@ function setIpcListeners(win) {
         handleInitializeRecorder();
     });
 
-    ipcMain.on('start-recorder-preview', (event, payload) => {
-        const stream = handleStartRecorderPreview(win, payload);
+    ipcMain.on('start-recorder-preview', async (event, payload) => {
+        const stream = await handleStartRecorderPreview(payload);
 
-        event.reply('started-recording-preview', { stream });
+        console.debug(stream);
+
+        event.reply('started-recording-preview', stream);
     });
 
     ipcMain.on('resize-recorder-preview', (event, payload) => {
