@@ -7,7 +7,7 @@ const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName } = require('./helpers');
 
 const VIDEO_PATH = require('electron').app.getPath('videos');
-const RECORDING_FOLDER = 'enlyo';
+const RECORDING_FOLDER = 'enlyo-recordings';
 const OUTPUT_PATH = `${VIDEO_PATH}/${RECORDING_FOLDER}`;
 const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
 
