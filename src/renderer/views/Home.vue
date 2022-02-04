@@ -211,7 +211,7 @@ export default {
          * Reset record time
          */
         resetRecordTime() {
-            this.stopTimer();
+            this.stopRecordTime();
             this.recordTime = 0;
             this.timer = null;
         },

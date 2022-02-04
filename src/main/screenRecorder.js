@@ -60,12 +60,26 @@ const screenRecorder = {
     async start() {
         if (!this.isInitialized) this.initialize();
 
+        console.debug('STARTING RECORDING');
+
         osn.NodeObs.OBS_service_startRecording();
 
         let signalInfo = await this.getNextSignalInfo();
         if (signalInfo.signal === 'Stop') {
             throw Error('Recording exception: ' + signalInfo.error);
         }
+
+        console.debug(
+            'Started signalInfo.type:',
+            signalInfo.type,
+            '(expected: "recording")'
+        );
+        console.debug(
+            'Started signalInfo.signal:',
+            signalInfo.signal,
+            '(expected: "start")'
+        );
+        console.debug('STARTED RECORDING!');
     },
 
     /**
@@ -74,17 +88,46 @@ const screenRecorder = {
     async stop() {
         if (!this.isInitialized) return;
 
+        console.debug('STOPPING RECORDING');
+
         osn.NodeObs.OBS_service_stopRecording();
 
         // Wait for the second signal (first signal should be recording)
-        await this.getNextSignalInfo();
-        await this.getNextSignalInfo();
+        let signalInfo = await this.getNextSignalInfo();
+
+        console.debug(
+            'On stop signalInfo.type:',
+            signalInfo.type,
+            '(expected: "recording")'
+        );
+        console.debug(
+            'On stop signalInfo.signal:',
+            signalInfo.signal,
+            '(expected: "stopping")'
+        );
+
+        signalInfo = await this.getNextSignalInfo();
+
+        console.debug(
+            'After stop signalInfo.type:',
+            signalInfo.type,
+            '(expected: "recording")'
+        );
+        console.debug(
+            'After stop signalInfo.signal:',
+            signalInfo.signal,
+            '(expected: "stop")'
+        );
+
+        console.debug('STOPPPED RECORDING');
     },
 
     /**
      * Set up preview
      */
     setupPreview(window, bounds) {
+        console.debug('STARTING PREVIEW');
+
         osn.NodeObs.OBS_content_createSourcePreviewDisplay(
             window.getNativeWindowHandle(),
             this._scene.name, // or use camera source Id here
@@ -154,6 +197,8 @@ const screenRecorder = {
             );
         }
 
+        console.debug('STARTED PREVIEW');
+
         return { height: displayHeight };
     },
 
@@ -161,6 +206,8 @@ const screenRecorder = {
      * Destroy preview
      */
     destroyPreview() {
+        console.debug('DESTROYING PREVIEW');
+
         osn.NodeObs.OBS_content_destroyDisplay(this.settings.displayId);
 
         if (getOS() === OS.Mac) {
@@ -168,6 +215,8 @@ const screenRecorder = {
             nwr.destroyIOSurface(this.settings.displayId);
             this.hasExistingWindow = false;
         }
+
+        console.debug('PREVIEW DESTROYED');
     },
 
     /**

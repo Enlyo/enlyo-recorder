@@ -40,8 +40,8 @@ function setIpcListeners(win) {
         event.reply('started-recorder');
     });
 
-    ipcMain.on('stop-recorder', (event) => {
-        handleStopRecorder();
+    ipcMain.on('stop-recorder', async (event) => {
+        await handleStopRecorder();
 
         event.reply('stopped-recorder');
     });
