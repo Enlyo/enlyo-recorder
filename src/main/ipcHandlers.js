@@ -30,8 +30,8 @@ async function handleInitializeRecorder() {
  * @param {*} win
  * @param {*} payload
  */
-function handleStartRecorderPreview() {
-    return screenPreviewer.getVideoSources();
+function handleStartRecorderPreview(win) {
+    return screenPreviewer.getVideoSources(win);
 }
 
 /**

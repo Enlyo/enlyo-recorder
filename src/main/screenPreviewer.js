@@ -1,18 +1,18 @@
 const { desktopCapturer, Menu } = require('electron');
 
 // Get the available video sources
-async function getVideoSources() {
+async function getVideoSources(win) {
     const inputSources = await desktopCapturer.getSources({
         types: ['screen'],
     });
 
     console.debug(inputSources);
 
-    return selectSource(inputSources[0]);
+    return selectSource(win, inputSources[0]);
 }
 
 // Change the videoSource window to record
-async function selectSource(source) {
+async function selectSource(win, source) {
     const constraints = {
         audio: false,
         video: {
@@ -24,7 +24,7 @@ async function selectSource(source) {
     };
 
     // Create a Stream
-    return await navigator.mediaDevices.getUserMedia(constraints);
+    return await win.navigator.mediaDevices.getUserMedia(constraints);
 }
 
 module.exports.getVideoSources = getVideoSources;
