@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import EnlyoIcon from '@/components/EnlyoIcon.vue';
+import EnlyoIcon from '@/components/icons/EnlyoIcon.vue';
 
 export default {
     name: 'AppHeader',
