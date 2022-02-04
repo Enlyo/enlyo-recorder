@@ -4,10 +4,14 @@
 
         <AppContent v-if="!isRecording">
             <div class="preview-box">
-                <p class="box-label">Preview</p>
-                <!-- <div id="preview" class="mt-3" /> -->
-
-                <video v-if="showPreview" ref="streamPreview"></video>
+                <p class="box-label mb-3">Preview</p>
+                <transition name="fade">
+                    <video
+                        v-show="showPreview"
+                        ref="streamPreview"
+                        class="stream-preview"
+                    />
+                </transition>
             </div>
         </AppContent>
         <AppFooter>
@@ -67,8 +71,7 @@ export default {
             recordTime: 0,
             timer: null,
 
-            showPreview: true,
-            streamPreview: null,
+            showPreview: false,
         };
     },
 
@@ -87,6 +90,10 @@ export default {
         this.initializeRecorderPreview();
 
         this.setIpcListeners();
+    },
+
+    beforeDestroy() {
+        this.resetRecordTime();
     },
 
     methods: {
@@ -148,8 +155,14 @@ export default {
 
             const streamPreview = this.$refs.streamPreview;
 
+            if (!streamPreview || !stream) {
+                return;
+            }
+
             streamPreview.srcObject = stream;
             streamPreview.play();
+
+            this.showPreview = true;
         },
 
         /* -------------------------------------------------------------------------- */
@@ -171,24 +184,14 @@ export default {
          * Toggle recorder
          */
         toggleRecorder() {
-            this.isRecording ? this.stopRecorder() : this.handleStartRecorder();
-        },
-
-        /**
-         * Start recorder
-         */
-        handleStartRecorder() {
-            this.stopRecorderPreview();
-            this.setIsLoading(true);
-            this.setIsRecording(true);
-
-            setTimeout(() => this.startRecorder(), 1000);
+            this.isRecording ? this.stopRecorder() : this.startRecorder();
         },
 
         /**
          * Dispatch start recorder ipc
          */
         startRecorder() {
+            if (this.isRecording) return;
             window.ipc.send('start-recorder', {});
         },
 
@@ -196,7 +199,7 @@ export default {
          * Handle recorder started
          */
         handleRecorderStarted() {
-            this.setIsLoading(false);
+            this.setIsRecording(true);
             this.startRecordTime();
         },
 
@@ -204,6 +207,7 @@ export default {
          * Dispatch stop recorder ipc
          */
         stopRecorder() {
+            if (!this.isRecording) return;
             this.setIsLoading(true);
             window.ipc.send('stop-recorder', {});
         },
@@ -249,6 +253,7 @@ export default {
     padding: 1rem;
     background-color: $background-dark-4;
     border-radius: 8px;
+    aspect-ratio: 16/10;
     box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.18),
         0px 0px 0px 1px rgba(0, 0, 0, 0.13);
 
@@ -258,15 +263,12 @@ export default {
         font-size: $s-14px;
         color: $text-soft-white;
     }
-}
 
-#preview {
-    width: 504px;
-    height: 283px;
-    aspect-ratio: 16/9;
-    background-color: $background-dark-5;
-    border-radius: 8px;
-    overflow: hidden;
+    .stream-preview {
+        aspect-ratio: 16/9;
+        border-radius: 8px;
+        overflow: hidden;
+    }
 }
 
 .record-button-box {
