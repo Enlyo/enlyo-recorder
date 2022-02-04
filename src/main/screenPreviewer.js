@@ -8,16 +8,7 @@ async function getVideoSources() {
 
     console.debug(inputSources);
 
-    const videoOptionsMenu = Menu.buildFromTemplate(
-        inputSources.map((source) => {
-            return {
-                label: source.name,
-                click: () => selectSource(source),
-            };
-        })
-    );
-
-    videoOptionsMenu.popup();
+    return selectSource(inputSources[0]);
 }
 
 // Change the videoSource window to record
