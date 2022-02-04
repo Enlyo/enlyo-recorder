@@ -7,11 +7,7 @@
                 <p class="box-label">Preview</p>
                 <!-- <div id="preview" class="mt-3" /> -->
 
-                <video
-                    v-if="showPreview"
-                    ref="streamPreview"
-                    :src="streamPreview"
-                ></video>
+                <video v-if="showPreview" ref="streamPreview"></video>
             </div>
         </AppContent>
         <AppFooter>
@@ -71,7 +67,7 @@ export default {
             recordTime: 0,
             timer: null,
 
-            showPreview: false,
+            showPreview: true,
             streamPreview: null,
         };
     },
@@ -109,19 +105,6 @@ export default {
          * Initialize recorder preview
          */
         initializeRecorderPreview() {
-            // const previewContainer = document.getElementById('preview');
-            // const { width, height, x, y } =
-            //     previewContainer.getBoundingClientRect();
-
-            // window.ipc.send('start-recorder-preview', {
-            //     width,
-            //     height,
-            //     x,
-            //     y,
-            // });
-
-            console.log(navigator);
-
             window.ipc.send('start-recorder-preview', {});
         },
 
@@ -138,10 +121,7 @@ export default {
         setIpcListeners() {
             window.ipc.on('started-recorder', this.handleRecorderStarted);
             window.ipc.on('stopped-recorder', this.handleRecorderStopped);
-            window.ipc.on(
-                'started-recording-preview',
-                this.handlePreviewStream
-            );
+            window.ipc.on('started-recorder-preview', this.handlePreviewStream);
         },
 
         // TODO: Add on destroy logic -> (also record timer ect)
@@ -150,14 +130,26 @@ export default {
         /*                                  PREVIEW                                 */
         /* -------------------------------------------------------------------------- */
 
-        handlePreviewStream(stream) {
-            console.log('test');
-            console.log(stream);
-            console.log(this.$refs.streamPreview);
+        async handlePreviewStream(sources) {
+            const constraints = {
+                audio: false,
+                video: {
+                    mandatory: {
+                        chromeMediaSource: 'desktop',
+                        chromeMediaSourceId: sources[0].id,
+                    },
+                },
+            };
+
+            // Create a Stream
+            const stream = await navigator.mediaDevices.getUserMedia(
+                constraints
+            );
 
             const streamPreview = this.$refs.streamPreview;
 
             streamPreview.srcObject = stream;
+            streamPreview.play();
         },
 
         /* -------------------------------------------------------------------------- */

@@ -21,7 +21,7 @@ function setIpcListeners(win) {
 
         console.debug(stream);
 
-        event.reply('started-recording-preview', stream);
+        event.reply('started-recorder-preview', stream);
     });
 
     ipcMain.on('resize-recorder-preview', (event, payload) => {
