@@ -3,7 +3,7 @@
     "productName": "Enlyo Recorder",
     "description": "Screen recording software for gaming",
     "author": "Enlyo",
-    "license": "GPL-2.0",  
+    "license": "GPL-2.0",
     "version": "0.1.0",
     "private": true,
     "main": "src/main/main.js",
@@ -31,6 +31,7 @@
         ]
     },
     "scripts": {
+        "postinstall": "node ./scripts/postinstall.js",
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint",
@@ -46,8 +47,8 @@
         "ffmpeg-static": "^4.4.1",
         "ffprobe-static": "^3.0.0",
         "fluent-ffmpeg": "^2.1.2",
-        "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-1.0.15-osx.tar.gz",
-        "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.19.13-release-osx.tar.gz",
+        "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-0.0.0.tar.gz",
+        "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.0.0-release.tar.gz",
         "rxjs": "^6.6.3",
         "uuid": "^8.3.0",
         "vue": "^2.6.11",
@@ -67,9 +68,11 @@
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-vue": "7.5.0",
         "eslint-webpack-plugin": "^2.5.1",
+        "node-fetch": "2",
         "prettier": "2.4.1",
         "sass": "^1.45.1",
         "sass-loader": "10.1.1",
+        "shelljs": "^0.8.5",
         "vue-template-compiler": "^2.6.11"
     },
     "browserslist": [
