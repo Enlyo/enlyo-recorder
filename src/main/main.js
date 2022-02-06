@@ -14,7 +14,15 @@ async function createWindow() {
     win = new BrowserWindow({
         width: 600,
         height: 650,
+        minimizable: false,
+        maximizable: false,
+        fullscreenable: false,
         resizable: false,
+        titleBarStyle: 'hidden',
+        titleBarOverlay: {
+            color: '#202225',
+            symbolColor: '#e0e0e0'
+        },
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -25,7 +33,7 @@ async function createWindow() {
 
     if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
-        await win.loadURL('http://localhost:8001/');
+        await win.loadURL('http://localhost:8080/');
         // if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
         // Load the index.html when not in development

@@ -33,5 +33,11 @@ module.exports = {
         ],
         'vue/max-attributes-per-line': 'off',
         'vue/html-self-closing': 'off',
+        'prettier/prettier': [
+            'error',
+            {
+                'endOfLine': 'auto',
+            }
+        ]
     },
 };

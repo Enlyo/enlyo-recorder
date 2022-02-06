@@ -32,13 +32,9 @@
     },
     "scripts": {
         "postinstall": "node ./scripts/postinstall.js",
-        "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build",
-        "lint": "vue-cli-service lint",
         "dev": "NODE_ENV=DEV vue-cli-service serve --port 8001 & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
-        "electron:dev": "vue-cli-service serve && electron .",
-        "electron:build": "vue-cli-service build --mode production && electron-builder build",
-        "electron:windows": "vue-cli-service build && electron-builder build --windows --publish=onTag",
+        "devw": "node ./scripts/devwindows.js",
+        "build": "vue-cli-service build --mode production && electron-builder build",
         "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
     },
     "dependencies": {
