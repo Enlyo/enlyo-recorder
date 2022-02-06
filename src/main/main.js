@@ -31,7 +31,7 @@ async function createWindow() {
         },
     });
 
-    if (process.env.NODE_ENV != 'DEV') {
+    if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
         await win.loadURL('http://localhost:8080/');
         // if (!process.env.IS_TEST) win.webContents.openDevTools();
