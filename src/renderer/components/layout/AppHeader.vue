@@ -34,6 +34,7 @@ export default {
 
 <style lang="scss" scoped>
 .app-header {
+    -webkit-app-region: drag;
     display: flex;
     align-items: center;
     height: 80px;
