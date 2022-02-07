@@ -39,7 +39,7 @@ const screenRecorder = {
             {
                 outputPath: '/',
                 format: 'mkv',
-                bitRate: 10000,
+                bitRate: 12000,
                 fps: 60,
                 displayId: 'display1',
             },
