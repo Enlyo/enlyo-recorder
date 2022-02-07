@@ -1,6 +1,14 @@
-const exec = require('child_process').exec;
+// const exec = require('child_process').exec;
+const psList = import('ps-list');
+const { windowManager } = require('node-window-manager');
+const { authenticate, LeagueClient, connect } = require('league-connect');
 
-const PROCESS = 'League of Legends.exe';
+const PHASE_WEBHOOK = '/lol-gameflow/v1/gameflow-phase';
+const SESSION_WEBHOOK = '/lol-gameflow/v1/session';
+const PATCHER_WEBHOOK = '/data-store/v1/install-settings/gameflow-patcher-lock';
+
+const GAME_START_EVENT = 'GameStart';
+const GAME_END_EVENT = 'WaitingForStats';
 
 /**
  * Process monitor
@@ -8,59 +16,81 @@ const PROCESS = 'League of Legends.exe';
 const processMonitor = {
     handleProcessStarted: null,
     handleProcessEnded: null,
-    intervalTime: 10000,
-    process: PROCESS,
-    processMonitor: null,
-    processExists: false,
+    ws: null,
+    gameStarted: false,
+    clientVisible: false,
+    isRecording: false,
 
     /**
      * Start interval
      */
-    startInterval(handleProcessStarted, handleProcessEnded) {
+    async startInterval(handleProcessStarted, handleProcessEnded) {
+        const credentials = await authenticate({
+            awaitConnection: true,
+            pollInterval: 5000,
+        });
+
         this.handleProcessStarted = handleProcessStarted;
         this.handleProcessEnded = handleProcessEnded;
 
-        this.interval = setInterval(
-            this.monitorProcess.bind(this),
-            this.intervalTime
-        );
+        this.setClientListeners(credentials);
+        this.subcribeToWebHook(credentials);
+    },
+
+    setClientListeners(credentials) {
+        const client = new LeagueClient(credentials);
+
+        client.on('connect', (newCredentials) => {
+            this.subcribeToWebHook(newCredentials);
+        });
+
+        client.on('disconnect', () => {
+            this.ws.unsubscribe(PHASE_WEBHOOK);
+            this.ws.unsubscribe(SESSION_WEBHOOK);
+            this.ws.unsubscribe(PATCHER_WEBHOOK);
+        });
+
+        client.start(); // Start listening for process updates
     },
 
     /**
-     * Stop process monitor interval
+     * Subscribe to webhook
      */
-    stopProcessMonitorInterval() {
-        this.handleProcessStarted = null;
-        this.handleProcessEnded = null;
-
-        clearInterval(this.interval);
+    subcribeToWebHook(credentials) {
+        setTimeout(() => this._subcribeToWebHook(credentials), 5000); // Required because webhook is not immediately ready
     },
 
-    /**
-     * Monitor process
-     * @param {Function} handleExists
-     * @param {Function} handleDoesNotExist
-     */
-    monitorProcess() {
-        let previousProcessExists = this.processExists;
-        this.processExists = this.getProcessExists(this.process);
+    async _subcribeToWebHook(credentials) {
+        this.ws = await connect(credentials);
 
-        if (!previousProcessExists && this.processExists) {
-            this.handleProcessStarted();
-        }
+        this.ws.subscribe(PHASE_WEBHOOK, (data, event) => {
+            if (data === GAME_START_EVENT) {
+                this.handleProcessEnded();
 
-        if (previousProcessExists && !this.processExists) {
-            this.handleProcessEnded();
-        }
-    },
+                this.gameStarted = true;
+            }
 
-    /**
-     * Get process exists
-     * @param {String} process
-     */
-    getProcessExists(process) {
-        exec('tasklist', function (error, stdout) {
-            return stdout.includes(process);
+            if (data === GAME_END_EVENT) {
+                this.handleProcessEnded();
+
+                this.gameStarted = false;
+                this.clientVisible = false;
+                this.isRecording = false;
+            }
+        });
+
+        this.ws.subscribe(SESSION_WEBHOOK, (data, event) => {
+            if (this.gameStarted && data.gameClient.visible) {
+                this.clientVisible = true;
+            }
+        });
+
+        this.ws.subscribe(PATCHER_WEBHOOK, (data, event) => {
+            if (this.gameStarted && this.clientVisible && !this.isRecording) {
+                this.handleProcessStarted();
+
+                this.isRecording = true;
+            }
         });
     },
 };

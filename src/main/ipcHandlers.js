@@ -36,23 +36,6 @@ async function handleStartRecorderPreview() {
 }
 
 /**
- * Handle resize recorder preview
- * @param {*} win
- * @param {*} payload
- * @returns
- */
-function handleResizeRecorderPreview() {
-    console.debug('RESIZE - NOT REQUIRED ANYMORE :)');
-}
-
-/**
- * Handle stop recorder preview
- */
-function handleStopRecorderPreview() {
-    console.debug('STOP - NOT REQUIRED ANYMORE :)');
-}
-
-/**
  * Handle start recorder
  */
 function handleStartRecorder() {
@@ -100,16 +83,12 @@ function handleStartProcessMonitor(event) {
 }
 
 function _handleProcessStarted(event) {
-    console.debug('process exists');
-    console.debug('recorder recording?' + screenRecorder.isRecording);
     if (!screenRecorder.isRecording) {
         event.reply('start-recorder-request');
     }
 }
 
 function _handleProcessEnded(event) {
-    console.debug('process does not exist');
-    console.debug('recorder recording?' + screenRecorder.isRecording);
     if (screenRecorder.isRecording) {
         event.reply('stop-recorder-request');
     }
@@ -124,8 +103,6 @@ function handleStopProcessMonitor() {
 
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorderPreview = handleStartRecorderPreview;
-module.exports.handleResizeRecorderPreview = handleResizeRecorderPreview;
-module.exports.handleStopRecorderPreview = handleStopRecorderPreview;
 module.exports.handleStartRecorder = handleStartRecorder;
 module.exports.handleStopRecorder = handleStopRecorder;
 module.exports.handleStartProcessMonitor = handleStartProcessMonitor;

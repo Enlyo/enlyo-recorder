@@ -24,6 +24,7 @@
                 </transition>
             </div>
         </AppContent>
+
         <AppFooter>
             <div
                 v-if="!isRecording"
@@ -142,7 +143,6 @@ export default {
          * Start process monitor
          */
         startProcessMonitor() {
-            console.debug('start process monitor');
             window.ipc.send('start-process-monitor');
         },
 
@@ -150,7 +150,6 @@ export default {
          * Stop process monitor
          */
         stopProcessMonitor() {
-            console.debug('stop process monitor');
             window.ipc.send('stop-process-monitor');
         },
 
@@ -233,6 +232,10 @@ export default {
          * Handle recorder started
          */
         handleRecorderStarted() {
+            const streamPreview = this.$refs.streamPreview;
+
+            streamPreview.srcObject = null;
+
             this.setIsRecording(true);
             this.startRecordTime();
         },
