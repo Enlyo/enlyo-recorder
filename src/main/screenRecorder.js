@@ -282,6 +282,40 @@ const screenRecorder = {
      * @private
      * @returns Scene
      */
+    // _setupScene() {
+    //     const videoSource = osn.InputFactory.create(
+    //         byOS({
+    //             [OS.Windows]: 'monitor_capture',
+    //             [OS.Mac]: 'display_capture',
+    //         }),
+    //         'desktop-video'
+    //     );
+
+    //     // Update source settings:
+    //     let settings = videoSource.settings;
+    //     settings['width'] = this.display.physicalWidth;
+    //     settings['height'] = this.display.physicalHeight;
+    //     videoSource.update(settings);
+    //     videoSource.save();
+
+    //     // Set output video size to 1920x1080
+    //     const outputWidth = 1920;
+    //     const outputHeight = Math.round(outputWidth / this.display.aspectRatio);
+    //     this.setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
+    //     this.setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
+    //     const videoScaleFactor = this.display.physicalWidth / outputWidth;
+
+    //     // A scene is necessary here to properly scale captured screen size to output video size
+    //     const scene = osn.SceneFactory.create('test-scene');
+    //     const sceneItem = scene.add(videoSource);
+    //     sceneItem.scale = {
+    //         x: 1.0 / videoScaleFactor,
+    //         y: 1.0 / videoScaleFactor,
+    //     };
+
+    //     return scene;
+    // },
+
     _setupScene() {
         const videoSource = osn.InputFactory.create(
             byOS({
@@ -293,24 +327,244 @@ const screenRecorder = {
 
         // Update source settings:
         let settings = videoSource.settings;
-        settings['width'] = this.display.physicalWidth;
+        settings['width'] = this.display.physicalHeight;
         settings['height'] = this.display.physicalHeight;
         videoSource.update(settings);
         videoSource.save();
 
         // Set output video size to 1920x1080
         const outputWidth = 1920;
-        const outputHeight = Math.round(outputWidth / this.display.aspectRatio);
+        const outputHeight = 1080;
         this.setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
         this.setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
-        const videoScaleFactor = this.display.physicalWidth / outputWidth;
 
         // A scene is necessary here to properly scale captured screen size to output video size
         const scene = osn.SceneFactory.create('test-scene');
-        const sceneItem = scene.add(videoSource);
-        sceneItem.scale = {
-            x: 1.0 / videoScaleFactor,
-            y: 1.0 / videoScaleFactor,
+
+        // BACKGROUND 
+        const bgSource = osn.InputFactory.create("image_source", "logo", { file: path.join(__dirname, "./bg.jpg") });
+        const background = scene.add(bgSource);
+
+        // MAP
+        const mapItem = scene.add(videoSource);
+        mapItem.crop = {
+            left: 1655,
+            top: 813,
+            right: 12,
+            bottom: 14
+        }
+        mapItem.position = {
+            x: 840,
+            y: 0
+        }
+        mapItem.scale = {
+            x: 4.27,
+            y: 4.27
+        };
+
+        // BLUE GOLD
+        const blueGold = scene.add(videoSource);
+        blueGold.crop = {
+            left: 793,
+            top: 16,
+            right: 1070,
+            bottom: 1033
+        }
+        blueGold.position = {
+            x: 10,
+            y: 50
+        }
+        blueGold.scale = {
+            x: 3.86,
+            y: 3.86
+        };
+
+
+        // SCORE
+        const score = scene.add(videoSource);
+        score.crop = {
+            left: 904,
+            top: 18,
+            right: 889,
+            bottom: 1022
+        }
+        score.position = {
+            x: 230,
+            y: 50
+        }
+        score.scale = {
+            x: 2.99,
+            y: 2.99
+        };
+
+        // RED GOLD
+        const redGold = scene.add(videoSource);
+        redGold.crop = {
+            left: 1112,
+            top: 16,
+            right: 751,
+            bottom: 1033
+        }
+        redGold.position = {
+            x: 609,
+            y: 50
+        }
+        redGold.scale = {
+            x: 3.86,
+            y: 3.86
+        };
+
+        // TIME
+        const time = scene.add(videoSource);
+        time.crop = {
+            left: 938,
+            top: 74,
+            right: 920,
+            bottom: 982
+        }
+        time.position = {
+            x: 304,
+            y: 170
+        }
+        time.scale = {
+            x: 3.73,
+            y: 3.73
+        };
+
+        // OBJECTIVE TIMER 1
+        const objTimer1 = scene.add(videoSource);
+        objTimer1.crop = {
+            left: 1740,
+            top: 720,
+            right: 90,
+            bottom: 334
+        }
+        objTimer1.position = {
+            x: 10,
+            y: 279
+        }
+        objTimer1.scale = {
+            x: 2.28,
+            y: 2.28
+        };
+
+        // OBJECTIVE TIMER 2
+        const objTimer2 = scene.add(videoSource);
+        objTimer2.crop = {
+            left: 1740,
+            top: 746,
+            right: 90,
+            bottom: 308
+        }
+        objTimer2.position = {
+            x: 215,
+            y: 279
+        }
+        objTimer2.scale = {
+            x: 2.28,
+            y: 2.28
+        };
+
+        // OBJECTIVE TIMER 3
+        const objTimer3 = scene.add(videoSource);
+        objTimer3.crop = {
+            left: 1740,
+            top: 772,
+            right: 90,
+            bottom: 282
+        }
+        objTimer3.position = {
+            x: 420,
+            y: 279
+        }
+        objTimer3.scale = {
+            x: 2.28,
+            y: 2.28
+        };
+
+        // OBJECTIVE TIMER 4
+        const objTimer4 = scene.add(videoSource);
+        objTimer4.crop = {
+            left: 1830,
+            top: 694,
+            right: 0,
+            bottom: 360
+        }
+        objTimer4.position = {
+            x: 625,
+            y: 279
+        }
+        objTimer4.scale = {
+            x: 2.28,
+            y: 2.28
+        };
+
+        // OBJECTIVE TIMER 5
+        const objTimer5 = scene.add(videoSource);
+        objTimer5.crop = {
+            left: 1830,
+            top: 720,
+            right: 0,
+            bottom: 334
+        }
+        objTimer5.position = {
+            x: 10,
+            y: 338
+        }
+        objTimer5.scale = {
+            x: 2.28,
+            y: 2.28
+        };
+
+        // OBJECTIVE TIMER 6
+        const objTimer6 = scene.add(videoSource);
+        objTimer6.crop = {
+            left: 1830,
+            top: 746,
+            right: 0,
+            bottom: 308
+        }
+        objTimer6.position = {
+            x: 215,
+            y: 338
+        }
+        objTimer6.scale = {
+            x: 2.28,
+            y: 2.28
+        };
+
+        // OBJECTIVE TIMER 7
+        const objTimer7 = scene.add(videoSource);
+        objTimer7.crop = {
+            left: 1830,
+            top: 772,
+            right: 0,
+            bottom: 282
+        }
+        objTimer7.position = {
+            x: 420,
+            y: 338
+        }
+        objTimer7.scale = {
+            x: 2.28,
+            y: 2.28
+        };
+
+        // TABLE
+        const table = scene.add(videoSource);
+        table.crop = {
+            left: 796,
+            top: 855,
+            right: 781,
+            bottom: 7
+        }
+        table.position = {
+            x: 10,
+            y: 417
+        }
+        table.scale = {
+            x: 2.39,
+            y: 2.39
         };
 
         return scene;
