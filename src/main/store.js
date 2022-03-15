@@ -4,8 +4,8 @@ const schema = {
     settings: {
         type: 'object',
         properties: {
-            defaultScreen: {
-                type: 'string',
+            screen: {
+                type: 'object',
             },
             resolution: {
                 enum: [720, 1080],
@@ -15,7 +15,7 @@ const schema = {
             },
         },
         default: {
-            defaultScreen: '',
+            screen: {},
             resolution: 1080,
             fps: 30,
         },

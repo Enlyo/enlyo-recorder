@@ -19,14 +19,14 @@
                 <SectionCard>
                     <b-field label="Screen">
                         <b-select
-                            v-model="settings.defaultScreen"
+                            v-model="settings.screen"
                             expanded
-                            @input="setSetting('defaultScreen', $event)"
+                            @input="setSetting('screen', $event)"
                         >
                             <option
                                 v-for="screen in availableScreens"
                                 :key="screen.name"
-                                :value="screen.name"
+                                :value="screen"
                             >
                                 {{ screen.name }}
                             </option>
@@ -137,7 +137,7 @@ export default {
             showSuccessMessage: false,
 
             settings: {
-                defaultScreen: '',
+                screen: '',
                 resolution: 1080,
                 fps: 60,
             },

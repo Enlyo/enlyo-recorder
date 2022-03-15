@@ -60,6 +60,7 @@ const screenRecorder = {
             'desktop-video'
         );
 
+        // TODO: Maybe give a nice error here (for Guus laptop)
         if (!videoSource.properties) {
             return [];
         }
