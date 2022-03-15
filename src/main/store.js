@@ -8,7 +8,7 @@ const schema = {
                 type: 'object',
             },
             resolution: {
-                enum: [720, 1080],
+                enum: [480, 720, 1080],
             },
             fps: {
                 enum: [30, 60],
@@ -16,7 +16,7 @@ const schema = {
         },
         default: {
             screen: {},
-            resolution: 1080,
+            resolution: 720,
             fps: 30,
         },
     },

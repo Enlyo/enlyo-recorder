@@ -32,11 +32,7 @@ const screenRecorder = {
      * @returns
      */
     setSettings(settings) {
-        console.debug(settings);
-
         this.settings = Object.assign(this.settings, settings);
-
-        console.debug(this.settings);
     },
 
     /**
@@ -80,6 +76,7 @@ const screenRecorder = {
         this.settings.screen = screen;
 
         this._scene = this._setupScene();
+        this._setupSources();
     },
 
     /**
@@ -92,6 +89,7 @@ const screenRecorder = {
         this.settings.resolution = resolution;
 
         this._scene = this._setupScene();
+        this._setupSources();
     },
 
     /**
@@ -287,7 +285,7 @@ const screenRecorder = {
      * @returns Scene
      */
     _setupScene() {
-        if (!this.settings.screen) {
+        if (!this.settings.screen.name) {
             this.settings.screen = this.getDefaultScreen();
         }
 
@@ -311,7 +309,7 @@ const screenRecorder = {
         videoSource.update(settings);
         videoSource.save();
 
-        const outputWidth = this.settings.resolution / 0.5625; // 16:9 ratio
+        const outputWidth = Math.round(this.settings.resolution / 0.5625); // 16:9 ratio
         const outputHeight = Math.round(outputWidth / aspectRatio);
         this.setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
         this.setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
@@ -804,7 +802,8 @@ const screenRecorder = {
      * @returns {Object} { width, height }
      */
     parseResolution(value) {
-        let resolution = value.split(' ')[1];
+        let resolution = value.split(': ')[1];
+        resolution = resolution.split(' ')[0];
         let width = Number(resolution.split('x')[0]);
         let height = Number(resolution.split('x')[1]);
         let aspectRatio = width / height;

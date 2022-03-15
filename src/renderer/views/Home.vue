@@ -22,6 +22,7 @@
                             v-model="settings.screen"
                             expanded
                             @input="setSetting('screen', $event)"
+                            @focus="getAvailableScreens"
                         >
                             <option
                                 v-for="screen in availableScreens"
@@ -47,6 +48,7 @@
                                     expanded
                                     @input="setSetting('resolution', $event)"
                                 >
+                                    <option :value="480">480</option>
                                     <option :value="720">720</option>
                                     <option :value="1080">1080</option>
                                 </b-select>
@@ -158,7 +160,6 @@ export default {
     async mounted() {
         await this.getSettings();
         this.initializeRecorder();
-        this.getAvailableScreens();
         this.startProcessMonitor();
         this.setIpcListeners();
     },
@@ -216,7 +217,7 @@ export default {
                 'get-available-screens'
             );
 
-            if (!this.settings.screen) {
+            if (!this.settings.screen.name) {
                 const defaultScreen = this.availableScreens[0];
                 this.settings.screen = defaultScreen;
                 this.setSetting('screen', defaultScreen);
@@ -235,6 +236,8 @@ export default {
                 'get-store-value',
                 'settings'
             );
+
+            this.availableScreens = [this.settings.screen];
         },
 
         /**
