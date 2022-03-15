@@ -106,8 +106,7 @@ function handleStopProcessMonitor() {
  * Get available screens
  */
 function getAvailableScreens() {
-    // TODO: change this to OBS display sources
-    return screenPreviewer.getVideoSources();
+    return screenRecorder.getAvailableScreens();
 }
 
 /**
