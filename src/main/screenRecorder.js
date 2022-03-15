@@ -50,6 +50,8 @@ const screenRecorder = {
     },
 
     getAvailableScreens() {
+        if (!this.isInitialized) this.initialize();
+
         const videoSource = osn.InputFactory.create(
             byOS({
                 [OS.Windows]: 'monitor_capture',
