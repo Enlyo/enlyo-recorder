@@ -1,12 +1,7 @@
 // const exec = require('child_process').exec;
-const { authenticate, LeagueClient, connect } = require('league-connect');
+const exec = require('child_process').exec;
 
-const PHASE_WEBHOOK = '/lol-gameflow/v1/gameflow-phase';
-const SESSION_WEBHOOK = '/lol-gameflow/v1/session';
-const PATCHER_WEBHOOK = '/data-store/v1/install-settings/gameflow-patcher-lock';
-
-const GAME_START_EVENT = 'GameStart';
-const GAME_END_EVENT = 'WaitingForStats';
+const PROCESS = 'League of Legends.exe';
 
 /**
  * Process monitor
@@ -14,81 +9,59 @@ const GAME_END_EVENT = 'WaitingForStats';
 const processMonitor = {
     handleProcessStarted: null,
     handleProcessEnded: null,
-    ws: null,
-    gameStarted: false,
-    clientVisible: false,
-    isRecording: false,
+    intervalTime: 1000,
+    process: PROCESS,
+    processMonitor: null,
+    processExists: false,
 
     /**
      * Start interval
      */
-    async startInterval(handleProcessStarted, handleProcessEnded) {
-        const credentials = await authenticate({
-            awaitConnection: true,
-            pollInterval: 5000,
-        });
-
+    startInterval(handleProcessStarted, handleProcessEnded) {
         this.handleProcessStarted = handleProcessStarted;
         this.handleProcessEnded = handleProcessEnded;
 
-        this.setClientListeners(credentials);
-        this.subscribeToWebHook(credentials);
-    },
-
-    setClientListeners(credentials) {
-        const client = new LeagueClient(credentials);
-
-        client.on('connect', (newCredentials) => {
-            this.subscribeToWebHook(newCredentials);
-        });
-
-        client.on('disconnect', () => {
-            this.ws.unsubscribe(PHASE_WEBHOOK);
-            this.ws.unsubscribe(SESSION_WEBHOOK);
-            this.ws.unsubscribe(PATCHER_WEBHOOK);
-        });
-
-        client.start(); // Start listening for process updates
+        this.interval = setInterval(
+            this.monitorProcess.bind(this),
+            this.intervalTime
+        );
     },
 
     /**
-     * Subscribe to webhook
+     * Stop process monitor interval
      */
-    subscribeToWebHook(credentials) {
-        setTimeout(() => this._subscribeToWebHook(credentials), 5000); // Required because webhook is not immediately ready
+    stopProcessMonitorInterval() {
+        this.handleProcessStarted = null;
+        this.handleProcessEnded = null;
+
+        clearInterval(this.interval);
     },
 
-    async _subscribeToWebHook(credentials) {
-        this.ws = await connect(credentials);
+    /**
+     * Monitor process
+     * @param {Function} handleExists
+     * @param {Function} handleDoesNotExist
+     */
+    monitorProcess() {
+        let previousProcessExists = this.processExists;
+        this.processExists = this.getProcessExists(this.process);
 
-        this.ws.subscribe(PHASE_WEBHOOK, (data, event) => {
-            if (data === GAME_START_EVENT) {
-                this.handleProcessEnded();
+        if (!previousProcessExists && this.processExists) {
+            this.handleProcessStarted();
+        }
 
-                this.gameStarted = true;
-            }
+        if (previousProcessExists && !this.processExists) {
+            this.handleProcessEnded();
+        }
+    },
 
-            if (data === GAME_END_EVENT) {
-                this.handleProcessEnded();
-
-                this.gameStarted = false;
-                this.clientVisible = false;
-                this.isRecording = false;
-            }
-        });
-
-        this.ws.subscribe(SESSION_WEBHOOK, (data, event) => {
-            if (this.gameStarted && data.gameClient.visible) {
-                this.clientVisible = true;
-            }
-        });
-
-        this.ws.subscribe(PATCHER_WEBHOOK, (data, event) => {
-            if (this.gameStarted && this.clientVisible && !this.isRecording) {
-                this.handleProcessStarted();
-
-                this.isRecording = true;
-            }
+    /**
+     * Get process exists
+     * @param {String} process
+     */
+    getProcessExists(process) {
+        exec('tasklist', function (error, stdout) {
+            return stdout.includes(process);
         });
     },
 };
