@@ -60,6 +60,10 @@ const screenRecorder = {
             'desktop-video'
         );
 
+        if (!videoSource.properties) {
+            return [];
+        }
+
         const windows =
             getOS() === OS.Mac
                 ? videoSource.properties.get('display').details

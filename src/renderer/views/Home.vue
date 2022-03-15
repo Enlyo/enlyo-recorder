@@ -25,8 +25,8 @@
                         >
                             <option
                                 v-for="screen in availableScreens"
-                                :key="screen.id"
-                                :value="screen.display_id"
+                                :key="screen.name"
+                                :value="screen.name"
                             >
                                 {{ screen.name }}
                             </option>
