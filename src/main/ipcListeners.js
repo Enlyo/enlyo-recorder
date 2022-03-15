@@ -6,6 +6,8 @@ const {
     handleStopRecorder,
     handleStartProcessMonitor,
     handleStopProcessMonitor,
+    setFps,
+    setScreen,
     getAvailableScreens,
     getStoreValue,
     setStoreValue,
@@ -45,16 +47,16 @@ function setIpcListeners(win) {
         handleStopProcessMonitor(event);
     });
 
+    ipcMain.handle('set-setting', async (event, { key, value }) => {
+        return setScreen(key, value);
+    });
+
     ipcMain.handle('get-available-screens', async (event) => {
         return await getAvailableScreens(event);
     });
 
     ipcMain.handle('get-store-value', async (event, key) => {
         return getStoreValue(key);
-    });
-
-    ipcMain.handle('set-store-value', async (event, { key, value }) => {
-        return setStoreValue(key, value);
     });
 }
 

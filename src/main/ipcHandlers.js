@@ -103,6 +103,24 @@ function handleStopProcessMonitor() {
 }
 
 /**
+ * Set setting
+ * @param {*} fps
+ * @returns
+ */
+function setSetting(key, value) {
+    const storeKey = `settings.${key}`;
+    store.set(storeKey, value);
+
+    if (key === 'fps') {
+        return screenRecorder.setFps(value);
+    } else if (key === 'screen') {
+        return screenRecorder.setScreen(value);
+    } else if (key === 'resolution') {
+        return screenRecorder.setResolution(value);
+    }
+}
+
+/**
  * Get available screens
  */
 function getAvailableScreens() {
@@ -110,14 +128,10 @@ function getAvailableScreens() {
 }
 
 /**
- * Handle store
+ * Get store value
  */
 function getStoreValue(key) {
     return store.get(key);
-}
-
-function setStoreValue(key, value) {
-    return store.set(key, value);
 }
 
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
@@ -127,5 +141,5 @@ module.exports.handleStopRecorder = handleStopRecorder;
 module.exports.handleStartProcessMonitor = handleStartProcessMonitor;
 module.exports.handleStopProcessMonitor = handleStopProcessMonitor;
 module.exports.getAvailableScreens = getAvailableScreens;
+module.exports.setSetting = setSetting;
 module.exports.getStoreValue = getStoreValue;
-module.exports.setStoreValue = setStoreValue;

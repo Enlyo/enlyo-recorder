@@ -35,7 +35,7 @@ const screenRecorder = {
                 format: 'mkv',
                 bitRate: 12000,
                 fps: 60,
-                screen: 0,
+                screen: {},
             },
             settings
         );
@@ -49,6 +49,34 @@ const screenRecorder = {
         this.isInitialized = true;
     },
 
+    /**
+     * Set fps
+     * @param {} fps
+     */
+    setFps(fps) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.fps = fps;
+
+        this.setSetting('Video', 'FPSCommon', fps);
+    },
+
+    /**
+     * Set screen
+     * @param {} screen
+     */
+    setScreen(screen) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.screen = screen.value;
+
+        this._scene = this._setupScene();
+    },
+
+    /**
+     * Get available screens
+     * @returns screens
+     */
     getAvailableScreens() {
         if (!this.isInitialized) this.initialize();
 
@@ -218,7 +246,7 @@ const screenRecorder = {
                 [OS.Mac]: 'display_capture',
             }),
             'desktop-video',
-            { monitor: this.settings.screen }
+            { monitor: this.settings.screen.value }
         );
 
         // Update source settings:

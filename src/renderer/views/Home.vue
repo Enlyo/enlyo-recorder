@@ -234,8 +234,8 @@ export default {
          * Set setting
          */
         async setSetting(key, value) {
-            await window.ipc.invoke('set-store-value', {
-                key: `settings.${key}`,
+            await window.ipc.invoke('set-setting', {
+                key,
                 value,
             });
         },
