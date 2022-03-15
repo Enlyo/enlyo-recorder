@@ -6,19 +6,17 @@ const {
     handleStopRecorder,
     handleStartProcessMonitor,
     handleStopProcessMonitor,
-    setFps,
-    setScreen,
+    setSetting,
     getAvailableScreens,
     getStoreValue,
-    setStoreValue,
 } = require('./ipcHandlers');
 
 /**
  * Set ipc listeners
  */
 function setIpcListeners(win) {
-    ipcMain.on('initialize-recorder', () => {
-        handleInitializeRecorder();
+    ipcMain.on('initialize-recorder', (event, settings) => {
+        handleInitializeRecorder(settings);
     });
 
     ipcMain.on('start-recorder-preview', async (event, payload) => {
@@ -48,7 +46,7 @@ function setIpcListeners(win) {
     });
 
     ipcMain.handle('set-setting', async (event, { key, value }) => {
-        return setScreen(key, value);
+        return setSetting(key, value);
     });
 
     ipcMain.handle('get-available-screens', async (event) => {

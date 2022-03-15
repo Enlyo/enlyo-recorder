@@ -21,10 +21,11 @@ const OUTPUT_FORMAT = 'mp4';
 /**
  * Handle initialize recorder
  */
-async function handleInitializeRecorder() {
-    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+async function handleInitializeRecorder(settings) {
+    screenRecorder.setSettings({ outputPath: RAW_RECORDING_PATH, ...settings });
 
-    screenRecorder.initialize({ outputPath: RAW_RECORDING_PATH });
+    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+    screenRecorder.initialize();
 }
 
 /**

@@ -137,7 +137,7 @@ export default {
             showSuccessMessage: false,
 
             settings: {
-                screen: '',
+                screen: null,
                 resolution: 1080,
                 fps: 60,
             },
@@ -155,13 +155,10 @@ export default {
         },
     },
 
-    created() {
-        this.getSettings();
-        this.getAvailableScreens();
-    },
-
-    mounted() {
+    async mounted() {
+        await this.getSettings();
         this.initializeRecorder();
+        this.getAvailableScreens();
         this.startProcessMonitor();
         this.setIpcListeners();
     },
@@ -180,7 +177,11 @@ export default {
          * Initialize recorder
          */
         initializeRecorder() {
-            window.ipc.send('initialize-recorder');
+            window.ipc.send('initialize-recorder', {
+                fps: this.settings.fps,
+                resolution: this.settings.resolution,
+                screen: this.settings.screen,
+            });
         },
 
         /**
@@ -214,6 +215,12 @@ export default {
             this.availableScreens = await window.ipc.invoke(
                 'get-available-screens'
             );
+
+            if (!this.settings.screen) {
+                const defaultScreen = this.availableScreens[0];
+                this.settings.screen = defaultScreen;
+                this.setSetting('screen', defaultScreen);
+            }
         },
 
         /* -------------------------------------------------------------------------- */

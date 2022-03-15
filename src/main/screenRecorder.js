@@ -13,11 +13,31 @@ const { byOS, OS, getOS } = require('../../operating-systems');
 const screenRecorder = {
     isInitialized: false,
     isRecording: false,
-    settings: {},
+    settings: {
+        outputPath: '/',
+        format: 'mkv',
+        bitRate: 12000,
+        fps: 60,
+        screen: null,
+        resolution: 1080,
+    },
 
     /* -------------------------------------------------------------------------- */
     /*                                   PUBLIC                                   */
     /* -------------------------------------------------------------------------- */
+
+    /**
+     * Set settings
+     * @param {*} settings
+     * @returns
+     */
+    setSettings(settings) {
+        console.debug(settings);
+
+        this.settings = Object.assign(this.settings, settings);
+
+        console.debug(this.settings);
+    },
 
     /**
      * Initialize
@@ -28,17 +48,6 @@ const screenRecorder = {
      */
     initialize(settings) {
         if (this.isInitialized) return;
-
-        this.settings = Object.assign(
-            {
-                outputPath: '/',
-                format: 'mkv',
-                bitRate: 12000,
-                fps: 60,
-                screen: {},
-            },
-            settings
-        );
 
         this.display = this._getDisplayInfo();
 
@@ -68,7 +77,19 @@ const screenRecorder = {
     setScreen(screen) {
         if (!this.isInitialized) this.initialize();
 
-        this.settings.screen = screen.value;
+        this.settings.screen = screen;
+
+        this._scene = this._setupScene();
+    },
+
+    /**
+     * Set resolution
+     * @param {} resolution
+     */
+    setResolution(resolution) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.resolution = resolution;
 
         this._scene = this._setupScene();
     },
@@ -99,6 +120,32 @@ const screenRecorder = {
                 : videoSource.properties.get('monitor').details;
 
         return windows.items;
+    },
+
+    /**
+     * Get default screen
+     * @returns screen
+     */
+    getDefaultScreen() {
+        const videoSource = osn.InputFactory.create(
+            byOS({
+                [OS.Windows]: 'monitor_capture',
+                [OS.Mac]: 'display_capture',
+            }),
+            'desktop-video'
+        );
+
+        // TODO: Maybe give a nice error here (for Guus laptop)
+        if (!videoSource.properties) {
+            return [];
+        }
+
+        const windows =
+            getOS() === OS.Mac
+                ? videoSource.properties.get('display').details
+                : videoSource.properties.get('monitor').details;
+
+        return windows.items[0];
     },
 
     /**
@@ -240,6 +287,14 @@ const screenRecorder = {
      * @returns Scene
      */
     _setupScene() {
+        if (!this.settings.screen) {
+            this.settings.screen = this.getDefaultScreen();
+        }
+
+        const { width, height, aspectRatio } = this.parseResolution(
+            this.settings.screen.name
+        );
+
         const videoSource = osn.InputFactory.create(
             byOS({
                 [OS.Windows]: 'monitor_capture',
@@ -251,20 +306,20 @@ const screenRecorder = {
 
         // Update source settings:
         let settings = videoSource.settings;
-        settings['width'] = this.display.physicalWidth;
-        settings['height'] = this.display.physicalHeight;
+        settings['width'] = width;
+        settings['height'] = height;
         videoSource.update(settings);
         videoSource.save();
 
-        // Set output video size to 1920x1080
-        const outputWidth = 1920;
-        const outputHeight = Math.round(outputWidth / this.display.aspectRatio);
+        const outputWidth = this.settings.resolution / 0.5625; // 16:9 ratio
+        const outputHeight = Math.round(outputWidth / aspectRatio);
         this.setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
         this.setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
-        const videoScaleFactor = this.display.physicalWidth / outputWidth;
+
+        const videoScaleFactor = width / outputWidth;
 
         // A scene is necessary here to properly scale captured screen size to output video size
-        const scene = osn.SceneFactory.create('test-scene');
+        const scene = osn.SceneFactory.create('default-scene');
         const sceneItem = scene.add(videoSource);
         sceneItem.scale = {
             x: 1.0 / videoScaleFactor,
@@ -741,6 +796,20 @@ const screenRecorder = {
         }
 
         return parameterSettings.values.map((value) => Object.values(value)[0]);
+    },
+
+    /**
+     * Parse resolution
+     * @param {String} value the name of the display
+     * @returns {Object} { width, height }
+     */
+    parseResolution(value) {
+        let resolution = value.split(' ')[1];
+        let width = Number(resolution.split('x')[0]);
+        let height = Number(resolution.split('x')[1]);
+        let aspectRatio = width / height;
+
+        return { width, height, aspectRatio };
     },
 };
 
