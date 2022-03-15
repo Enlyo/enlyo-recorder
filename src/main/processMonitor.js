@@ -1,6 +1,4 @@
 // const exec = require('child_process').exec;
-const psList = import('ps-list');
-const { windowManager } = require('node-window-manager');
 const { authenticate, LeagueClient, connect } = require('league-connect');
 
 const PHASE_WEBHOOK = '/lol-gameflow/v1/gameflow-phase';
@@ -34,14 +32,14 @@ const processMonitor = {
         this.handleProcessEnded = handleProcessEnded;
 
         this.setClientListeners(credentials);
-        this.subcribeToWebHook(credentials);
+        this.subscribeToWebHook(credentials);
     },
 
     setClientListeners(credentials) {
         const client = new LeagueClient(credentials);
 
         client.on('connect', (newCredentials) => {
-            this.subcribeToWebHook(newCredentials);
+            this.subscribeToWebHook(newCredentials);
         });
 
         client.on('disconnect', () => {
@@ -56,11 +54,11 @@ const processMonitor = {
     /**
      * Subscribe to webhook
      */
-    subcribeToWebHook(credentials) {
-        setTimeout(() => this._subcribeToWebHook(credentials), 5000); // Required because webhook is not immediately ready
+    subscribeToWebHook(credentials) {
+        setTimeout(() => this._subscribeToWebHook(credentials), 5000); // Required because webhook is not immediately ready
     },
 
-    async _subcribeToWebHook(credentials) {
+    async _subscribeToWebHook(credentials) {
         this.ws = await connect(credentials);
 
         this.ws.subscribe(PHASE_WEBHOOK, (data, event) => {

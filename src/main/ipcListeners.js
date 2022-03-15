@@ -6,6 +6,9 @@ const {
     handleStopRecorder,
     handleStartProcessMonitor,
     handleStopProcessMonitor,
+    getAvailableScreens,
+    getStoreValue,
+    setStoreValue,
 } = require('./ipcHandlers');
 
 /**
@@ -40,6 +43,18 @@ function setIpcListeners(win) {
 
     ipcMain.on('stop-process-monitor', async (event) => {
         handleStopProcessMonitor(event);
+    });
+
+    ipcMain.handle('get-available-screens', async (event) => {
+        return await getAvailableScreens(event);
+    });
+
+    ipcMain.handle('get-store-value', async (event, key) => {
+        return getStoreValue(key);
+    });
+
+    ipcMain.handle('set-store-value', async (event, { key, value }) => {
+        return setStoreValue(key, value);
     });
 }
 

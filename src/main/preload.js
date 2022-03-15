@@ -12,7 +12,7 @@ const VALID_CHANNELS = {
         'start-recorder',
         'stop-recorder',
         'start-process-monitor',
-        'stop-proccess-monitor',
+        'stop-process-monitor',
     ],
     response: [
         'resized-recorder-preview',
@@ -23,6 +23,7 @@ const VALID_CHANNELS = {
         'stop-recorder-request',
         'start-recorder-request',
     ],
+    invoke: ['get-available-screens', 'get-store-value', 'set-store-value'],
 };
 
 contextBridge.exposeInMainWorld('ipc', {
@@ -35,6 +36,12 @@ contextBridge.exposeInMainWorld('ipc', {
     on: (channel, func) => {
         if (VALID_CHANNELS.response.includes(channel)) {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
+        }
+    },
+
+    invoke: async (channel, data) => {
+        if (VALID_CHANNELS.invoke.includes(channel)) {
+            return await ipcRenderer.invoke(channel, data);
         }
     },
 });

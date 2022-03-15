@@ -7,6 +7,7 @@ const screenPreviewer = require('./screenPreviewer');
 const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName } = require('./helpers');
+const { store } = require('./store');
 
 const VIDEO_PATH = require('electron').app.getPath('videos');
 const RECORDING_FOLDER = 'enlyo-recordings';
@@ -101,9 +102,31 @@ function handleStopProcessMonitor() {
     processMonitor.stopInterval();
 }
 
+/**
+ * Get available screens
+ */
+function getAvailableScreens() {
+    // TODO: change this to OBS display sources
+    return screenPreviewer.getVideoSources();
+}
+
+/**
+ * Handle store
+ */
+function getStoreValue(key) {
+    return store.get(key);
+}
+
+function setStoreValue(key, value) {
+    return store.set(key, value);
+}
+
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorderPreview = handleStartRecorderPreview;
 module.exports.handleStartRecorder = handleStartRecorder;
 module.exports.handleStopRecorder = handleStopRecorder;
 module.exports.handleStartProcessMonitor = handleStartProcessMonitor;
 module.exports.handleStopProcessMonitor = handleStopProcessMonitor;
+module.exports.getAvailableScreens = getAvailableScreens;
+module.exports.getStoreValue = getStoreValue;
+module.exports.setStoreValue = setStoreValue;
