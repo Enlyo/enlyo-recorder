@@ -1,6 +1,6 @@
 <template>
     <AppLayout :class="{ 'is-recording': isRecording }">
-        <AppHeader v-if="!isRecording" title="Enlyo" has-settings />
+        <AppHeader v-if="!isRecording" title="Enlyo" />
 
         <AppContent v-if="!isRecording">
             <transition name="bounce-in">
@@ -13,15 +13,61 @@
                 />
             </transition>
 
-            <div class="preview-box">
-                <p class="box-label mb-3">Preview</p>
-                <transition name="fade">
-                    <video
-                        v-show="showPreview"
-                        ref="streamPreview"
-                        class="stream-preview"
-                    />
-                </transition>
+            <div class="screen-settings">
+                <SectionHead title="Screen" />
+
+                <SectionCard>
+                    <b-field label="Screen">
+                        <b-select
+                            v-model="settings.defaultScreen"
+                            expanded
+                            @input="setSetting('defaultScreen', $event)"
+                        >
+                            <option
+                                v-for="screen in availableScreens"
+                                :key="screen.id"
+                                :value="screen.display_id"
+                            >
+                                {{ screen.name }}
+                            </option>
+                        </b-select>
+                    </b-field>
+                </SectionCard>
+            </div>
+
+            <div class="video-quality-settings mt-4">
+                <SectionHead title="Video quality" />
+
+                <div class="columns is-mobile">
+                    <div class="column">
+                        <SectionCard>
+                            <b-field label="Resolution">
+                                <b-select
+                                    v-model="settings.resolution"
+                                    expanded
+                                    @input="setSetting('resolution', $event)"
+                                >
+                                    <option :value="720">720</option>
+                                    <option :value="1080">1080</option>
+                                </b-select>
+                            </b-field>
+                        </SectionCard>
+                    </div>
+                    <div class="column">
+                        <SectionCard>
+                            <b-field label="Frame rate">
+                                <b-select
+                                    v-model="settings.fps"
+                                    expanded
+                                    @input="setSetting('fps', $event)"
+                                >
+                                    <option :value="30">30 fps</option>
+                                    <option :value="60">60 fps</option>
+                                </b-select>
+                            </b-field>
+                        </SectionCard>
+                    </div>
+                </div>
             </div>
         </AppContent>
 
@@ -63,6 +109,8 @@ import AppFooter from '@/components/layout/AppFooter.vue';
 import RecordButton from '@/components/RecordButton.vue';
 import Loader from '@/components/Loader.vue';
 import Notification from '@/components/Notification.vue';
+import SectionHead from '@/components/SectionHead.vue';
+import SectionCard from '@/components/SectionCard.vue';
 
 export default {
     name: 'Home',
@@ -75,6 +123,8 @@ export default {
         RecordButton,
         Loader,
         Notification,
+        SectionHead,
+        SectionCard,
     },
 
     data() {
@@ -84,8 +134,14 @@ export default {
             recordTime: 0,
             timer: null,
 
-            showPreview: false,
             showSuccessMessage: false,
+
+            settings: {
+                defaultScreen: '',
+                resolution: 1080,
+                fps: 60,
+            },
+            availableScreens: [],
         };
     },
 
@@ -99,12 +155,14 @@ export default {
         },
     },
 
+    created() {
+        this.getSettings();
+        this.getAvailableScreens();
+    },
+
     mounted() {
         this.initializeRecorder();
-        this.initializeRecorderPreview();
-
         this.startProcessMonitor();
-
         this.setIpcListeners();
     },
 
@@ -123,20 +181,6 @@ export default {
          */
         initializeRecorder() {
             window.ipc.send('initialize-recorder');
-        },
-
-        /**
-         * Initialize recorder preview
-         */
-        initializeRecorderPreview() {
-            window.ipc.send('start-recorder-preview', {});
-        },
-
-        /**
-         * Stop recorder preview
-         */
-        stopRecorderPreview() {
-            window.ipc.send('stop-recorder-preview', {});
         },
 
         /**
@@ -159,43 +203,41 @@ export default {
         setIpcListeners() {
             window.ipc.on('started-recorder', this.handleRecorderStarted);
             window.ipc.on('stopped-recorder', this.handleRecorderStopped);
-            window.ipc.on('started-recorder-preview', this.handlePreviewStream);
             window.ipc.on('start-recorder-request', this.startRecorder);
             window.ipc.on('stop-recorder-request', this.stopRecorder);
         },
 
-        // TODO: Add on destroy logic -> (also record timer ect)
-
-        /* -------------------------------------------------------------------------- */
-        /*                                  PREVIEW                                 */
-        /* -------------------------------------------------------------------------- */
-
-        async handlePreviewStream(sources) {
-            const constraints = {
-                audio: false,
-                video: {
-                    mandatory: {
-                        chromeMediaSource: 'desktop',
-                        chromeMediaSourceId: sources[0].id,
-                    },
-                },
-            };
-
-            // Create a Stream
-            const stream = await navigator.mediaDevices.getUserMedia(
-                constraints
+        /**
+         * Get available screens
+         */
+        async getAvailableScreens() {
+            this.availableScreens = await window.ipc.invoke(
+                'get-available-screens'
             );
+        },
 
-            const streamPreview = this.$refs.streamPreview;
+        /* -------------------------------------------------------------------------- */
+        /*                              Settings                                      */
+        /* -------------------------------------------------------------------------- */
 
-            if (!streamPreview || !stream) {
-                return;
-            }
+        /**
+         * Get settings
+         */
+        async getSettings() {
+            this.settings = await window.ipc.invoke(
+                'get-store-value',
+                'settings'
+            );
+        },
 
-            streamPreview.srcObject = stream;
-            streamPreview.play();
-
-            this.showPreview = true;
+        /**
+         * Set setting
+         */
+        async setSetting(key, value) {
+            await window.ipc.invoke('set-store-value', {
+                key: `settings.${key}`,
+                value,
+            });
         },
 
         /* -------------------------------------------------------------------------- */
@@ -232,10 +274,6 @@ export default {
          * Handle recorder started
          */
         handleRecorderStarted() {
-            const streamPreview = this.$refs.streamPreview;
-
-            streamPreview.srcObject = null;
-
             this.setIsRecording(true);
             this.startRecordTime();
         },
@@ -258,7 +296,6 @@ export default {
             this.resetRecordTime();
 
             this.$nextTick(() => {
-                this.initializeRecorderPreview();
                 setTimeout(() => this.setShowSuccessMessage(true), 1000);
             });
         },
@@ -300,29 +337,6 @@ export default {
 .app-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-}
-
-.preview-box {
-    padding: 1rem;
-    background-color: $background-dark-4;
-    border-radius: 8px;
-    aspect-ratio: 16/10;
-    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.18),
-        0px 0px 0px 1px rgba(0, 0, 0, 0.13);
-
-    .box-label {
-        text-transform: uppercase;
-        font-weight: bold;
-        font-size: $s-14px;
-        color: $text-soft-white;
-    }
-
-    .stream-preview {
-        aspect-ratio: 16/9;
-        border-radius: 8px;
-        overflow: hidden;
-    }
 }
 
 .record-button-box {
