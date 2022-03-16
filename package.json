@@ -4,8 +4,8 @@
     "description": "Screen recording software for gaming",
     "author": "Enlyo",
     "license": "GPL-2.0",
-    "version": "0.1.0",
-    "private": true,
+    "version": "0.1.3-alpha",
+    "private": false,
     "main": "src/main/main.js",
     "build": {
         "appId": "my.vue.app",
@@ -28,13 +28,17 @@
             "node_modules/ffmpeg-static/bin/${os}/${arch}/ffmpeg",
             "node_modules/ffmpeg-static/index.js",
             "node_modules/ffmpeg-static/package.json"
+        ],
+        "publish": [
+            "github"
         ]
     },
     "scripts": {
         "postinstall": "node ./scripts/postinstall.js",
         "dev": "NODE_ENV=DEV vue-cli-service serve --port 8001 & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
         "devw": "node ./scripts/devwindows.js",
-        "build": "vue-cli-service build --mode production && electron-builder build",
+        "build": "vue-cli-service build --mode production && electron-builder build --win --publish never",
+        "deploy": "vue-cli-service build --mode production && electron-builder build --win --publish always",
         "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
     },
     "dependencies": {
@@ -42,6 +46,7 @@
         "buefy": "^0.9.14",
         "core-js": "^3.6.5",
         "electron-store": "^8.0.1",
+        "electron-updater": "^4.6.5",
         "ffmpeg-static": "^4.4.1",
         "ffprobe-static": "^3.0.0",
         "fluent-ffmpeg": "^2.1.2",
@@ -80,5 +85,9 @@
         "> 1%",
         "last 2 versions",
         "not dead"
-    ]
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Enlyo/enlyo-recorder.git"
+    }
 }
