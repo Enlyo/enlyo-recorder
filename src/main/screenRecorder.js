@@ -40,9 +40,8 @@ const screenRecorder = {
      *
      * Init the library, launch OBS Studio instance, configure it, set up sources and scene
      *
-     * @param {Object} settings - record settings
      */
-    initialize(settings) {
+    initialize() {
         if (this.isInitialized) return;
 
         this.display = this._getDisplayInfo();
@@ -285,7 +284,7 @@ const screenRecorder = {
      * @returns Scene
      */
     _setupScene() {
-        if (!this.settings.screen.name) {
+        if (!this.settings.screen) {
             this.settings.screen = this.getDefaultScreen();
         }
 

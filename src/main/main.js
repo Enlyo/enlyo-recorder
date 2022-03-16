@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
+const { initUpdates } = require('./autoUpdater');
 const path = require('path');
 
 /**
@@ -51,6 +52,7 @@ let win;
 app.on('ready', async () => {
     createWindow();
     setIpcListeners(win);
+    initUpdates(win);
 });
 
 // Quit when all windows are closed.

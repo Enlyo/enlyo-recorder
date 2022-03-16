@@ -1,0 +1,4 @@
+appId: my.vue.app
+publish:
+  provider: github
+
