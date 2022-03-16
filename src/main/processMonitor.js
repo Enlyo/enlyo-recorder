@@ -1,7 +1,5 @@
-// const exec = require('child_process').exec;
-const exec = require('child_process').exec;
-
-const PROCESS = 'League of Legends.exe';
+const { listOpenWindows } = require('@josephuspaye/list-open-windows');
+const { store } = require('./store');
 
 /**
  * Process monitor
@@ -9,10 +7,11 @@ const PROCESS = 'League of Legends.exe';
 const processMonitor = {
     handleProcessStarted: null,
     handleProcessEnded: null,
-    intervalTime: 1000,
-    process: PROCESS,
+    intervalTime: 100,
+    autoRecordProcesses: store.get('settings.autoRecordProcesses'),
     processMonitor: null,
     processExists: false,
+    processId: null,
 
     /**
      * Start interval
@@ -43,8 +42,14 @@ const processMonitor = {
      * @param {Function} handleDoesNotExist
      */
     monitorProcess() {
-        let previousProcessExists = this.processExists;
-        this.processExists = this.getProcessExists(this.process);
+        const previousProcessExists = this.processExists;
+
+        const { processExists, processId } = this.getProcessExists({
+            processId: this.processId,
+            autoRecordProcesses: this.autoRecordProcesses,
+        });
+        this.processExists = processExists;
+        this.processId = processId;
 
         if (!previousProcessExists && this.processExists) {
             this.handleProcessStarted();
@@ -59,10 +64,35 @@ const processMonitor = {
      * Get process exists
      * @param {String} process
      */
-    getProcessExists(process) {
-        exec('tasklist', function (error, stdout) {
-            return stdout.includes(process);
+    getProcessExists({ autoRecordProcesses, processId }) {
+        // Get procees by ID is a quicker method that only looks
+        // for a specific, already-opened process
+        if (processId) {
+            return this._getProcessExistsById(processId);
+        }
+        return this._getProcessExists(autoRecordProcesses);
+    },
+
+    _getProcessExistsById(id) {
+        try {
+            process.kill(id, 0);
+            return { processExists: true, processId: id };
+        } catch (e) {
+            return { processExists: false, processId: null };
+        }
+    },
+
+    _getProcessExists(autoRecordProcesses) {
+        const process = listOpenWindows().find((window) => {
+            return autoRecordProcesses.find((process) => {
+                return window.processPath.includes(process.name);
+            });
         });
+
+        const processExists = Boolean(process);
+        const processId = processExists ? process.processId : null;
+
+        return { processExists, processId };
     },
 };
 

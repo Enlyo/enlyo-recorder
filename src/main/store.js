@@ -13,11 +13,15 @@ const schema = {
             fps: {
                 enum: [30, 60],
             },
+            autoRecordProcesses: {
+                type: 'array',
+            },
         },
         default: {
             screen: {},
             resolution: 720,
             fps: 30,
+            autoRecordProcesses: [],
         },
     },
 };
