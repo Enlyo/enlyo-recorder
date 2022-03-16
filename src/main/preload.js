@@ -22,7 +22,6 @@ const VALID_CHANNELS = {
         'stopped-recorder',
         'stop-recorder-request',
         'start-recorder-request',
-        'state-updated', // TODO: WIP
     ],
     invoke: ['get-available-screens', 'get-store-value', 'set-setting'],
 };
