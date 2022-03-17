@@ -21,6 +21,10 @@ export default {
                     label: 'Video',
                     to: `/`,
                 },
+                {
+                    label: 'Auto recording',
+                    to: `/auto-recording`,
+                },
             ],
         };
     },

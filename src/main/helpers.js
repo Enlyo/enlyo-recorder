@@ -25,5 +25,16 @@ function getAppVersion() {
     return require('../../package.json').version;
 }
 
+/**
+ * Get unique list (array) by key
+ * @param {Array} arr
+ * @param {String} key
+ * @returns
+ */
+function getUniqueListBy(arr, key) {
+    return [...new Map(arr.map((item) => [item[key], item])).values()];
+}
+
 module.exports.generateOutputName = generateOutputName;
 module.exports.getAppVersion = getAppVersion;
+module.exports.getUniqueListBy = getUniqueListBy;
