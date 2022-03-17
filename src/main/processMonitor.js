@@ -61,6 +61,14 @@ const processMonitor = {
     },
 
     /**
+     * Get active processes
+     * @returns list of active processes
+     */
+    getActiveProcesses() {
+        return windowManager.getWindows();
+    },
+
+    /**
      * Get process exists
      * @param {String} process
      */

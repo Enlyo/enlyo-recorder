@@ -142,6 +142,13 @@ function getVersion() {
     return getAppVersion();
 }
 
+/**
+ * Get active processes
+ */
+function getActiveProcesses() {
+    return processMonitor.getActiveProcesses();
+}
+
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorderPreview = handleStartRecorderPreview;
 module.exports.handleStartRecorder = handleStartRecorder;
@@ -152,3 +159,4 @@ module.exports.getAvailableScreens = getAvailableScreens;
 module.exports.setSetting = setSetting;
 module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;
+module.exports.getActiveProcesses = getActiveProcesses;

@@ -10,6 +10,7 @@ const {
     getAvailableScreens,
     getStoreValue,
     getVersion,
+    getActiveProcesses,
 } = require('./ipcHandlers');
 
 /**
@@ -60,6 +61,10 @@ function setIpcListeners(win) {
 
     ipcMain.handle('get-app-version', async () => {
         return getVersion();
+    });
+
+    ipcMain.handle('get-active-processes', async () => {
+        return getActiveProcesses();
     });
 }
 

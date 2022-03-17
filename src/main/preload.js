@@ -24,10 +24,11 @@ const VALID_CHANNELS = {
         'start-recorder-request',
     ],
     invoke: [
-        'get-available-screens',
-        'get-store-value',
-        'set-setting',
+        'get-active-processes',
         'get-app-version',
+        'get-available-screens',
+        'set-setting',
+        'get-store-value',
     ],
 };
 
