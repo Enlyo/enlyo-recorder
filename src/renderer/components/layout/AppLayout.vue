@@ -13,7 +13,7 @@ export default {
 <style lang="scss" scoped>
 .app-layout {
     height: 100%;
-    background-color: $background-dark-2;
+    background-color: $background-dark-3;
     display: flex;
     flex-direction: column;
 }

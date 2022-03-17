@@ -2,6 +2,8 @@
     <AppLayout :class="{ 'is-recording': isRecording }">
         <AppHeader v-if="!isRecording" title="Enlyo" />
 
+        <AppNavigation />
+
         <AppContent v-if="!isRecording">
             <transition name="bounce-in">
                 <Notification
@@ -14,7 +16,7 @@
             </transition>
 
             <div class="screen-settings">
-                <SectionHead title="Screen" />
+                <SectionHead title="Screen" class="pt-0" />
 
                 <SectionCard>
                     <b-field label="Screen">
@@ -106,6 +108,7 @@
 <script>
 import AppLayout from '@/components/layout/AppLayout.vue';
 import AppHeader from '@/components/layout/AppHeader.vue';
+import AppNavigation from '@/components/layout/AppNavigation.vue';
 import AppContent from '@/components/layout/AppContent.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import RecordButton from '@/components/RecordButton.vue';
@@ -120,6 +123,7 @@ export default {
     components: {
         AppLayout,
         AppHeader,
+        AppNavigation,
         AppContent,
         AppFooter,
         RecordButton,
