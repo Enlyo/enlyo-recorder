@@ -1,5 +1,6 @@
-const { listOpenWindows } = require('@josephuspaye/list-open-windows');
 const { store } = require('./store');
+
+const { windowManager } = require('node-window-manager');
 
 /**
  * Process monitor
@@ -8,7 +9,7 @@ const processMonitor = {
     handleProcessStarted: null,
     handleProcessEnded: null,
     intervalTime: 100,
-    autoRecordProcesses: store.get('settings.autoRecordProcesses'),
+    autoRecordProcesses: null,
     processMonitor: null,
     processExists: false,
     processId: null,
@@ -46,7 +47,6 @@ const processMonitor = {
 
         const { processExists, processId } = this.getProcessExists({
             processId: this.processId,
-            autoRecordProcesses: this.autoRecordProcesses,
         });
         this.processExists = processExists;
         this.processId = processId;
@@ -64,13 +64,13 @@ const processMonitor = {
      * Get process exists
      * @param {String} process
      */
-    getProcessExists({ autoRecordProcesses, processId }) {
+    getProcessExists({ processId }) {
         // Get procees by ID is a quicker method that only looks
         // for a specific, already-opened process
         if (processId) {
             return this._getProcessExistsById(processId);
         }
-        return this._getProcessExists(autoRecordProcesses);
+        return this._getProcessExists();
     },
 
     _getProcessExistsById(id) {
@@ -82,10 +82,20 @@ const processMonitor = {
         }
     },
 
-    _getProcessExists(autoRecordProcesses) {
-        const process = listOpenWindows().find((window) => {
-            return autoRecordProcesses.find((process) => {
-                return window.processPath.includes(process.name);
+    _getProcessExists() {
+        windowManager.requestAccessibility();
+
+        const windows = windowManager.getWindows();
+
+        if (!this.autoRecordProcesses) {
+            this.autoRecordProcesses = store.get(
+                'settings.autoRecordProcesses'
+            );
+        }
+
+        const process = windows.find((window) => {
+            return this.autoRecordProcesses.find((process) => {
+                return window.path.includes(process.name);
             });
         });
 

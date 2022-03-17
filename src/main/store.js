@@ -19,9 +19,11 @@ const schema = {
         },
         default: {
             screen: {},
-            resolution: 720,
+            resolution: 480,
             fps: 30,
-            autoRecordProcesses: [],
+            autoRecordProcesses: [
+                { name: 'League of Legends.exe', title: 'League of Legends' },
+            ],
         },
     },
 };

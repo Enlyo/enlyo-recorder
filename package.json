@@ -42,7 +42,6 @@
         "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
     },
     "dependencies": {
-        "@josephuspaye/list-open-windows": "^0.1.1",
         "buefy": "^0.9.14",
         "core-js": "^3.6.5",
         "electron-store": "^8.0.1",
