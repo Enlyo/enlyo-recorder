@@ -11,7 +11,8 @@
         "appId": "my.vue.app",
         "win": {
             "target": "nsis",
-            "icon": "public/icons/icon.ico"
+            "icon": "public/icons/icon.ico",
+            "publisherName": "Enlyo"
         },
         "mac": {
             "icon": "public/icons/icon.icns"

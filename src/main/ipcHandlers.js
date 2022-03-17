@@ -6,7 +6,7 @@ const { screenRecorder } = require('./screenRecorder');
 const screenPreviewer = require('./screenPreviewer');
 const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
-const { generateOutputName } = require('./helpers');
+const { generateOutputName, getAppVersion } = require('./helpers');
 const { store } = require('./store');
 
 const VIDEO_PATH = require('electron').app.getPath('videos');
@@ -135,6 +135,13 @@ function getStoreValue(key) {
     return store.get(key);
 }
 
+/**
+ * Get get app version
+ */
+function getVersion() {
+    return getAppVersion();
+}
+
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorderPreview = handleStartRecorderPreview;
 module.exports.handleStartRecorder = handleStartRecorder;
@@ -144,3 +151,4 @@ module.exports.handleStopProcessMonitor = handleStopProcessMonitor;
 module.exports.getAvailableScreens = getAvailableScreens;
 module.exports.setSetting = setSetting;
 module.exports.getStoreValue = getStoreValue;
+module.exports.getVersion = getVersion;

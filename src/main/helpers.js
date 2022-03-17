@@ -16,4 +16,14 @@ function generateOutputName(
     return `${appendMessage}-${rawRecordingName}${outputFormat}`;
 }
 
+/**
+ * Get app version
+ *
+ * @returns
+ */
+function getAppVersion() {
+    return require('../../package.json').version;
+}
+
 module.exports.generateOutputName = generateOutputName;
+module.exports.getAppVersion = getAppVersion;

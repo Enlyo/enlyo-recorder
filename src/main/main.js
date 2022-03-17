@@ -1,12 +1,23 @@
 const { app, BrowserWindow } = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
+const { getAppVersion } = require('./helpers');
 const path = require('path');
 
 /**
  * Is Development
  */
 const isDevelopment = process.env.NODE_ENV === 'DEV';
+
+/**
+ * Set app version
+ */
+const appVersion = getAppVersion();
+
+/**
+ * Set Application User Model ID for Windows
+ */
+app.setAppUserModelId('Enlyo.Recorder.v' + appVersion);
 
 /**
  * Create window

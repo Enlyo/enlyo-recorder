@@ -23,7 +23,12 @@ const VALID_CHANNELS = {
         'stop-recorder-request',
         'start-recorder-request',
     ],
-    invoke: ['get-available-screens', 'get-store-value', 'set-setting'],
+    invoke: [
+        'get-available-screens',
+        'get-store-value',
+        'set-setting',
+        'get-app-version',
+    ],
 };
 
 contextBridge.exposeInMainWorld('ipc', {

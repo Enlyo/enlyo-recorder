@@ -9,6 +9,7 @@ const {
     setSetting,
     getAvailableScreens,
     getStoreValue,
+    getVersion,
 } = require('./ipcHandlers');
 
 /**
@@ -55,6 +56,10 @@ function setIpcListeners(win) {
 
     ipcMain.handle('get-store-value', async (event, key) => {
         return getStoreValue(key);
+    });
+
+    ipcMain.handle('get-app-version', async () => {
+        return getVersion();
     });
 }
 
