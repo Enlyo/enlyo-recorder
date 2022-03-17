@@ -220,12 +220,6 @@ export default {
             this.availableScreens = await window.ipc.invoke(
                 'get-available-screens'
             );
-
-            if (!this.settings.screen.name) {
-                const defaultScreen = this.availableScreens[0];
-                this.settings.screen = defaultScreen;
-                this.setSetting('screen', defaultScreen);
-            }
         },
 
         /* -------------------------------------------------------------------------- */
@@ -240,6 +234,17 @@ export default {
                 'get-store-value',
                 'settings'
             );
+
+            // First time only, set a default screen
+            if (!this.settings.screen.name) {
+                await this.getAvailableScreens();
+
+                const defaultScreen = this.availableScreens[0];
+                this.settings.screen = defaultScreen;
+                this.setSetting('screen', defaultScreen);
+
+                return;
+            }
 
             this.availableScreens = [this.settings.screen];
         },

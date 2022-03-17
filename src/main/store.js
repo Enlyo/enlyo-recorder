@@ -13,11 +13,17 @@ const schema = {
             fps: {
                 enum: [30, 60],
             },
+            autoRecordProcesses: {
+                type: 'array',
+            },
         },
         default: {
             screen: {},
-            resolution: 720,
+            resolution: 480,
             fps: 30,
+            autoRecordProcesses: [
+                { name: 'League of Legends.exe', title: 'League of Legends' },
+            ],
         },
     },
 };

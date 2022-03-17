@@ -26,7 +26,7 @@ function executeCmd(cmd, options) {
         : sh.exec(cmd);
 
     if (result.code !== 0) {
-        log_error(`Command Failed >>> ${cmd}`);
+        // error(`Command Failed >>> ${cmd}`);
         if (options.exit) {
             sh.exit(1);
         } else {

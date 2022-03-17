@@ -801,6 +801,9 @@ const screenRecorder = {
      * @returns {Object} { width, height }
      */
     parseResolution(value) {
+        if (!value) {
+            return { width: 1920, height: 1080, aspectRatio: 0 };
+        }
         let resolution = value.split(': ')[1];
         resolution = resolution.split(' ')[0];
         let width = Number(resolution.split('x')[0]);
