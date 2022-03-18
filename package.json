@@ -39,11 +39,11 @@
         "dev": "NODE_ENV=DEV vue-cli-service serve --port 8001 & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
         "devw": "node ./scripts/devwindows.js",
         "build": "vue-cli-service build --mode production && electron-builder build --win --publish never",
+        "build-staging": "vue-cli-service build --mode staging && electron-builder build --win --publish never",
         "deploy": "vue-cli-service build --mode production && electron-builder build --win --publish always",
         "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
     },
     "dependencies": {
-        "@josephuspaye/list-open-windows": "^0.1.1",
         "buefy": "^0.9.14",
         "core-js": "^3.6.5",
         "dotenv": "^16.0.0",

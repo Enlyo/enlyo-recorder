@@ -1,6 +1,6 @@
 const { autoUpdater } = require('electron-updater');
 
-function initUpdates(win) {
+function initUpdates() {
     autoUpdater.on('update-downloaded', () => {
         // After update download, force quit and install new version
         setTimeout(function () {

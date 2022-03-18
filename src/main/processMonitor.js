@@ -1,7 +1,8 @@
 const path = require('path');
 const { windowManager } = require('node-window-manager');
+const { OS, getOS } = require('../../operating-systems');
 const { store } = require('./store');
-const { parseCaption } = require('./helpers');
+const { parseCaption, getUniqueListBy } = require('./helpers');
 
 /**
  * Process monitor
@@ -64,6 +65,16 @@ const processMonitor = {
      * Get active processes
      */
     getActiveProcesses() {
+        if (getOS() === OS.Mac) {
+            return this._getActiveProcessesMacOs();
+        }
+        return this._getActiveProcessesWindows();
+    },
+
+    /**
+     * Get active processes on Windows(OS)
+     */
+    _getActiveProcessesWindows() {
         const { listOpenWindows } = require('@josephuspaye/list-open-windows');
 
         const windows = listOpenWindows();
@@ -73,6 +84,24 @@ const processMonitor = {
             return {
                 ...window,
                 title: parseCaption(window.caption),
+                name: pathParse.base,
+            };
+        });
+    },
+
+    /**
+     * Get active processes on Mac OS
+     */
+    _getActiveProcessesMacOs() {
+        const uniqueWindows = getUniqueListBy(
+            windowManager.getWindows(),
+            'processId'
+        );
+        return uniqueWindows.map((window) => {
+            const pathParse = path.parse(window.path);
+            return {
+                ...window,
+                title: pathParse.name,
                 name: pathParse.base,
             };
         });

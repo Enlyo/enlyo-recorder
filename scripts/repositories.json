@@ -16,6 +16,14 @@
             "version": "1.0.15",
             "win64": false,
             "osx": true
+        },
+        {
+            "name": "@josephuspaye/list-open-windows",
+            "url": "https://registry.npmjs.org/@josephuspaye/list-open-windows/-/",
+            "archive": "list-open-windows-[VERSION].tgz",
+            "version": "0.1.1",
+            "win64": true,
+            "osx": false
         }
     ]
 }
