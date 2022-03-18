@@ -40,38 +40,7 @@
             trap-focus
             @close="closeAddGameModal"
         >
-            <div class="modal-card" style="width: auto">
-                <section class="modal-card-body">
-                    <b-field label="Select a window">
-                        <b-select
-                            v-model="newGame"
-                            placeholder="Select"
-                            expanded
-                        >
-                            <option
-                                v-for="process in activeProcesses"
-                                :key="process.id"
-                                :value="process"
-                            >
-                                {{ process.title }}
-                            </option>
-                        </b-select>
-                    </b-field>
-                </section>
-                <footer class="modal-card-foot">
-                    <b-button
-                        label="Close"
-                        size="is-small"
-                        @click="closeAddGameModal"
-                    />
-                    <b-button
-                        label="Add Game"
-                        type="is-primary"
-                        size="is-small"
-                        @click="addGame"
-                    />
-                </footer>
-            </div>
+            <AddGameForm @add="addGame" @close="closeAddGameModal" />
         </b-modal>
     </AppLayout>
 </template>
@@ -82,6 +51,7 @@ import AppHeader from '@/components/layout/AppHeader.vue';
 import AppNavigation from '@/components/layout/AppNavigation.vue';
 import AppContent from '@/components/layout/AppContent.vue';
 import SectionHead from '@/components/SectionHead.vue';
+import AddGameForm from '@/components/AddGameForm.vue';
 
 export default {
     name: 'AutoRecording',
@@ -92,6 +62,7 @@ export default {
         AppNavigation,
         AppContent,
         SectionHead,
+        AddGameForm,
     },
 
     data() {
@@ -105,9 +76,7 @@ export default {
             customRecordProcesses: [],
             autoRecordProcesses: [],
 
-            activeProcesses: [],
             showAddGameModal: false,
-            newGame: null,
         };
     },
 
@@ -166,15 +135,6 @@ export default {
             });
         },
 
-        /**
-         * Get active processes
-         */
-        async getActiveProcesses() {
-            this.activeProcesses = await window.ipc.invoke(
-                'get-active-processes'
-            );
-        },
-
         /* -------------------------------------------------------------------------- */
         /*                              Add new game                                  */
         /* -------------------------------------------------------------------------- */
@@ -183,7 +143,6 @@ export default {
          * Open add game modal
          */
         async openAddGameModal() {
-            await this.getActiveProcesses();
             this.showAddGameModal = true;
         },
 
@@ -192,18 +151,12 @@ export default {
          */
         closeAddGameModal() {
             this.showAddGameModal = false;
-            this.newGame = null;
         },
 
         /**
          * Add custom game
          */
-        addGame() {
-            const data = {
-                title: this.newGame.title,
-                name: this.newGame.name,
-                isCustomAdded: true,
-            };
+        addGame(data) {
             this.autoRecordProcesses.push(data);
             this.customRecordProcesses.push(data);
             this.updateAutoRecordProcesses();
