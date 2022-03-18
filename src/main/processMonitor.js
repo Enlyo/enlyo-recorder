@@ -1,7 +1,7 @@
 const path = require('path');
 const { windowManager } = require('node-window-manager');
 const { store } = require('./store');
-const { getUniqueListBy } = require('./helpers');
+const { parseCaption } = require('./helpers');
 
 /**
  * Process monitor
@@ -21,6 +21,8 @@ const processMonitor = {
         this.handleProcessStarted = handleProcessStarted;
         this.handleProcessEnded = handleProcessEnded;
 
+        this.autoRecordProcesses = store.get('settings.autoRecordProcesses');
+
         this.interval = setInterval(
             this.monitorProcess.bind(this),
             this.intervalTime
@@ -28,9 +30,9 @@ const processMonitor = {
     },
 
     /**
-     * Stop process monitor interval
+     * Stop interval
      */
-    stopProcessMonitorInterval() {
+    stopInterval() {
         this.handleProcessStarted = null;
         this.handleProcessEnded = null;
 
@@ -62,15 +64,15 @@ const processMonitor = {
      * Get active processes
      */
     getActiveProcesses() {
-        const uniqueWindows = getUniqueListBy(
-            windowManager.getWindows(),
-            'processId'
-        );
-        return uniqueWindows.map((window) => {
-            const pathParse = path.parse(window.path);
+        const { listOpenWindows } = require('@josephuspaye/list-open-windows');
+
+        const windows = listOpenWindows();
+
+        return windows.map((window) => {
+            const pathParse = path.parse(window.processPath);
             return {
                 ...window,
-                title: pathParse.name,
+                title: parseCaption(window.caption),
                 name: pathParse.base,
             };
         });
@@ -98,8 +100,6 @@ const processMonitor = {
     },
 
     _getProcessExists() {
-        windowManager.requestAccessibility();
-
         const windows = windowManager.getWindows();
 
         if (!this.autoRecordProcesses) {
