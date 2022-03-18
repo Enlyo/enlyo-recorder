@@ -62,9 +62,9 @@ async function handleStopRecorder() {
 
     await fileManager.deleteFile(inputFile);
 
-    const APP_URL = 'https://app.enlyo.com';
+    const APP_BASE = store.get('env.appBase') || 'https://app.enlyo.com';
     require('electron').shell.openExternal(
-        `${APP_URL}?fileName=${outputName}&duration=${data.duration}`
+        `${APP_BASE}?fileName=${outputName}&duration=${data.duration}`
     );
 }
 
@@ -141,6 +141,13 @@ function getActiveProcesses() {
     return processMonitor.getActiveProcesses();
 }
 
+/**
+ * Set env variables to storage
+ */
+function storeEnvVariables(variables) {
+    store.set('env', variables);
+}
+
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorder = handleStartRecorder;
 module.exports.handleStopRecorder = handleStopRecorder;
@@ -151,3 +158,4 @@ module.exports.setSetting = setSetting;
 module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;
 module.exports.getActiveProcesses = getActiveProcesses;
+module.exports.storeEnvVariables = storeEnvVariables;

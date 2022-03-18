@@ -14,11 +14,17 @@ new Vue({
         };
     },
     created() {
+        this.storeEnvVariables();
         this.getAppVersion();
     },
     methods: {
         async getAppVersion() {
             this.appVersion = await window.ipc.invoke('get-app-version');
+        },
+        async storeEnvVariables() {
+            await window.ipc.invoke('store-env-variables', {
+                appBase: process.env.VUE_APP_BASE,
+            });
         },
     },
     router,

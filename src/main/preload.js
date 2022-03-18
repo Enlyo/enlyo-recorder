@@ -23,6 +23,7 @@ const VALID_CHANNELS = {
         'get-store-value',
         'get-app-version',
         'get-active-processes',
+        'store-env-variables',
     ],
 };
 

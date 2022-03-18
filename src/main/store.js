@@ -28,6 +28,9 @@ const schema = {
             customRecordProcesses: [],
         },
     },
+    env: {
+        type: 'object',
+    },
 };
 
 const store = new Store({ schema });

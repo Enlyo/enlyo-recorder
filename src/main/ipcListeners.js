@@ -10,6 +10,7 @@ const {
     getStoreValue,
     getVersion,
     getActiveProcesses,
+    storeEnvVariables,
 } = require('./ipcHandlers');
 
 /**
@@ -58,6 +59,10 @@ function setIpcListeners(win) {
 
     ipcMain.handle('get-active-processes', async () => {
         return getActiveProcesses();
+    });
+
+    ipcMain.handle('store-env-variables', async (event, variables) => {
+        return storeEnvVariables(variables);
     });
 }
 
