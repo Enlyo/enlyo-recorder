@@ -19,6 +19,15 @@ const appVersion = getAppVersion();
  */
 app.setAppUserModelId('Enlyo.Recorder.v' + appVersion);
 
+if (isDevelopment) {
+    try {
+        require('electron-reloader')(module, {
+            debug: true,
+            watchRenderer: true,
+        });
+    } catch (_) {}
+}
+
 /**
  * Create window
  */
