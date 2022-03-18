@@ -122,7 +122,7 @@ async function runScript() {
                 log_info('Downloading ' + fileName);
                 await downloadFile(url, filePath);
                 log_info('Installing ' + fileName);
-                executeCmd('tar -xzvf ' + fileName, { silent: true });
+                executeCmd('tar -xzvf ' + fileName, { silent: false });
                 sh.rm(fileName);
             });
         await Promise.all(promises);
