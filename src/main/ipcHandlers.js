@@ -58,9 +58,14 @@ async function handleStopRecorder() {
     );
     const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
-    await videoEditor.remux(inputFile, outputFile);
+    const data = await videoEditor.remux(inputFile, outputFile);
 
     await fileManager.deleteFile(inputFile);
+
+    const APP_URL = 'https://app.enlyo.com';
+    require('electron').shell.openExternal(
+        `${APP_URL}?fileName=${outputName}&duration=${data.duration}`
+    );
 }
 
 /**

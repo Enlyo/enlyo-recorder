@@ -16,13 +16,18 @@ async function remux(inputFile, outputFile) {
     ffmpeg.setFfmpegPath(ffmpegPath);
     ffmpeg.setFfprobePath(ffprobePath);
 
+    let duration;
+    ffmpeg.ffprobe(inputFile, (error, metadata) => {
+        duration = Math.round(metadata.format.duration);
+    });
+
     return new Promise((resolve) => {
         ffmpeg(inputFile)
             .output(outputFile)
             .withVideoCodec('copy')
             .withAudioCodec('copy')
             .on('end', function () {
-                resolve();
+                resolve({ duration });
             })
             .run();
     });
