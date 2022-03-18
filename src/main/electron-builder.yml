@@ -1,4 +1,4 @@
-appId: my.vue.app
+appId: enlyo.recorder.app
 publish:
   provider: github
 

@@ -1,11 +1,10 @@
 const path = require('path');
 const { v4: uuid } = require('uuid');
-
 const osn = require('obs-studio-node');
 const { Subject } = require('rxjs');
 const { first } = require('rxjs/operators');
-
 const { byOS, OS, getOS } = require('../../operating-systems');
+const { getAppVersion } = require('./helpers');
 
 /**
  * Screen recorder
@@ -21,6 +20,8 @@ const screenRecorder = {
         screen: null,
         resolution: 1080,
     },
+    _scene: null,
+    _signals: new Subject(),
 
     /* -------------------------------------------------------------------------- */
     /*                                   PUBLIC                                   */
@@ -28,8 +29,6 @@ const screenRecorder = {
 
     /**
      * Set settings
-     * @param {*} settings
-     * @returns
      */
     setSettings(settings) {
         this.settings = Object.assign(this.settings, settings);
@@ -44,8 +43,6 @@ const screenRecorder = {
     initialize() {
         if (this.isInitialized) return;
 
-        this.display = this._getDisplayInfo();
-
         this._initOBS();
         this._configureOBS(this.settings);
         this._scene = this._setupScene();
@@ -55,7 +52,6 @@ const screenRecorder = {
 
     /**
      * Set fps
-     * @param {} fps
      */
     setFps(fps) {
         if (!this.isInitialized) this.initialize();
@@ -67,7 +63,6 @@ const screenRecorder = {
 
     /**
      * Set screen
-     * @param {} screen
      */
     setScreen(screen) {
         if (!this.isInitialized) this.initialize();
@@ -80,7 +75,6 @@ const screenRecorder = {
 
     /**
      * Set resolution
-     * @param {} resolution
      */
     setResolution(resolution) {
         if (!this.isInitialized) this.initialize();
@@ -93,7 +87,6 @@ const screenRecorder = {
 
     /**
      * Get available screens
-     * @returns screens
      */
     getAvailableScreens() {
         if (!this.isInitialized) this.initialize();
@@ -106,7 +99,6 @@ const screenRecorder = {
             'desktop-video'
         );
 
-        // TODO: Maybe give a nice error here (for Guus laptop)
         if (!videoSource.properties) {
             return [];
         }
@@ -121,7 +113,6 @@ const screenRecorder = {
 
     /**
      * Get default screen
-     * @returns screen
      */
     getDefaultScreen() {
         const videoSource = osn.InputFactory.create(
@@ -132,7 +123,6 @@ const screenRecorder = {
             'desktop-video'
         );
 
-        // TODO: Maybe give a nice error here (for Guus laptop)
         if (!videoSource.properties) {
             return [];
         }
@@ -153,7 +143,7 @@ const screenRecorder = {
 
         osn.NodeObs.OBS_service_startRecording();
 
-        let signalInfo = await this.getNextSignalInfo();
+        const signalInfo = await this.getNextSignalInfo();
         if (signalInfo.signal === 'Stop') {
             throw Error('Recording exception: ' + signalInfo.error);
         }
@@ -178,8 +168,6 @@ const screenRecorder = {
 
     /**
      * Shutdown
-     *
-     * @returns Boolean
      */
     async shutdown() {
         if (!this.isInitialized) return;
@@ -199,8 +187,6 @@ const screenRecorder = {
 
     /**
      * Init OBS
-     *
-     * @private
      */
     _initOBS() {
         const hostName = `obs-studio-node-${uuid()}`;
@@ -214,11 +200,10 @@ const screenRecorder = {
         osn.NodeObs.IPC.host(hostName);
         osn.NodeObs.SetWorkingDirectory(workingDirectory);
 
-        // TODO: make application version dynamic
         const initResult = osn.NodeObs.OBS_API_initAPI(
             'en-US',
             obsDataPath,
-            '1.0.0'
+            getAppVersion()
         );
         if (initResult !== 0) {
             this.shutdown();
@@ -226,14 +211,12 @@ const screenRecorder = {
         }
 
         osn.NodeObs.OBS_service_connectOutputSignals((signalInfo) => {
-            this.signals.next(signalInfo);
+            this._signals.next(signalInfo);
         });
     },
 
     /**
      * Generate error message
-     * @param {*} result
-     * @private
      */
     _generateErrorMessage(result) {
         const errorReasons = {
@@ -249,15 +232,12 @@ const screenRecorder = {
 
     /**
      * Configure OBS
-     *
-     * @private
      */
     _configureOBS(settings) {
         this.setSetting('Output', 'Mode', 'Advanced');
         this.setSetting('Output', 'Track1Name', 'Mixed: all sources');
 
-        // TODO: learn more about available encoders
-        // potential additional setting to include
+        // Potential additional setting to include
         const availableEncoders = this.getAvailableValues(
             'Output',
             'Recording',
@@ -275,13 +255,8 @@ const screenRecorder = {
         this.setSetting('Video', 'FPSCommon', settings.fps);
     },
 
-    _scene: null,
-
     /**
      * Set up scene
-     *
-     * @private
-     * @returns Scene
      */
     _setupScene() {
         if (!this.settings.screen) {
@@ -302,7 +277,7 @@ const screenRecorder = {
         );
 
         // Update source settings:
-        let settings = videoSource.settings;
+        const settings = videoSource.settings;
         settings['width'] = width;
         settings['height'] = height;
         videoSource.update(settings);
@@ -326,265 +301,8 @@ const screenRecorder = {
         return scene;
     },
 
-    // _setupScene() {
-    //     const videoSource = osn.InputFactory.create(
-    //         byOS({
-    //             [OS.Windows]: 'monitor_capture',
-    //             [OS.Mac]: 'display_capture',
-    //         }),
-    //         'desktop-video'
-    //     );
-
-    //     // Update source settings:
-    //     let settings = videoSource.settings;
-    //     settings['width'] = this.display.physicalHeight;
-    //     settings['height'] = this.display.physicalHeight;
-    //     videoSource.update(settings);
-    //     videoSource.save();
-
-    //     // Set output video size to 1920x1080
-    //     const outputWidth = 1920;
-    //     const outputHeight = 1080;
-    //     this.setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
-    //     this.setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
-
-    //     // A scene is necessary here to properly scale captured screen size to output video size
-    //     const scene = osn.SceneFactory.create('test-scene');
-
-    //     // BACKGROUND
-    //     const bgSource = osn.InputFactory.create('image_source', 'logo', {
-    //         file: path.join(__dirname, './bg.jpg'),
-    //     });
-    //     const background = scene.add(bgSource);
-
-    //     // MAP
-    //     const mapItem = scene.add(videoSource);
-    //     mapItem.crop = {
-    //         left: 1655,
-    //         top: 813,
-    //         right: 12,
-    //         bottom: 14,
-    //     };
-    //     mapItem.position = {
-    //         x: 840,
-    //         y: 0,
-    //     };
-    //     mapItem.scale = {
-    //         x: 4.27,
-    //         y: 4.27,
-    //     };
-
-    //     // BLUE GOLD
-    //     const blueGold = scene.add(videoSource);
-    //     blueGold.crop = {
-    //         left: 793,
-    //         top: 16,
-    //         right: 1070,
-    //         bottom: 1033,
-    //     };
-    //     blueGold.position = {
-    //         x: 10,
-    //         y: 50,
-    //     };
-    //     blueGold.scale = {
-    //         x: 3.86,
-    //         y: 3.86,
-    //     };
-
-    //     // SCORE
-    //     const score = scene.add(videoSource);
-    //     score.crop = {
-    //         left: 904,
-    //         top: 18,
-    //         right: 889,
-    //         bottom: 1022,
-    //     };
-    //     score.position = {
-    //         x: 230,
-    //         y: 50,
-    //     };
-    //     score.scale = {
-    //         x: 2.99,
-    //         y: 2.99,
-    //     };
-
-    //     // RED GOLD
-    //     const redGold = scene.add(videoSource);
-    //     redGold.crop = {
-    //         left: 1112,
-    //         top: 16,
-    //         right: 751,
-    //         bottom: 1033,
-    //     };
-    //     redGold.position = {
-    //         x: 609,
-    //         y: 50,
-    //     };
-    //     redGold.scale = {
-    //         x: 3.86,
-    //         y: 3.86,
-    //     };
-
-    //     // TIME
-    //     const time = scene.add(videoSource);
-    //     time.crop = {
-    //         left: 938,
-    //         top: 74,
-    //         right: 920,
-    //         bottom: 982,
-    //     };
-    //     time.position = {
-    //         x: 304,
-    //         y: 170,
-    //     };
-    //     time.scale = {
-    //         x: 3.73,
-    //         y: 3.73,
-    //     };
-
-    //     // OBJECTIVE TIMER 1
-    //     const objTimer1 = scene.add(videoSource);
-    //     objTimer1.crop = {
-    //         left: 1740,
-    //         top: 720,
-    //         right: 90,
-    //         bottom: 334,
-    //     };
-    //     objTimer1.position = {
-    //         x: 10,
-    //         y: 279,
-    //     };
-    //     objTimer1.scale = {
-    //         x: 2.28,
-    //         y: 2.28,
-    //     };
-
-    //     // OBJECTIVE TIMER 2
-    //     const objTimer2 = scene.add(videoSource);
-    //     objTimer2.crop = {
-    //         left: 1740,
-    //         top: 746,
-    //         right: 90,
-    //         bottom: 308,
-    //     };
-    //     objTimer2.position = {
-    //         x: 215,
-    //         y: 279,
-    //     };
-    //     objTimer2.scale = {
-    //         x: 2.28,
-    //         y: 2.28,
-    //     };
-
-    //     // OBJECTIVE TIMER 3
-    //     const objTimer3 = scene.add(videoSource);
-    //     objTimer3.crop = {
-    //         left: 1740,
-    //         top: 772,
-    //         right: 90,
-    //         bottom: 282,
-    //     };
-    //     objTimer3.position = {
-    //         x: 420,
-    //         y: 279,
-    //     };
-    //     objTimer3.scale = {
-    //         x: 2.28,
-    //         y: 2.28,
-    //     };
-
-    //     // OBJECTIVE TIMER 4
-    //     const objTimer4 = scene.add(videoSource);
-    //     objTimer4.crop = {
-    //         left: 1830,
-    //         top: 694,
-    //         right: 0,
-    //         bottom: 360,
-    //     };
-    //     objTimer4.position = {
-    //         x: 625,
-    //         y: 279,
-    //     };
-    //     objTimer4.scale = {
-    //         x: 2.28,
-    //         y: 2.28,
-    //     };
-
-    //     // OBJECTIVE TIMER 5
-    //     const objTimer5 = scene.add(videoSource);
-    //     objTimer5.crop = {
-    //         left: 1830,
-    //         top: 720,
-    //         right: 0,
-    //         bottom: 334,
-    //     };
-    //     objTimer5.position = {
-    //         x: 10,
-    //         y: 338,
-    //     };
-    //     objTimer5.scale = {
-    //         x: 2.28,
-    //         y: 2.28,
-    //     };
-
-    //     // OBJECTIVE TIMER 6
-    //     const objTimer6 = scene.add(videoSource);
-    //     objTimer6.crop = {
-    //         left: 1830,
-    //         top: 746,
-    //         right: 0,
-    //         bottom: 308,
-    //     };
-    //     objTimer6.position = {
-    //         x: 215,
-    //         y: 338,
-    //     };
-    //     objTimer6.scale = {
-    //         x: 2.28,
-    //         y: 2.28,
-    //     };
-
-    //     // OBJECTIVE TIMER 7
-    //     const objTimer7 = scene.add(videoSource);
-    //     objTimer7.crop = {
-    //         left: 1830,
-    //         top: 772,
-    //         right: 0,
-    //         bottom: 282,
-    //     };
-    //     objTimer7.position = {
-    //         x: 420,
-    //         y: 338,
-    //     };
-    //     objTimer7.scale = {
-    //         x: 2.28,
-    //         y: 2.28,
-    //     };
-
-    //     // TABLE
-    //     const table = scene.add(videoSource);
-    //     table.crop = {
-    //         left: 796,
-    //         top: 855,
-    //         right: 781,
-    //         bottom: 7,
-    //     };
-    //     table.position = {
-    //         x: 10,
-    //         y: 417,
-    //     };
-    //     table.scale = {
-    //         x: 2.39,
-    //         y: 2.39,
-    //     };
-
-    //     return scene;
-    // },
-
     /**
      * Set up sources
-     *
-     * @private
      */
     _setupSources() {
         osn.Global.setOutputSource(1, this._scene);
@@ -658,42 +376,9 @@ const screenRecorder = {
      * Fix path when packaged
      *
      * When packaged, we need to fix some paths
-     *
-     * @param {String} p
-     *
-     * @returns {String}
      */
     fixPathWhenPackaged(p) {
         return p.replace('app.asar', 'app.asar.unpacked');
-    },
-
-    /**
-     * Busy sleep
-     *
-     * @param {Number} sleepDuration
-     */
-    busySleep(sleepDuration) {
-        var now = new Date().getTime();
-        while (new Date().getTime() < now + sleepDuration) {
-            /* do nothing */
-        }
-    },
-
-    // Get information about primary display
-    _getDisplayInfo() {
-        // TODO: Refactor based on name
-        const { screen } = require('electron');
-        const primaryDisplay = screen.getPrimaryDisplay();
-        const { width, height } = primaryDisplay.size;
-        const { scaleFactor } = primaryDisplay;
-        return {
-            width,
-            height,
-            scaleFactor: scaleFactor,
-            aspectRatio: width / height,
-            physicalWidth: width * scaleFactor,
-            physicalHeight: height * scaleFactor,
-        };
     },
 
     /* -------------------------------------------------------------------------- */
@@ -702,10 +387,6 @@ const screenRecorder = {
 
     /**
      * Get Audio Devices
-     *
-     * @param {String} type
-     * @param {String} subtype
-     * @returns {Array}
      */
     getAudioDevices(type, subtype) {
         const dummyDevice = osn.InputFactory.create(type, subtype, {
@@ -720,15 +401,12 @@ const screenRecorder = {
         return devices;
     },
 
-    signals: new Subject(),
-
     /**
      * Get next signal info
-     * @returns Promise
      */
     getNextSignalInfo() {
         return new Promise((resolve, reject) => {
-            this.signals
+            this._signals
                 .pipe(first())
                 .subscribe((signalInfo) => resolve(signalInfo));
             setTimeout(() => reject('Output signal timeout'), 30000);
@@ -737,10 +415,6 @@ const screenRecorder = {
 
     /**
      * Set setting
-     *
-     * @param {String} category
-     * @param {String} parameter
-     * @param {String} value
      */
     setSetting(category, parameter, value) {
         let oldValue;
@@ -765,11 +439,6 @@ const screenRecorder = {
 
     /**
      * Get available values
-     *
-     * @param {String} category
-     * @param {String} subcategory
-     * @param {String} parameter
-     * @returns
      */
     getAvailableValues(category, subcategory, parameter) {
         const categorySettings =
@@ -797,8 +466,6 @@ const screenRecorder = {
 
     /**
      * Parse resolution
-     * @param {String} value the name of the display
-     * @returns {Object} { width, height }
      */
     parseResolution(value) {
         if (!value) {
@@ -806,9 +473,9 @@ const screenRecorder = {
         }
         let resolution = value.split(': ')[1];
         resolution = resolution.split(' ')[0];
-        let width = Number(resolution.split('x')[0]);
-        let height = Number(resolution.split('x')[1]);
-        let aspectRatio = width / height;
+        const width = Number(resolution.split('x')[0]);
+        const height = Number(resolution.split('x')[1]);
+        const aspectRatio = width / height;
 
         return { width, height, aspectRatio };
     },

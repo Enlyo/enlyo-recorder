@@ -11,7 +11,6 @@ const processMonitor = {
     handleProcessEnded: null,
     intervalTime: 100,
     autoRecordProcesses: null,
-    processMonitor: null,
     processExists: false,
     processId: null,
 
@@ -61,7 +60,6 @@ const processMonitor = {
 
     /**
      * Get active processes
-     * @returns list of active processes
      */
     getActiveProcesses() {
         const uniqueWindows = getUniqueListBy(
@@ -80,7 +78,6 @@ const processMonitor = {
 
     /**
      * Get process exists
-     * @param {String} process
      */
     getProcessExists({ processId }) {
         // Get process by ID is a quicker method that only looks

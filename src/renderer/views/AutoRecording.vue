@@ -116,7 +116,7 @@ export default {
         },
 
         /**
-         * Update auto record proceses settings
+         * Update auto record processes settings
          */
         async updateAutoRecordProcesses() {
             await window.ipc.invoke('set-setting', {
@@ -126,7 +126,7 @@ export default {
         },
 
         /**
-         * Update custom record proceses settings
+         * Update custom record processes settings
          */
         async updateCustomRecordProcesses() {
             await window.ipc.invoke('set-setting', {

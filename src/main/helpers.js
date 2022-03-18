@@ -1,9 +1,5 @@
 /**
  * Generate output name
- * @param {*} rawRecordingName
- * @param {*} appendMessage
- * @param {*} format
- * @returns
  */
 function generateOutputName(
     rawRecordingName,
@@ -18,8 +14,6 @@ function generateOutputName(
 
 /**
  * Get app version
- *
- * @returns
  */
 function getAppVersion() {
     return require('../../package.json').version;
@@ -27,9 +21,6 @@ function getAppVersion() {
 
 /**
  * Get unique list (array) by key
- * @param {Array} arr
- * @param {String} key
- * @returns
  */
 function getUniqueListBy(arr, key) {
     return [...new Map(arr.map((item) => [item[key], item])).values()];
