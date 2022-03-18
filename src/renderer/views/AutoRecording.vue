@@ -76,8 +76,12 @@ export default {
         return {
             availableGames: [
                 {
-                    name: 'League of Legends.exe',
                     title: 'League of Legends',
+                    name: 'League of Legends.exe',
+                },
+                {
+                    title: 'Valorant',
+                    name: 'VALORANT-Win64-Shipping.exe',
                 },
             ],
             customRecordProcesses: [],
