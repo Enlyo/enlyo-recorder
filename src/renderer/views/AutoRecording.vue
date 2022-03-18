@@ -18,6 +18,13 @@
                         size="is-medium"
                     >
                         {{ item.title }}
+                        <span
+                            v-if="item.isCustomAdded"
+                            class="delete-link ml-2"
+                            @click="confirmDeleteCustomRecordProcess(item)"
+                        >
+                            delete
+                        </span>
                     </b-checkbox>
                 </b-field>
 
@@ -135,6 +142,34 @@ export default {
             });
         },
 
+        /**
+         * Show confirm dialog for delete custom record processes
+         */
+        confirmDeleteCustomRecordProcess(process) {
+            this.$buefy.dialog.confirm({
+                message: `Are you sure you want to <b>delete</b> this game?`,
+                confirmText: `Delete`,
+                type: 'is-danger',
+                onConfirm: () => this.deleteCustomRecordProcess(process),
+            });
+        },
+
+        /**
+         * Delete custom record process
+         */
+        deleteCustomRecordProcess(process) {
+            // Remove record from auto record processes
+            this.autoRecordProcesses = this.autoRecordProcesses.filter(
+                (item) => item.name !== process.name
+            );
+            // Remove record from custom record processes
+            this.customRecordProcesses = this.customRecordProcesses.filter(
+                (item) => item.name !== process.name
+            );
+            this.updateAutoRecordProcesses();
+            this.updateCustomRecordProcesses();
+        },
+
         /* -------------------------------------------------------------------------- */
         /*                              Add new game                                  */
         /* -------------------------------------------------------------------------- */
@@ -179,6 +214,24 @@ export default {
 
     &:hover {
         text-decoration: underline;
+    }
+}
+
+.delete-link {
+    display: none;
+    color: $text-grey;
+    font-size: $s-12px;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.field {
+    &:hover {
+        .delete-link {
+            display: inline;
+        }
     }
 }
 </style>
