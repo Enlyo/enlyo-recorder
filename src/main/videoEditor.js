@@ -12,7 +12,7 @@ async function remux(inputFile, outputFile) {
         'app.asar.unpacked'
     );
 
-    //tell the ffmpeg package where it can find the needed binaries.
+    // Tell the ffmpeg package where it can find the needed binaries.
     ffmpeg.setFfmpegPath(ffmpegPath);
     ffmpeg.setFfprobePath(ffprobePath);
 

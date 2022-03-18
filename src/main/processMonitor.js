@@ -1,6 +1,7 @@
-const { store } = require('./store');
-
+const path = require('path');
 const { windowManager } = require('node-window-manager');
+const { store } = require('./store');
+const { getUniqueListBy } = require('./helpers');
 
 /**
  * Process monitor
@@ -10,7 +11,6 @@ const processMonitor = {
     handleProcessEnded: null,
     intervalTime: 100,
     autoRecordProcesses: null,
-    processMonitor: null,
     processExists: false,
     processId: null,
 
@@ -39,8 +39,6 @@ const processMonitor = {
 
     /**
      * Monitor process
-     * @param {Function} handleExists
-     * @param {Function} handleDoesNotExist
      */
     monitorProcess() {
         const previousProcessExists = this.processExists;
@@ -62,18 +60,27 @@ const processMonitor = {
 
     /**
      * Get active processes
-     * @returns list of active processes
      */
     getActiveProcesses() {
-        return windowManager.getWindows();
+        const uniqueWindows = getUniqueListBy(
+            windowManager.getWindows(),
+            'processId'
+        );
+        return uniqueWindows.map((window) => {
+            const pathParse = path.parse(window.path);
+            return {
+                ...window,
+                title: pathParse.name,
+                name: pathParse.base,
+            };
+        });
     },
 
     /**
      * Get process exists
-     * @param {String} process
      */
     getProcessExists({ processId }) {
-        // Get procees by ID is a quicker method that only looks
+        // Get process by ID is a quicker method that only looks
         // for a specific, already-opened process
         if (processId) {
             return this._getProcessExistsById(processId);

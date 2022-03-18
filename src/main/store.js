@@ -16,14 +16,16 @@ const schema = {
             autoRecordProcesses: {
                 type: 'array',
             },
+            customRecordProcesses: {
+                type: 'array',
+            },
         },
         default: {
             screen: {},
             resolution: 480,
             fps: 30,
-            autoRecordProcesses: [
-                { name: 'League of Legends.exe', title: 'League of Legends' },
-            ],
+            autoRecordProcesses: [],
+            customRecordProcesses: [],
         },
     },
 };

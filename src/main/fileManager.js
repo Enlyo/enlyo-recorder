@@ -3,8 +3,6 @@ const path = require('path');
 
 /**
  * Get most recent file
- * @param {*} dir
- * @returns
  */
 function getMostRecentFile(dir) {
     const files = orderRecentFiles(dir);
@@ -12,7 +10,7 @@ function getMostRecentFile(dir) {
 }
 
 /**
- * Create dire if not exists
+ * Create dir if not exists
  */
 async function createDirIfNotExists(dirpath) {
     await fs.promises.mkdir(dirpath, { recursive: true });
@@ -20,7 +18,6 @@ async function createDirIfNotExists(dirpath) {
 
 /**
  * Delete file
- * @param {*} filePath
  */
 async function deleteFile(filePath) {
     return new Promise((resolve) => {
@@ -32,8 +29,6 @@ async function deleteFile(filePath) {
 
 /**
  * Order recent files
- * @param {*} dir
- * @returns
  */
 function orderRecentFiles(dir) {
     return fs

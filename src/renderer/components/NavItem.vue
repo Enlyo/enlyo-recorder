@@ -31,8 +31,8 @@ export default {
     color: #fff;
     transition: all 0.2s;
 
-    &.router-link-active {
-        font-weight: bold;
+    &.router-link-exact-active {
+        font-weight: 500;
         background-color: $highlight-purple;
     }
 

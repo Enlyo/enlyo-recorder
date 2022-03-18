@@ -2,7 +2,7 @@
     <AppLayout :class="{ 'is-recording': isRecording }">
         <AppHeader v-if="!isRecording" title="Enlyo" />
 
-        <AppNavigation />
+        <AppNavigation v-if="!isRecording" />
 
         <AppContent v-if="!isRecording">
             <transition name="bounce-in">

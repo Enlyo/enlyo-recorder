@@ -6,29 +6,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 const VALID_CHANNELS = {
     request: [
         'initialize-recorder',
-        'start-recorder-preview',
-        'resize-recorder-preview',
-        'stop-recorder-preview',
         'start-recorder',
         'stop-recorder',
         'start-process-monitor',
         'stop-process-monitor',
     ],
     response: [
-        'resized-recorder-preview',
-        'started-recorder-preview',
-        'stopped-recorder-preview',
         'started-recorder',
         'stopped-recorder',
         'stop-recorder-request',
         'start-recorder-request',
     ],
     invoke: [
-        'get-active-processes',
-        'get-app-version',
         'get-available-screens',
         'set-setting',
         'get-store-value',
+        'get-app-version',
+        'get-active-processes',
     ],
 };
 

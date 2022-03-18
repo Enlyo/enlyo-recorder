@@ -1,9 +1,7 @@
 const { Notification } = require('electron');
-
 const fileManager = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
-const screenPreviewer = require('./screenPreviewer');
 const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName, getAppVersion } = require('./helpers');
@@ -26,15 +24,6 @@ async function handleInitializeRecorder(settings) {
 
     await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
     screenRecorder.initialize();
-}
-
-/**
- * Handle start recorder preview
- * @param {*} win
- * @param {*} payload
- */
-async function handleStartRecorderPreview() {
-    return screenPreviewer.getVideoSources();
 }
 
 /**
@@ -105,8 +94,6 @@ function handleStopProcessMonitor() {
 
 /**
  * Set setting
- * @param {*} fps
- * @returns
  */
 function setSetting(key, value) {
     const storeKey = `settings.${key}`;
@@ -150,7 +137,6 @@ function getActiveProcesses() {
 }
 
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
-module.exports.handleStartRecorderPreview = handleStartRecorderPreview;
 module.exports.handleStartRecorder = handleStartRecorder;
 module.exports.handleStopRecorder = handleStopRecorder;
 module.exports.handleStartProcessMonitor = handleStartProcessMonitor;

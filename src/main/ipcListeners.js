@@ -1,7 +1,6 @@
 const { ipcMain } = require('electron');
 const {
     handleInitializeRecorder,
-    handleStartRecorderPreview,
     handleStartRecorder,
     handleStopRecorder,
     handleStartProcessMonitor,
@@ -19,12 +18,6 @@ const {
 function setIpcListeners(win) {
     ipcMain.on('initialize-recorder', (event, settings) => {
         handleInitializeRecorder(settings);
-    });
-
-    ipcMain.on('start-recorder-preview', async (event, payload) => {
-        const sources = await handleStartRecorderPreview(payload);
-
-        event.reply('started-recorder-preview', sources);
     });
 
     ipcMain.on('start-recorder', async (event) => {
