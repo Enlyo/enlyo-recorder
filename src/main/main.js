@@ -20,10 +20,13 @@ const appVersion = getAppVersion();
 app.setAppUserModelId('Enlyo.Recorder.v' + appVersion);
 
 if (isDevelopment) {
+    const ignored = /osn-data|[/\\]\./;
+
     try {
         require('electron-reloader')(module, {
             debug: true,
             watchRenderer: true,
+            ignored: [ignored],
         });
     } catch (_) {}
 }
