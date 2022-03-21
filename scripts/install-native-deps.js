@@ -68,26 +68,10 @@ function downloadFile(srcUrl, dstPath) {
     });
 }
 
-// TODO: refactor this
-async function installWindowsPackages() {
-    if (process.platform === 'win32') {
-        sh.echo(colors.blue('Install Windows dependencies'));
-        executeCmd(
-            'yarn add-no-save @josephuspaye/list-open-windows --ignore-scripts',
-            {
-                silent: false,
-            }
-        );
-    }
-}
-
 async function runScript() {
     colors.blue('----Enlyo native dependecies installation----');
 
     try {
-        // TODO: refactor this
-        await installWindowsPackages();
-
         const jsonData = fs.readFileSync('./scripts/repositories.json');
         const root = JSON.parse(jsonData.toString());
         const dependecies = root.root;
