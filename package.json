@@ -43,6 +43,9 @@
         "deploy": "vue-cli-service build --mode production && electron-builder build --win --publish always",
         "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
     },
+    "optionalDependencies": {
+        "@josephuspaye/list-open-windows": "^0.1.1"
+    },
     "dependencies": {
         "buefy": "^0.9.14",
         "core-js": "^3.6.5",
