@@ -162,6 +162,8 @@ export default {
             );
             this.updateAutoRecordProcesses();
             this.updateCustomRecordProcesses();
+
+            this.resetProcessMonitor();
         },
 
         /* -------------------------------------------------------------------------- */
@@ -191,6 +193,16 @@ export default {
             this.updateAutoRecordProcesses();
             this.updateCustomRecordProcesses();
             this.closeAddGameModal();
+
+            this.resetProcessMonitor();
+        },
+
+        /**
+         * Reset process monitor
+         */
+        resetProcessMonitor() {
+            window.ipc.send('stop-process-monitor');
+            window.ipc.send('start-process-monitor');
         },
     },
 };

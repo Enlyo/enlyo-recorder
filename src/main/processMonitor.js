@@ -19,6 +19,8 @@ const processMonitor = {
      * Start interval
      */
     startInterval(handleProcessStarted, handleProcessEnded) {
+        if (this.interval) return;
+
         this.handleProcessStarted = handleProcessStarted;
         this.handleProcessEnded = handleProcessEnded;
 
@@ -38,6 +40,8 @@ const processMonitor = {
         this.handleProcessEnded = null;
 
         clearInterval(this.interval);
+        this.interval = null;
+        this.processExists = false;
     },
 
     /**
