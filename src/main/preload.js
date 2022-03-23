@@ -1,4 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const { Titlebar, Color } = require('custom-electron-titlebar');
+const path = require('path');
 
 /**
  * Valid request channels
@@ -45,4 +47,15 @@ contextBridge.exposeInMainWorld('ipc', {
             return await ipcRenderer.invoke(channel, data);
         }
     },
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    // Title bar implemenation
+    new Titlebar({
+        backgroundColor: Color.fromHex('#202225'),
+        itemBackgroundColor: Color.fromHex('#121212'),
+        svgColor: Color.WHITE,
+        icon: './logo.svg',
+        menu: null, // = do not automatically use Menu.applicationMenu
+    });
 });

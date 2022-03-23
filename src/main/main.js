@@ -3,6 +3,10 @@ const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
 const { getAppVersion } = require('./helpers');
 const path = require('path');
+const {
+    setupTitlebar,
+    attachTitlebarToWindow,
+} = require('custom-electron-titlebar/main');
 
 /**
  * Is Development
@@ -13,6 +17,11 @@ const isDevelopment = process.env.NODE_ENV === 'DEV';
  * Set app version
  */
 const appVersion = getAppVersion();
+
+/**
+ * Set up title bar
+ */
+setupTitlebar();
 
 /**
  * Set Application User Model ID for Windows
@@ -38,15 +47,10 @@ async function createWindow() {
     win = new BrowserWindow({
         width: 600,
         height: 650,
-        minimizable: false,
+        frame: false,
+        resizable: false,
         maximizable: false,
         fullscreenable: false,
-        resizable: false,
-        titleBarStyle: 'hidden',
-        titleBarOverlay: {
-            color: '#202225',
-            symbolColor: '#e0e0e0',
-        },
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -63,6 +67,8 @@ async function createWindow() {
         // Load the index.html when not in development
         win.loadFile('./dist/index.html');
     }
+
+    attachTitlebarToWindow(win);
 }
 
 // Keep a global reference of the window object, if you don't, the window will
