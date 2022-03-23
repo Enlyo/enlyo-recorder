@@ -22,7 +22,7 @@ const schema = {
         },
         default: {
             screen: {},
-            resolution: 480,
+            resolution: 720,
             fps: 30,
             autoRecordProcesses: [],
             customRecordProcesses: [],
