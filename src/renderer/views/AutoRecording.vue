@@ -1,44 +1,40 @@
 <template>
-    <AppLayout>
-        <AppNavigation />
+    <div class="auto-recording">
+        <SectionHead title="Games" class="pt-0" />
 
-        <AppContent>
-            <SectionHead title="Auto record games" class="pt-0" />
-
-            <SectionCard>
-                <div>
-                    <b-field
-                        v-for="item in gamesAndCustomProcessesList"
-                        :key="item.name"
+        <SectionCard>
+            <div>
+                <b-field
+                    v-for="item in gamesAndCustomProcessesList"
+                    :key="item.name"
+                >
+                    <b-checkbox
+                        v-model="autoRecordProcesses"
+                        :native-value="item"
+                        size="is-medium"
                     >
-                        <b-checkbox
-                            v-model="autoRecordProcesses"
-                            :native-value="item"
-                            size="is-medium"
-                        >
-                            {{ item.title }}
-                            <span
-                                v-if="item.isCustomAdded"
-                                class="delete-link ml-2"
-                                @click="confirmDeleteCustomRecordProcess(item)"
-                            >
-                                delete
-                            </span>
-                        </b-checkbox>
-                    </b-field>
-
-                    <p class="game-not-available-text">
-                        Not seeing your game?
+                        {{ item.title }}
                         <span
-                            class="game-not-available-link"
-                            @click="openAddGameModal"
+                            v-if="item.isCustomAdded"
+                            class="delete-link ml-2"
+                            @click="confirmDeleteCustomRecordProcess(item)"
                         >
-                            Add it!
+                            delete
                         </span>
-                    </p>
-                </div>
-            </SectionCard>
-        </AppContent>
+                    </b-checkbox>
+                </b-field>
+
+                <p class="game-not-available-text">
+                    Not seeing your game?
+                    <span
+                        class="game-not-available-link"
+                        @click="openAddGameModal"
+                    >
+                        Add it!
+                    </span>
+                </p>
+            </div>
+        </SectionCard>
 
         <b-modal
             :active.sync="showAddGameModal"
@@ -49,13 +45,10 @@
         >
             <AddGameForm @add="addGame" @close="closeAddGameModal" />
         </b-modal>
-    </AppLayout>
+    </div>
 </template>
 
 <script>
-import AppLayout from '@/components/layout/AppLayout.vue';
-import AppNavigation from '@/components/layout/AppNavigation.vue';
-import AppContent from '@/components/layout/AppContent.vue';
 import SectionHead from '@/components/SectionHead.vue';
 import AddGameForm from '@/components/AddGameForm.vue';
 import SectionCard from '@/components/SectionCard.vue';
@@ -64,9 +57,6 @@ export default {
     name: 'AutoRecording',
 
     components: {
-        AppLayout,
-        AppNavigation,
-        AppContent,
         SectionHead,
         AddGameForm,
         SectionCard,
