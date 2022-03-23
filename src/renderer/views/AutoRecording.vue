@@ -1,43 +1,43 @@
 <template>
     <AppLayout>
-        <AppHeader title="Enlyo" />
-
         <AppNavigation />
 
         <AppContent>
             <SectionHead title="Auto record games" class="pt-0" />
 
-            <div>
-                <b-field
-                    v-for="item in gamesAndCustomProcessesList"
-                    :key="item.name"
-                >
-                    <b-checkbox
-                        v-model="autoRecordProcesses"
-                        :native-value="item"
-                        size="is-medium"
+            <SectionCard>
+                <div>
+                    <b-field
+                        v-for="item in gamesAndCustomProcessesList"
+                        :key="item.name"
                     >
-                        {{ item.title }}
-                        <span
-                            v-if="item.isCustomAdded"
-                            class="delete-link ml-2"
-                            @click="confirmDeleteCustomRecordProcess(item)"
+                        <b-checkbox
+                            v-model="autoRecordProcesses"
+                            :native-value="item"
+                            size="is-medium"
                         >
-                            delete
-                        </span>
-                    </b-checkbox>
-                </b-field>
+                            {{ item.title }}
+                            <span
+                                v-if="item.isCustomAdded"
+                                class="delete-link ml-2"
+                                @click="confirmDeleteCustomRecordProcess(item)"
+                            >
+                                delete
+                            </span>
+                        </b-checkbox>
+                    </b-field>
 
-                <p class="game-not-available-text">
-                    Not seeing your game?
-                    <span
-                        class="game-not-available-link"
-                        @click="openAddGameModal"
-                    >
-                        Add it!
-                    </span>
-                </p>
-            </div>
+                    <p class="game-not-available-text">
+                        Not seeing your game?
+                        <span
+                            class="game-not-available-link"
+                            @click="openAddGameModal"
+                        >
+                            Add it!
+                        </span>
+                    </p>
+                </div>
+            </SectionCard>
         </AppContent>
 
         <b-modal
@@ -54,22 +54,22 @@
 
 <script>
 import AppLayout from '@/components/layout/AppLayout.vue';
-import AppHeader from '@/components/layout/AppHeader.vue';
 import AppNavigation from '@/components/layout/AppNavigation.vue';
 import AppContent from '@/components/layout/AppContent.vue';
 import SectionHead from '@/components/SectionHead.vue';
 import AddGameForm from '@/components/AddGameForm.vue';
+import SectionCard from '@/components/SectionCard.vue';
 
 export default {
     name: 'AutoRecording',
 
     components: {
         AppLayout,
-        AppHeader,
         AppNavigation,
         AppContent,
         SectionHead,
         AddGameForm,
+        SectionCard,
     },
 
     data() {

@@ -1,20 +1,8 @@
 <template>
     <AppLayout :class="{ 'is-recording': isRecording }">
-        <AppHeader v-if="!isRecording" title="Enlyo" />
-
         <AppNavigation v-if="!isRecording" />
 
         <AppContent v-if="!isRecording">
-            <transition name="bounce-in">
-                <Notification
-                    v-if="showSuccessMessage"
-                    label="Recording saved"
-                    type="is-success"
-                    class="mb-4"
-                    @close="setShowSuccessMessage(false)"
-                />
-            </transition>
-
             <div class="screen-settings">
                 <SectionHead title="Screen" class="pt-0" />
 
@@ -107,13 +95,11 @@
 
 <script>
 import AppLayout from '@/components/layout/AppLayout.vue';
-import AppHeader from '@/components/layout/AppHeader.vue';
 import AppNavigation from '@/components/layout/AppNavigation.vue';
 import AppContent from '@/components/layout/AppContent.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import RecordButton from '@/components/RecordButton.vue';
 import Loader from '@/components/Loader.vue';
-import Notification from '@/components/Notification.vue';
 import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
@@ -122,13 +108,11 @@ export default {
 
     components: {
         AppLayout,
-        AppHeader,
         AppNavigation,
         AppContent,
         AppFooter,
         RecordButton,
         Loader,
-        Notification,
         SectionHead,
         SectionCard,
     },
@@ -313,10 +297,6 @@ export default {
             this.setIsRecording(false);
             this.setIsLoading(false);
             this.resetRecordTime();
-
-            this.$nextTick(() => {
-                setTimeout(() => this.setShowSuccessMessage(true), 1000);
-            });
         },
 
         /**
