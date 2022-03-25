@@ -7,6 +7,8 @@ const {
     handleStopProcessMonitor,
     setSetting,
     getAvailableScreens,
+    getAvailableSpeakers,
+    getAvailableMicrophones,
     getStoreValue,
     getVersion,
     getActiveProcesses,
@@ -47,6 +49,14 @@ function setIpcListeners(win) {
 
     ipcMain.handle('get-available-screens', async (event) => {
         return await getAvailableScreens(event);
+    });
+
+    ipcMain.handle('get-available-microphones', async (event) => {
+        return await getAvailableMicrophones(event);
+    });
+
+    ipcMain.handle('get-available-speakers', async (event) => {
+        return await getAvailableSpeakers(event);
     });
 
     ipcMain.handle('get-store-value', async (event, key) => {

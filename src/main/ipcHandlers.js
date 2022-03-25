@@ -111,6 +111,14 @@ function setSetting(key, value) {
         return screenRecorder.setScreen(value);
     } else if (key === 'resolution') {
         return screenRecorder.setResolution(value);
+    } else if (key === 'speaker') {
+        return screenRecorder.setSpeaker(value);
+    } else if (key === 'microphone') {
+        return screenRecorder.setMicrophone(value);
+    } else if (key === 'speakerVolume') {
+        return screenRecorder.setSpeakerVolume(value);
+    } else if (key === 'microphoneVolume') {
+        return screenRecorder.setMicrophoneVolume(value);
     }
 }
 
@@ -119,6 +127,20 @@ function setSetting(key, value) {
  */
 function getAvailableScreens() {
     return screenRecorder.getAvailableScreens();
+}
+
+/**
+ * Get available speakers
+ */
+function getAvailableSpeakers() {
+    return screenRecorder.getAvailableSpeakers();
+}
+
+/**
+ * Get available microphones
+ */
+function getAvailableMicrophones() {
+    return screenRecorder.getAvailableMicrophones();
 }
 
 /**
@@ -155,6 +177,8 @@ module.exports.handleStopRecorder = handleStopRecorder;
 module.exports.handleStartProcessMonitor = handleStartProcessMonitor;
 module.exports.handleStopProcessMonitor = handleStopProcessMonitor;
 module.exports.getAvailableScreens = getAvailableScreens;
+module.exports.getAvailableSpeakers = getAvailableSpeakers;
+module.exports.getAvailableMicrophones = getAvailableMicrophones;
 module.exports.setSetting = setSetting;
 module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;

@@ -19,6 +19,10 @@ const screenRecorder = {
         fps: 60,
         screen: null,
         resolution: 1080,
+        speaker: null,
+        speakerVolume: 1,
+        microphone: null,
+        microphoneVolume: 1,
     },
     _scene: null,
     _signals: new Subject(),
@@ -86,6 +90,54 @@ const screenRecorder = {
     },
 
     /**
+     * Set speaker
+     */
+    setSpeaker(speaker) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.speaker = speaker;
+
+        this._scene = this._setupScene();
+        this._setupSources();
+    },
+
+    /**
+     * Set microphone
+     */
+    setMicrophone(microphone) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.microphone = microphone;
+
+        this._scene = this._setupScene();
+        this._setupSources();
+    },
+
+    /**
+     * Set speaker volume
+     */
+    setSpeakerVolume(volume) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.speakerVolume = volume;
+
+        this._scene = this._setupScene();
+        this._setupSources();
+    },
+
+    /**
+     * Set microphone volume
+     */
+    setMicrophoneVolume(volume) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.microphoneVolume = volume;
+
+        this._scene = this._setupScene();
+        this._setupSources();
+    },
+
+    /**
      * Get available screens
      */
     getAvailableScreens() {
@@ -133,6 +185,50 @@ const screenRecorder = {
                 : videoSource.properties.get('monitor').details;
 
         return windows.items[0];
+    },
+
+    /**
+     * Get available speakers
+     */
+    getAvailableSpeakers() {
+        const speakers = this.getAudioDevices(
+            byOS({
+                [OS.Windows]: 'wasapi_output_capture',
+                [OS.Mac]: 'coreaudio_output_capture',
+            }),
+            'desktop-audio'
+        );
+
+        return speakers;
+    },
+
+    /**
+     * Get default speaker
+     */
+    getDefaultSpeaker() {
+        return this.getAvailableSpeakers[0];
+    },
+
+    /**
+     * Get available microphones
+     */
+    getAvailableMicrophones() {
+        const microphones = this.getAudioDevices(
+            byOS({
+                [OS.Windows]: 'wasapi_input_capture',
+                [OS.Mac]: 'coreaudio_input_capture',
+            }),
+            'mic-audio'
+        );
+
+        return microphones;
+    },
+
+    /**
+     * Get default microphone
+     */
+    getDefaultMicrophone() {
+        return this.getAvailableMicrophones[0];
     },
 
     /**
@@ -305,67 +401,70 @@ const screenRecorder = {
      * Set up sources
      */
     _setupSources() {
-        osn.Global.setOutputSource(1, this._scene);
+        // Set up video source
+        const VIDEO_TRACK = 1;
+        osn.Global.setOutputSource(VIDEO_TRACK, this._scene);
 
-        // TODO refactor this
-        let currentTrack = 2;
-        this.getAudioDevices(
+        // Set up speaker source
+        const SPEAKER_TRACK = 2;
+
+        if (!this.settings.speaker) {
+            this.settings.speaker = this.getDefaultSpeaker();
+        }
+
+        const speakerSource = osn.InputFactory.create(
             byOS({
                 [OS.Windows]: 'wasapi_output_capture',
                 [OS.Mac]: 'coreaudio_output_capture',
             }),
-            'desktop-audio'
-        ).forEach((metadata) => {
-            if (metadata.device_id === 'default') return;
-            const source = osn.InputFactory.create(
-                byOS({
-                    [OS.Windows]: 'wasapi_output_capture',
-                    [OS.Mac]: 'coreaudio_output_capture',
-                }),
-                'desktop-audio',
-                { device_id: metadata.device_id }
-            );
-            this.setSetting(
-                'Output',
-                `Track${currentTrack}Name`,
-                metadata.name
-            );
-            source.audioMixers = 1 | (1 << (currentTrack - 1)); // Bit mask to output to only tracks 1 and current track
-            osn.Global.setOutputSource(currentTrack, source);
-            currentTrack++;
-        });
+            'desktop-audio',
+            { device_id: this.settings.speaker.device_id }
+        );
 
-        this.getAudioDevices(
+        speakerSource.audioMixers = 1 | (1 << (SPEAKER_TRACK - 1)); // Bit mask to output to only tracks 1 and current track
+
+        const speakerFader = osn.FaderFactory.create();
+        speakerFader.attach(speakerSource);
+        speakerFader.deflection = this.settings.speakerVolume;
+
+        this.setSetting(
+            'Output',
+            `Track${SPEAKER_TRACK}Name`,
+            this.settings.speaker.name
+        );
+        osn.Global.setOutputSource(SPEAKER_TRACK, speakerSource);
+
+        // Set up microphone source
+        const MICROPHONE_TRACK = 3;
+
+        if (!this.settings.microphone) {
+            this.settings.microphone = this.getDefaultMicrophone();
+        }
+
+        const microphoneSource = osn.InputFactory.create(
             byOS({
                 [OS.Windows]: 'wasapi_input_capture',
                 [OS.Mac]: 'coreaudio_input_capture',
             }),
-            'mic-audio'
-        ).forEach((metadata) => {
-            if (metadata.device_id === 'default') return;
-            const source = osn.InputFactory.create(
-                byOS({
-                    [OS.Windows]: 'wasapi_input_capture',
-                    [OS.Mac]: 'coreaudio_input_capture',
-                }),
-                'mic-audio',
-                { device_id: metadata.device_id }
-            );
-            this.setSetting(
-                'Output',
-                `Track${currentTrack}Name`,
-                metadata.name
-            );
-            source.audioMixers = 1 | (1 << (currentTrack - 1)); // Bit mask to output to only tracks 1 and current track
-            osn.Global.setOutputSource(currentTrack, source);
-            currentTrack++;
-        });
+            'mic-audio',
+            { device_id: this.settings.microphone.device_id }
+        );
+
+        microphoneSource.audioMixers = 1 | (1 << (MICROPHONE_TRACK - 1)); // Bit mask to output to only tracks 1 and current track
+
+        const microphoneFader = osn.FaderFactory.create();
+        microphoneFader.attach(microphoneSource);
+        microphoneFader.deflection = this.settings.microphoneVolume;
 
         this.setSetting(
             'Output',
-            'RecTracks',
-            parseInt('1'.repeat(currentTrack - 1), 2)
-        ); // Bit mask of used tracks: 1111 to use first four (from available six)
+            `Track${MICROPHONE_TRACK}Name`,
+            this.settings.microphone.name
+        );
+        osn.Global.setOutputSource(MICROPHONE_TRACK, microphoneSource);
+
+        // Set rec tracks
+        this.setSetting('Output', 'RecTracks', 3);
     },
 
     /* -------------------------------------------------------------------------- */
@@ -398,6 +497,7 @@ const screenRecorder = {
                 return { device_id: value, name };
             });
         dummyDevice.release();
+
         return devices;
     },
 
