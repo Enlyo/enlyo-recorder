@@ -21,6 +21,8 @@ const VALID_CHANNELS = {
     ],
     invoke: [
         'get-available-screens',
+        'get-available-speakers',
+        'get-available-microphones',
         'set-setting',
         'get-store-value',
         'get-app-version',

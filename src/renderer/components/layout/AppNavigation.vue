@@ -18,7 +18,7 @@ export default {
         return {
             navItems: [
                 {
-                    label: 'Video',
+                    label: 'Video & Audio',
                     to: `/`,
                 },
                 {
