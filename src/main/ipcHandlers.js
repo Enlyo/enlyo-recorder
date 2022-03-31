@@ -2,6 +2,7 @@ const { Notification } = require('electron');
 const fileManager = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
+const { enlyoInterface } = require('./enlyoInterface');
 const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName, getAppVersion } = require('./helpers');
@@ -63,9 +64,17 @@ async function handleStopRecorder() {
 
     await fileManager.deleteFile(inputFile);
 
+    if (await enlyoInterface.isEnlyoInstalled()) {
+        enlyoInterface.openRecording({
+            fileName: outputName,
+            duration: data.duration,
+        });
+        return;
+    }
+
     const APP_BASE = store.get('env.appBase') || 'https://app.enlyo.com';
     require('electron').shell.openExternal(
-        `${APP_BASE}?fileName=${outputName}&duration=${data.duration}`
+        `${APP_BASE}?recordingData=${outputName}@dur${data.duration}`
     );
 }
 

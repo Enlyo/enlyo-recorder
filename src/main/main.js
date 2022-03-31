@@ -7,6 +7,7 @@ const {
     setupTitlebar,
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
+const { enlyoInterface } = require('./enlyoInterface');
 
 /**
  * Is Development
