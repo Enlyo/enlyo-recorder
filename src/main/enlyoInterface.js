@@ -20,20 +20,19 @@ const enlyoInterface = {
     async isEnlyoInstalledChrome() {
         const appPath = path.join(
             app.getPath('userData'),
-            '../../Roaming/Microsoft/Windows/Start Menu/Programs/Chrome-apps'
+            '../../Roaming/Microsoft/Windows/Start Menu/Programs'
         );
 
-        try {
-            const files = await this.getFiles(appPath);
+        const files = await this.getFiles(appPath);
 
-            const isInstalled = Boolean(
-                files.find((file) => file.includes('Enlyo'))
-            );
+        const isInstalled = Boolean(
+            files.find(
+                (file) =>
+                    file.includes('Enlyo') && !file.includes('Enlyo Recorder')
+            )
+        );
 
-            return isInstalled;
-        } catch {
-            return false;
-        }
+        return isInstalled;
     },
 
     /**
