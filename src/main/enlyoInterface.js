@@ -22,13 +22,18 @@ const enlyoInterface = {
             app.getPath('userData'),
             '../../Roaming/Microsoft/Windows/Start Menu/Programs/Chrome-apps'
         );
-        const files = await this.getFiles(appPath);
 
-        const isInstalled = Boolean(
-            files.find((file) => file.includes('Enlyo'))
-        );
+        try {
+            const files = await this.getFiles(appPath);
 
-        return isInstalled;
+            const isInstalled = Boolean(
+                files.find((file) => file.includes('Enlyo'))
+            );
+
+            return isInstalled;
+        } catch {
+            return false;
+        }
     },
 
     /**
@@ -39,13 +44,18 @@ const enlyoInterface = {
             app.getPath('userData'),
             '../../Local/Microsoft/Edge/User Data/Default/Web Applications'
         );
-        const files = await this.getFiles(appPath);
 
-        const isInstalled = Boolean(
-            files.find((file) => file.includes('Enlyo'))
-        );
+        try {
+            const files = await this.getFiles(appPath);
 
-        return isInstalled;
+            const isInstalled = Boolean(
+                files.find((file) => file.includes('Enlyo'))
+            );
+
+            return isInstalled;
+        } catch {
+            return false;
+        }
     },
 
     /**
