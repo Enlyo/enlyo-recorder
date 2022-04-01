@@ -23,16 +23,21 @@ const enlyoInterface = {
             '../../Roaming/Microsoft/Windows/Start Menu/Programs'
         );
 
-        const files = await this.getFiles(appPath);
+        try {
+            const files = await this.getFiles(appPath);
 
-        const isInstalled = Boolean(
-            files.find(
-                (file) =>
-                    file.includes('Enlyo') && !file.includes('Enlyo Recorder')
-            )
-        );
+            const isInstalled = Boolean(
+                files.find(
+                    (file) =>
+                        file.includes('Enlyo') &&
+                        !file.includes('Enlyo Recorder')
+                )
+            );
 
-        return isInstalled;
+            return isInstalled;
+        } catch {
+            return false;
+        }
     },
 
     /**
