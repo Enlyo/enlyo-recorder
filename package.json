@@ -4,7 +4,7 @@
     "description": "Screen recording software for gaming",
     "author": "Enlyo",
     "license": "GPL-2.0",
-    "version": "0.9.5-beta",
+    "version": "0.9.6-beta",
     "private": false,
     "main": "src/main/main.js",
     "build": {
