@@ -31,6 +31,20 @@ const schema = {
             microphoneVolume: {
                 type: 'number',
             },
+            autoAddToLibrary: {
+                type: 'boolean',
+            },
+            openLibraryIn: {
+                type: 'string',
+            },
+            actionAfterRecording: {
+                enum: [
+                    'none',
+                    'open_folder',
+                    'open_system_player',
+                    'open_library',
+                ],
+            },
         },
         default: {
             screen: {},
@@ -42,6 +56,9 @@ const schema = {
             customRecordProcesses: [],
             speakerVolume: 1,
             microphoneVolume: 1,
+            autoAddToLibrary: true,
+            openLibraryIn: 'app',
+            actionAfterRecording: 'open_library',
         },
     },
     env: {
@@ -57,6 +74,11 @@ const migrations = {
     '0.9.4': (store) => {
         store.set('settings.speakerVolume', 1);
         store.set('settings.microphoneVolume', 1);
+    },
+    '0.9.8': (store) => {
+        store.set('settings.autoAddToLibrary', true);
+        store.set('settings.openLibraryIn', 'app');
+        store.set('settings.actionAfterRecording', 'open_library');
     },
 };
 

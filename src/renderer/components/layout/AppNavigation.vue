@@ -18,12 +18,12 @@ export default {
         return {
             navItems: [
                 {
-                    label: 'Video & Audio',
+                    label: 'General',
                     to: `/`,
                 },
                 {
-                    label: 'General',
-                    to: `/general`,
+                    label: 'Audio & Video',
+                    to: `/audio-and-video`,
                 },
                 {
                     label: 'Auto recording',

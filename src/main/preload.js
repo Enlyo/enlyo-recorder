@@ -28,6 +28,9 @@ const VALID_CHANNELS = {
         'get-app-version',
         'get-active-processes',
         'store-env-variables',
+        'get-active-processes',
+        'get-has-installed-library-app',
+        'test-library-app-connection',
     ],
 };
 

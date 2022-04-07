@@ -13,6 +13,8 @@ const {
     getVersion,
     getActiveProcesses,
     storeEnvVariables,
+    getHasInstalledLibraryApp,
+    testLibraryAppConnection,
 } = require('./ipcHandlers');
 
 /**
@@ -73,6 +75,17 @@ function setIpcListeners(win) {
 
     ipcMain.handle('store-env-variables', async (event, variables) => {
         return storeEnvVariables(variables);
+    });
+
+    ipcMain.handle(
+        'get-has-installed-library-app',
+        async (event, variables) => {
+            return await getHasInstalledLibraryApp();
+        }
+    );
+
+    ipcMain.handle('test-library-app-connection', async (event, variables) => {
+        return await testLibraryAppConnection();
     });
 }
 

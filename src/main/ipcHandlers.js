@@ -2,7 +2,7 @@ const { Notification } = require('electron');
 const fileManager = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
-const { enlyoInterface } = require('./enlyoInterface');
+const { libraryInterface } = require('./libraryInterface');
 const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName, getAppVersion } = require('./helpers');
@@ -61,21 +61,28 @@ async function handleStopRecorder() {
     const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
     const data = await videoEditor.remux(inputFile, outputFile);
-
     await fileManager.deleteFile(inputFile);
 
-    if (await enlyoInterface.isEnlyoInstalled()) {
-        enlyoInterface.openRecording({
-            fileName: outputName,
-            duration: data.duration,
-        });
-        return;
+    let id = null;
+    const autoAddToLibrary = store.get('settings.autoAddToLibrary');
+    if (autoAddToLibrary) {
+        // Placeholder for api call
+        console.debug('auto add to library');
+
+        // id returned by api call
+        id = 'asdfasdf234';
     }
 
-    const APP_BASE = store.get('env.appBase') || 'https://app.enlyo.com';
-    require('electron').shell.openExternal(
-        `${APP_BASE}?recordingData=${outputName}@dur${data.duration}`
-    );
+    const actionAfterRecording = store.get('settings.actionAfterRecording');
+    if (actionAfterRecording === 'open_library') {
+        if (!id) return;
+
+        libraryInterface.openRecording({ id });
+    } else if (actionAfterRecording === 'open_system_player') {
+        require('electron').shell.openExternal(outputFile);
+    } else if (actionAfterRecording === 'open_folder') {
+        require('electron').shell.openPath(OUTPUT_PATH);
+    }
 }
 
 /**
@@ -180,6 +187,20 @@ function storeEnvVariables(variables) {
     store.set('env', variables);
 }
 
+/**
+ * Get has installed library app
+ */
+function getHasInstalledLibraryApp() {
+    return libraryInterface.isLibraryAppInstalled();
+}
+
+/**
+ * Test library app connection
+ */
+function testLibraryAppConnection() {
+    return libraryInterface.testConnection();
+}
+
 module.exports.handleInitializeRecorder = handleInitializeRecorder;
 module.exports.handleStartRecorder = handleStartRecorder;
 module.exports.handleStopRecorder = handleStopRecorder;
@@ -193,3 +214,5 @@ module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;
 module.exports.getActiveProcesses = getActiveProcesses;
 module.exports.storeEnvVariables = storeEnvVariables;
+module.exports.getHasInstalledLibraryApp = getHasInstalledLibraryApp;
+module.exports.testLibraryAppConnection = testLibraryAppConnection;

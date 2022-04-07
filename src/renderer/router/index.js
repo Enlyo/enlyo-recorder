@@ -1,21 +1,21 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
-import General from '../views/General.vue';
 import AutoRecording from '../views/AutoRecording.vue';
+import General from '../views/General.vue';
+import AudioAndVideo from '../views/AudioAndVideo.vue';
 
 Vue.use(VueRouter);
 
 const routes = [
     {
         path: '/',
-        name: 'Home',
-        component: Home,
-    },
-    {
-        path: '/general',
         name: 'General',
         component: General,
+    },
+    {
+        path: '/audio-and-video',
+        name: 'AudioAndVideo',
+        component: AudioAndVideo,
     },
     {
         path: '/auto-recording',

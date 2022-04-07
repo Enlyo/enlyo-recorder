@@ -2,22 +2,23 @@ const { resolve } = require('path');
 const { readdir } = require('fs').promises;
 const path = require('path');
 const { app } = require('electron');
+const { store } = require('./store');
 
-const enlyoInterface = {
+const libraryInterface = {
     /**
-     * Is enlyo installed
+     * Is library app installed
      */
-    async isEnlyoInstalled() {
+    async isLibraryAppInstalled() {
         return (
-            (await this.isEnlyoInstalledEdge()) ||
-            (await this.isEnlyoInstalledChrome())
+            (await this.isLibraryAppInstalledEdge()) ||
+            (await this.isLibraryAppInstalledChrome())
         );
     },
 
     /**
-     * Is enlyo installed chrome
+     * Is library app installed chrome
      */
-    async isEnlyoInstalledChrome() {
+    async isLibraryAppInstalledChrome() {
         const appPath = path.join(
             app.getPath('userData'),
             '../../Roaming/Microsoft/Windows/Start Menu/Programs'
@@ -36,9 +37,9 @@ const enlyoInterface = {
     },
 
     /**
-     * Is enlyo installed edge
+     * Is library app installed edge
      */
-    async isEnlyoInstalledEdge() {
+    async isLibraryAppInstalledEdge() {
         const appPath = path.join(
             app.getPath('userData'),
             '../../Local/Microsoft/Edge/User Data/Default/Web Applications'
@@ -74,11 +75,26 @@ const enlyoInterface = {
     /**
      * Open recording
      */
-    openRecording({ fileName, duration }) {
-        require('electron').shell.openExternal(
-            `web+enlyo://${fileName}@dur${duration}`
-        );
+    openRecording({ id }) {
+        const openLibraryIn = store.get('settings.openLibraryIn');
+
+        if (openLibraryIn === 'app') {
+            require('electron').shell.openExternal(
+                `web+enlyo://?action=open_video&id=${id}`
+            );
+        } else {
+            const APP_BASE =
+                store.get('env.appBase') || 'https://app.enlyo.com';
+            require('electron').shell.openExternal(`${APP_BASE}/videos/${id}`);
+        }
+    },
+
+    /**
+     * Test connection
+     */
+    testConnection() {
+        require('electron').shell.openExternal(`web+enlyo://?action=test`);
     },
 };
 
-module.exports.enlyoInterface = enlyoInterface;
+module.exports.libraryInterface = libraryInterface;

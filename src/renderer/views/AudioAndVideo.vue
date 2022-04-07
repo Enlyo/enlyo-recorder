@@ -140,7 +140,7 @@ import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
 export default {
-    name: 'Home',
+    name: 'AudioAndVideo',
 
     components: {
         SectionHead,
