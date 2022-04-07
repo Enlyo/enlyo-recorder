@@ -87,8 +87,8 @@
 
                         <b-field>
                             <b-slider
-                                size="is-small"
                                 v-model="settings.microphoneVolume"
+                                size="is-small"
                                 :min="0"
                                 :max="1"
                                 :step="0.01"
@@ -119,8 +119,8 @@
 
                         <b-field>
                             <b-slider
-                                size="is-small"
                                 v-model="settings.speakerVolume"
+                                size="is-small"
                                 :min="0"
                                 :max="1"
                                 :step="0.01"
@@ -189,7 +189,7 @@ export default {
             }
             // First time only, set a default microphone
             if (!this.settings.microphone || !this.settings.microphone.name) {
-                this.setDefaultMicropohone();
+                this.setDefaultMicrophone();
             }
 
             await this.getAvailableScreens();
@@ -222,7 +222,7 @@ export default {
         /**
          * Set default microphone
          */
-        async setDefaultMicropohone() {
+        async setDefaultMicrophone() {
             const defaultMicrophone = this.availableMicrophones[0];
             this.settings.microphone = defaultMicrophone;
             this.setSetting('microphone', defaultMicrophone);
