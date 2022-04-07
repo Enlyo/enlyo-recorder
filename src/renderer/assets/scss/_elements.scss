@@ -41,3 +41,19 @@
         }
     }
 }
+
+// Radio buttons
+.b-radio {
+    &.radio {
+        .control-label {
+            color: $text-soft-grey;
+        }
+    }
+}
+
+// Field
+.field {
+    p.help {
+        color: $text-grey;
+    }
+}

@@ -64,3 +64,14 @@ $spacing-values: (
         }
     }
 }
+
+//* --------------------
+//* Text helpers
+//* --------------------
+.has-grey-text {
+    color: $text-grey;
+}
+
+.is-14px {
+    font-size: $s-14px;
+}

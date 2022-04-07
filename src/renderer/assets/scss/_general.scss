@@ -9,6 +9,10 @@ body {
     letter-spacing: 0.01em;
 }
 
+a.link:hover {
+    text-decoration: underline;
+}
+
 #app {
     height: 100%;
     width: 100%;
@@ -33,4 +37,9 @@ body {
 .fade-enter,
 .fade-leave-to {
     opacity: 0;
+}
+
+hr {
+    background-color: $line-grey;
+    height: 1px;
 }

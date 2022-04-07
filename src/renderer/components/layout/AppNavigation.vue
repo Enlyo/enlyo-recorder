@@ -22,6 +22,10 @@ export default {
                     to: `/`,
                 },
                 {
+                    label: 'General',
+                    to: `/general`,
+                },
+                {
                     label: 'Auto recording',
                     to: `/auto-recording`,
                 },

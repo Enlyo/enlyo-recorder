@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, shell } = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
 const { getAppVersion } = require('./helpers');
@@ -7,7 +7,6 @@ const {
     setupTitlebar,
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
-const { enlyoInterface } = require('./enlyoInterface');
 
 /**
  * Is Development
@@ -70,6 +69,12 @@ async function createWindow() {
     }
 
     attachTitlebarToWindow(win);
+
+    // Open links with target="_blank" in default browser
+    win.webContents.on('new-window', function (e, url) {
+        e.preventDefault();
+        shell.openExternal(url);
+    });
 }
 
 // Keep a global reference of the window object, if you don't, the window will
