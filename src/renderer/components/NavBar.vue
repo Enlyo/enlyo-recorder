@@ -21,6 +21,9 @@
                 <div v-if="$slots.right" class="level-item">
                     <slot name="end" />
                 </div>
+                <div class="level-item">
+                    <UserMenu />
+                </div>
             </div>
         </div>
     </div>
@@ -28,12 +31,14 @@
 
 <script>
 import NavItem from '@/components/NavItem';
+import UserMenu from '@/components/UserMenu';
 
 export default {
     name: 'NavBar',
 
     components: {
         NavItem,
+        UserMenu,
     },
 
     props: {
@@ -47,9 +52,14 @@ export default {
 
 <style lang="scss" scoped>
 .nav-bar {
+    width: 100%;
     background-color: $background-dark-2;
     display: flex;
     padding: 0.5rem 1.5rem;
+
+    .level {
+        width: 100%;
+    }
 
     .nav-items {
         display: flex;

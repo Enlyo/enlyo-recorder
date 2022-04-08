@@ -13,6 +13,7 @@ const {
     getVersion,
     getActiveProcesses,
     storeEnvVariables,
+    setUser,
     getHasInstalledLibraryApp,
     testLibraryAppConnection,
 } = require('./ipcHandlers');
@@ -20,7 +21,7 @@ const {
 /**
  * Set ipc listeners
  */
-function setIpcListeners(win) {
+function setIpcListeners() {
     ipcMain.on('initialize-recorder', (event, settings) => {
         handleInitializeRecorder(settings);
     });
@@ -77,14 +78,15 @@ function setIpcListeners(win) {
         return storeEnvVariables(variables);
     });
 
-    ipcMain.handle(
-        'get-has-installed-library-app',
-        async (event, variables) => {
-            return await getHasInstalledLibraryApp();
-        }
-    );
+    ipcMain.handle('set-user', async (event, user) => {
+        return setUser(user);
+    });
 
-    ipcMain.handle('test-library-app-connection', async (event, variables) => {
+    ipcMain.handle('get-has-installed-library-app', async () => {
+        return await getHasInstalledLibraryApp();
+    });
+
+    ipcMain.handle('test-library-app-connection', async () => {
         return await testLibraryAppConnection();
     });
 }

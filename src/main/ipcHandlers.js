@@ -188,6 +188,13 @@ function storeEnvVariables(variables) {
 }
 
 /**
+ * Set user
+ */
+function setUser(user) {
+    store.set('user', user);
+}
+
+/**
  * Get has installed library app
  */
 function getHasInstalledLibraryApp() {
@@ -216,3 +223,4 @@ module.exports.getActiveProcesses = getActiveProcesses;
 module.exports.storeEnvVariables = storeEnvVariables;
 module.exports.getHasInstalledLibraryApp = getHasInstalledLibraryApp;
 module.exports.testLibraryAppConnection = testLibraryAppConnection;
+module.exports.setUser = setUser;

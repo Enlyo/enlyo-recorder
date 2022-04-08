@@ -1,4 +1,4 @@
-import BaseApiService from '@/api/helpers/BaseApiService';
+import BaseApiService from './helpers/BaseApiService';
 
 export default class AuthService extends BaseApiService {
     constructor(resource, name, ctx) {
@@ -8,10 +8,10 @@ export default class AuthService extends BaseApiService {
     /**
      * Login
      */
-    async login({ username, password }) {
+    async login({ email, password }) {
         try {
-            const res = await this.axios.post(`/${this.resource}users/me/`, {
-                username,
+            const res = await this.axios.post(`/${this.resource}jwt/create/`, {
+                email,
                 password,
             });
 

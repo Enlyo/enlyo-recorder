@@ -1,19 +1,11 @@
 import compose from 'lodash/fp/compose';
 
-import BaseApiService from '@/api/helpers/BaseApiService';
-import ChannelCrudMixin from '@/api/helpers/ChannelCrudMixin';
-import CopyMixin from '@/api/helpers/CopyMixin';
-import GetTaxonomyMixin from './helpers/GetTaxonomyMixin';
-import ShareableLinkMixin from '@/api/helpers/ShareableLinkMixin';
-import ShareWithUsersMixin from '@/api/helpers/ShareWithUsersMixin';
+import BaseApiService from './helpers/BaseApiService';
+import ChannelCrudMixin from './helpers/ChannelCrudMixin';
 
-export default class VideoService extends compose(
-    ChannelCrudMixin,
-    CopyMixin,
-    GetTaxonomyMixin,
-    ShareableLinkMixin,
-    ShareWithUsersMixin
-)(BaseApiService) {
+export default class VideoService extends compose(ChannelCrudMixin)(
+    BaseApiService
+) {
     constructor(resource, name, ctx) {
         super(resource, name, ctx);
     }

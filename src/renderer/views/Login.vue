@@ -6,42 +6,41 @@
                     <h1 class="title is-3 has-text-centered">Login</h1>
 
                     <form class="login-form">
-                        <ValidationObserver ref="observer" v-slot="{ passes }">
-                            <b-message v-if="isError" type="is-danger">
-                                <span v-html="errorMessage" />
-                            </b-message>
+                        <b-message v-if="isError" type="is-danger">
+                            <span v-html="errorMessage" />
+                        </b-message>
 
-                            <b-input
-                                v-model="form.email"
-                                rules="required|email"
-                                type="email"
-                                size="is-medium"
-                                placeholder="Email"
-                                autocomplete="email"
-                                name="Email"
-                            />
+                        <b-input
+                            v-model="form.email"
+                            rules="required|email"
+                            type="email"
+                            size="is-medium"
+                            placeholder="Email"
+                            autocomplete="email"
+                            name="Email"
+                        />
 
-                            <b-input
-                                v-model="form.password"
-                                class="password"
-                                rules="required"
-                                type="password"
-                                size="is-medium"
-                                password-reveal
-                                placeholder="Password"
-                                name="Password"
-                                @keyup.enter.native="passes(login)"
-                            />
+                        <b-input
+                            v-model="form.password"
+                            class="password"
+                            rules="required"
+                            type="password"
+                            size="is-medium"
+                            password-reveal
+                            placeholder="Password"
+                            name="Password"
+                            @keyup.enter.native="login"
+                        />
 
-                            <b-button
-                                size="is-medium"
-                                :loading="isLoading"
-                                expanded
-                                @click="passes(login)"
-                            >
-                                Login
-                            </b-button>
-                        </ValidationObserver>
+                        <b-button
+                            size="is-medium"
+                            :loading="isLoading"
+                            type="is-primary"
+                            expanded
+                            @click="login"
+                        >
+                            Login
+                        </b-button>
                     </form>
 
                     <div class="account-message mt-6">
@@ -67,7 +66,7 @@
                 <div class="logo-box">
                     <img
                         class="logo"
-                        src="~assets/figureLogo.svg"
+                        src="../assets/figureLogo.svg"
                         alt="Enlyo"
                     />
                 </div>
@@ -77,14 +76,8 @@
 </template>
 
 <script>
-import { ValidationObserver } from 'vee-validate';
-
 export default {
     name: 'Login',
-
-    components: {
-        ValidationObserver,
-    },
 
     data() {
         return {
@@ -103,25 +96,32 @@ export default {
          * Login
          */
         async login() {
-            try {
-                this.setLoading(true);
-                this.setError(false);
+            this.setLoading(true);
+            this.setError(false);
 
-                const response = this.$store.dispatch('auth/login', this.form);
-                console.log(response);
-            } catch (error) {
-                const { data } = error.response;
+            const response = await this.$store.dispatch(
+                'auth/login',
+                this.form
+            );
 
-                if ('detail' in data) {
-                    this.setErrorMessage(data.detail);
-                } else {
-                    this.setErrorMessage(error.message);
-                }
-
-                this.setError(true);
+            if (response.status) {
                 this.setLoading(false);
+                this.$router.push('/');
+
                 return;
             }
+
+            const { data } = response;
+
+            if ('detail' in data) {
+                this.setErrorMessage(data.detail);
+            } else {
+                this.setErrorMessage(response.data);
+            }
+
+            this.setError(true);
+            this.setLoading(false);
+            return;
         },
 
         /**

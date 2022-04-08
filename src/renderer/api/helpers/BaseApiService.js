@@ -45,7 +45,8 @@ export default class BaseApiService {
      * @returns {ApiResponse}
      */
     handleError(error, type) {
-        this.sentry.captureException(error);
+        // TODO: Bring this back
+        // this.sentry.captureException(error);
         return new ApiResponse(
             false,
             getErrorMessage(type, this.name, error.message),

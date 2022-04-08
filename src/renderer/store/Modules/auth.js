@@ -1,23 +1,41 @@
-import api from '../../../api/index';
+import api from '../../api/index';
 
 const state = {
-    user: null,
+    tokens: {},
+    user: {},
 };
 
 const getters = {
-    isAuthenticated: (state) => !!state.user,
+    isAuthenticated: (state) => Boolean(state.tokens.access),
+    tokens: (state) => state.tokens,
+    user: (state) => state.user,
 };
 
 const actions = {
     /**
      * Login
      */
-    async login({ commit }, { username, password }) {
-        const response = api.auth.login({ username, password });
+    async login({ commit, dispatch }, { email, password }) {
+        const response = await api.auth.login({ email, password });
 
         if (response.status) {
-            console.log(response);
+            await commit('SET_TOKENS', response.data);
+
+            dispatch('me');
+        }
+
+        return response;
+    },
+
+    /**
+     * Me
+     */
+    async me({ commit }) {
+        const response = await api.auth.me();
+
+        if (response.status) {
             await commit('SET_USER', response.data);
+            console.log(response.data);
         }
 
         return response;
@@ -27,28 +45,36 @@ const actions = {
      * Logout
      */
     async logout({ commit }) {
-        let user = null;
-        commit('LOGOUT', user);
+        commit('LOGOUT');
     },
 };
 
 const mutations = {
     /**
-     * Login
+     * Set tokens
      */
-    LOGIN(state, user) {
+    SET_TOKENS(state, tokens) {
+        state.tokens = tokens;
+    },
+
+    /**
+     * Set user
+     */
+    SET_USER(state, user) {
         state.user = user;
     },
 
     /**
      * Logout
      */
-    LOGOUT(state, user) {
-        state.user = null;
+    LOGOUT(state) {
+        state.user = {};
+        state.tokens = {};
     },
 };
 
 export default {
+    namespaced: true,
     state,
     getters,
     actions,
