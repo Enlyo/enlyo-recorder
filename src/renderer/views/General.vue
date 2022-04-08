@@ -71,7 +71,7 @@
                 <p v-if="hasInstalledLibraryApp" class="has-text-grey is-14px">
                     Problems opening the app?
                     <a
-                        href="https://enlyo.helpscoutdocs.com"
+                        href="https://discord.gg/C95AyZz9yu"
                         class="link"
                         target="_blank"
                     >
@@ -90,7 +90,7 @@
                 <p v-else class="has-text-grey is-14px">
                     Life is better with the Enlyo Library app! Click
                     <a
-                        href="https://enlyo.helpscoutdocs.com"
+                        href="https://app.enlyo.com/install"
                         class="link"
                         target="_blank"
                     >
