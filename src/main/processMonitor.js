@@ -10,7 +10,7 @@ const { parseCaption, getUniqueListBy } = require('./helpers');
 const processMonitor = {
     handleProcessStarted: null,
     handleProcessEnded: null,
-    intervalTime: 100,
+    intervalTime: 2000,
     autoRecordProcesses: null,
     processExists: false,
     processId: null,

@@ -70,7 +70,7 @@ async function handleStopRecorder() {
         console.debug('auto add to library');
 
         // id returned by api call
-        id = 'asdfasdf234';
+        id = 'RqVdZjBpCng';
     }
 
     const actionAfterRecording = store.get('settings.actionAfterRecording');

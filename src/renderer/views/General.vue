@@ -35,9 +35,9 @@
                 <b-field>
                     <b-radio
                         v-model="settings.openLibraryIn"
-                        @input="setSetting('openLibraryIn', $event)"
                         :disabled="!hasInstalledLibraryApp"
                         native-value="app"
+                        @input="setSetting('openLibraryIn', $event)"
                     >
                         Yes
                         <span v-if="!hasInstalledLibraryApp">
@@ -48,8 +48,8 @@
                 <b-field>
                     <b-radio
                         v-model="settings.openLibraryIn"
-                        @input="setSetting('openLibraryIn', $event)"
                         native-value="browser"
+                        @input="setSetting('openLibraryIn', $event)"
                     >
                         No, open in browser
                     </b-radio>
@@ -57,9 +57,9 @@
 
                 <transition name="fade">
                     <b-button
+                        v-if="settings.openLibraryIn === 'app'"
                         type="is-primary"
                         size="is-small"
-                        v-if="settings.openLibraryIn === 'app'"
                         @click="testLibraryAppConnection"
                     >
                         Test connection
@@ -146,20 +146,22 @@ export default {
         SectionCard,
     },
 
-    async mounted() {
-        await this.getSettings();
+    data() {
+        return {
+            settings: {
+                actionAfterRecording: 'open_library',
+                openLibraryIn: 'browser',
+                autoAddToLibrary: false,
+            },
 
-        await this.getHasInstalledLibraryApp();
-
-        if (!this.hasInstalledLibraryApp) {
-            this.setSetting('openLibraryIn', 'browser');
-        }
+            hasInstalledLibraryApp: true,
+        };
     },
 
     watch: {
         settings: {
             handler(newValue) {
-                if (newValue.saveToEnlyo) {
+                if (newValue.autoAddToLibrary) {
                     return;
                 }
 
@@ -173,16 +175,14 @@ export default {
         },
     },
 
-    data() {
-        return {
-            settings: {
-                actionAfterRecording: 'open_library',
-                openLibraryIn: 'browser',
-                autoAddToLibrary: false,
-            },
+    async mounted() {
+        await this.getSettings();
 
-            hasInstalledLibraryApp: true,
-        };
+        await this.getHasInstalledLibraryApp();
+
+        if (!this.hasInstalledLibraryApp) {
+            this.setSetting('openLibraryIn', 'browser');
+        }
     },
 
     methods: {
