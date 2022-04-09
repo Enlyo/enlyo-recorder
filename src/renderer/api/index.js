@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AuthService from './AuthService';
+import VideoService from './VideoService';
 
 import store from '../store';
 
@@ -17,7 +18,9 @@ $axios.interceptors.request.use((config) => {
 const ctx = { $axios };
 
 const auth = new AuthService('auth/', 'User', ctx);
+const video = new VideoService('videos/', 'Video', ctx);
 
 export default {
     auth,
+    video,
 };

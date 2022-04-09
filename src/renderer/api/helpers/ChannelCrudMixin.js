@@ -1,5 +1,3 @@
-import { createQueryStringFromObject } from '@/utils/helpers.js';
-
 export default (superclass) =>
     class extends superclass {
         /**
@@ -7,12 +5,10 @@ export default (superclass) =>
          *
          * @returns {ApiResponse}
          */
-        async index(channelSlug, filters = null) {
+        async index(channelSlug) {
             try {
-                const query = createQueryStringFromObject(filters);
-
                 const res = await this.axios.get(
-                    `/channels/${channelSlug}/${this.resource}${query}`
+                    `/channels/${channelSlug}/${this.resource}`
                 );
 
                 return this.handleResponse(res, 'index');

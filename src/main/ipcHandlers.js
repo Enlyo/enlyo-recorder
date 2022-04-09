@@ -17,10 +17,14 @@ const OUTPUT_APPEND_MESSAGE = 'enlyo-recording';
 const INPUT_FORMAT = 'mkv';
 const OUTPUT_FORMAT = 'mp4';
 
+/* -------------------------------------------------------------------------- */
+/*                               SCREEN RECORDER                              */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Handle initialize recorder
+ * Initialize recorder
  */
-async function handleInitializeRecorder() {
+async function initializeRecorder() {
     const settings = store.get('settings');
     screenRecorder.setSettings({ outputPath: RAW_RECORDING_PATH, ...settings });
 
@@ -29,20 +33,20 @@ async function handleInitializeRecorder() {
 }
 
 /**
- * Handle start recorder
+ * Start recorder
  */
-function handleStartRecorder() {
+async function startRecorder() {
     new Notification({
         title: 'Started recording',
     }).show();
 
-    screenRecorder.start();
+    return await screenRecorder.start();
 }
 
 /**
- * Handle stop recorder
+ * Stop recorder
  */
-async function handleStopRecorder() {
+async function stopRecorder() {
     new Notification({
         title: 'Stopped recording',
     }).show();
@@ -61,81 +65,12 @@ async function handleStopRecorder() {
     const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
     const data = await videoEditor.remux(inputFile, outputFile);
+    data.folder = OUTPUT_PATH;
+    data.name = outputName;
+    data.file = outputFile;
     await fileManager.deleteFile(inputFile);
 
-    let id = null;
-    const autoAddToLibrary = store.get('settings.autoAddToLibrary');
-    if (autoAddToLibrary) {
-        // Placeholder for api call
-        console.debug('auto add to library');
-
-        // id returned by api call
-        id = 'RqVdZjBpCng';
-    }
-
-    const actionAfterRecording = store.get('settings.actionAfterRecording');
-    if (actionAfterRecording === 'open_library') {
-        if (!id) return;
-
-        libraryInterface.openRecording({ id });
-    } else if (actionAfterRecording === 'open_system_player') {
-        require('electron').shell.openExternal(outputFile);
-    } else if (actionAfterRecording === 'open_folder') {
-        require('electron').shell.openPath(OUTPUT_PATH);
-    }
-}
-
-/**
- * Handle start process monitor
- */
-function handleStartProcessMonitor(event) {
-    processMonitor.startInterval(
-        () => _handleProcessStarted(event),
-        () => _handleProcessEnded(event)
-    );
-}
-
-function _handleProcessStarted(event) {
-    if (!screenRecorder.isRecording) {
-        event.reply('start-recorder-request');
-    }
-}
-
-function _handleProcessEnded(event) {
-    if (screenRecorder.isRecording) {
-        event.reply('stop-recorder-request');
-    }
-}
-
-/**
- * Handle stop process monitor
- */
-function handleStopProcessMonitor() {
-    processMonitor.stopInterval();
-}
-
-/**
- * Set setting
- */
-function setSetting(key, value) {
-    const storeKey = `settings.${key}`;
-    store.set(storeKey, value);
-
-    if (key === 'fps') {
-        return screenRecorder.setFps(value);
-    } else if (key === 'screen') {
-        return screenRecorder.setScreen(value);
-    } else if (key === 'resolution') {
-        return screenRecorder.setResolution(value);
-    } else if (key === 'speaker') {
-        return screenRecorder.setSpeaker(value);
-    } else if (key === 'microphone') {
-        return screenRecorder.setMicrophone(value);
-    } else if (key === 'speakerVolume') {
-        return screenRecorder.setSpeakerVolume(value);
-    } else if (key === 'microphoneVolume') {
-        return screenRecorder.setMicrophoneVolume(value);
-    }
+    return data;
 }
 
 /**
@@ -159,18 +94,37 @@ function getAvailableMicrophones() {
     return screenRecorder.getAvailableMicrophones();
 }
 
+/* -------------------------------------------------------------------------- */
+/*                               PROCESS MONITOR                              */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Get store value
+ *  Start process monitor
  */
-function getStoreValue(key) {
-    return store.get(key);
+function startProcessMonitor(event) {
+    processMonitor.startInterval(
+        () => _handleProcessStarted(event),
+        () => _handleProcessEnded(event)
+    );
+}
+
+function _handleProcessStarted(event) {
+    if (!screenRecorder.isRecording) {
+        event.reply('start-recorder-request');
+    }
+}
+
+function _handleProcessEnded(event) {
+    if (screenRecorder.isRecording) {
+        event.reply('stop-recorder-request');
+    }
 }
 
 /**
- * Get get app version
+ *  Stop process monitor
  */
-function getVersion() {
-    return getAppVersion();
+function stopProcessMonitor() {
+    processMonitor.stopInterval();
 }
 
 /**
@@ -180,19 +134,66 @@ function getActiveProcesses() {
     return processMonitor.getActiveProcesses();
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                  SETTINGS                                  */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Set env variables to storage
+ * Set setting
  */
-function storeEnvVariables(variables) {
-    store.set('env', variables);
+function setSetting(key, value) {
+    const storeKey = `settings.${key}`;
+    setStoreValue(storeKey, value);
+
+    if (key === 'fps') {
+        return screenRecorder.setFps(value);
+    } else if (key === 'screen') {
+        return screenRecorder.setScreen(value);
+    } else if (key === 'resolution') {
+        return screenRecorder.setResolution(value);
+    } else if (key === 'speaker') {
+        return screenRecorder.setSpeaker(value);
+    } else if (key === 'microphone') {
+        return screenRecorder.setMicrophone(value);
+    } else if (key === 'speakerVolume') {
+        return screenRecorder.setSpeakerVolume(value);
+    } else if (key === 'microphoneVolume') {
+        return screenRecorder.setMicrophoneVolume(value);
+    }
 }
 
 /**
- * Set user
+ * Get setting
  */
-function setUser(user) {
-    store.set('user', user);
+async function getSetting(key) {
+    const storeKey = `settings.${key}`;
+    console.debug(storeKey);
+    const storeValue = getStoreValue(storeKey);
+    console.debug(storeValue);
+    return storeValue;
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                    STORE                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Get store value
+ */
+function getStoreValue(key) {
+    return store.get(key);
+}
+
+/**
+ * Set store value
+ */
+function setStoreValue(key, value) {
+    return store.set(key, value);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              LIBRARY INTERFACE                             */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Get has installed library app
@@ -208,19 +209,72 @@ function testLibraryAppConnection() {
     return libraryInterface.testConnection();
 }
 
-module.exports.handleInitializeRecorder = handleInitializeRecorder;
-module.exports.handleStartRecorder = handleStartRecorder;
-module.exports.handleStopRecorder = handleStopRecorder;
-module.exports.handleStartProcessMonitor = handleStartProcessMonitor;
-module.exports.handleStopProcessMonitor = handleStopProcessMonitor;
+/**
+ * Open library video
+ */
+function openLibraryVideo(recording) {
+    libraryInterface.openVideo({ id: recording.id });
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                    OTHER                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Get get app version
+ */
+function getVersion() {
+    return getAppVersion();
+}
+
+/**
+ * Set env variables to storage
+ */
+function storeEnvVariables(variables) {
+    store.set('env', variables);
+}
+
+/**
+ * Open system player
+ */
+function openSystemPlayer(recording) {
+    console.debug(recording);
+    require('electron').shell.openExternal(recording.file);
+}
+
+/**
+ * Open recording folder
+ */
+function openRecordingFolder(recording) {
+    console.debug(recording);
+    require('electron').shell.openPath(recording.folder);
+}
+
+/**
+ * Set user
+ */
+function setUser(user) {
+    store.set('user', user);
+}
+
+module.exports.getActiveProcesses = getActiveProcesses;
+module.exports.getAvailableMicrophones = getAvailableMicrophones;
 module.exports.getAvailableScreens = getAvailableScreens;
 module.exports.getAvailableSpeakers = getAvailableSpeakers;
-module.exports.getAvailableMicrophones = getAvailableMicrophones;
-module.exports.setSetting = setSetting;
+module.exports.getHasInstalledLibraryApp = getHasInstalledLibraryApp;
+module.exports.getSetting = getSetting;
 module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;
-module.exports.getActiveProcesses = getActiveProcesses;
-module.exports.storeEnvVariables = storeEnvVariables;
-module.exports.getHasInstalledLibraryApp = getHasInstalledLibraryApp;
-module.exports.testLibraryAppConnection = testLibraryAppConnection;
+module.exports.initializeRecorder = initializeRecorder;
+module.exports.openLibraryVideo = openLibraryVideo;
+module.exports.openSystemPlayer = openSystemPlayer;
+module.exports.openRecordingFolder = openRecordingFolder;
+module.exports.setSetting = setSetting;
+module.exports.setStoreValue = setStoreValue;
 module.exports.setUser = setUser;
+module.exports.startProcessMonitor = startProcessMonitor;
+module.exports.startRecorder = startRecorder;
+module.exports.stopProcessMonitor = stopProcessMonitor;
+module.exports.stopRecorder = stopRecorder;
+module.exports.storeEnvVariables = storeEnvVariables;
+module.exports.testLibraryAppConnection = testLibraryAppConnection;

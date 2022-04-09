@@ -1,10 +1,10 @@
 const { ipcMain } = require('electron');
 const {
-    handleInitializeRecorder,
-    handleStartRecorder,
-    handleStopRecorder,
-    handleStartProcessMonitor,
-    handleStopProcessMonitor,
+    initializeRecorder,
+    startRecorder,
+    stopRecorder,
+    startProcessMonitor,
+    stopProcessMonitor,
     setSetting,
     getAvailableScreens,
     getAvailableSpeakers,
@@ -16,38 +16,31 @@ const {
     setUser,
     getHasInstalledLibraryApp,
     testLibraryAppConnection,
+    openLibraryVideo,
+    openSystemPlayer,
+    openRecordingFolder,
+    getSetting,
+    setStoreValue,
 } = require('./ipcHandlers');
 
 /**
  * Set ipc listeners
  */
 function setIpcListeners() {
-    ipcMain.on('initialize-recorder', (event, settings) => {
-        handleInitializeRecorder(settings);
+    /* -------------------------------------------------------------------------- */
+    /*                               SCREEN RECORDER                              */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('initialize-recorder', async () => {
+        return await initializeRecorder();
     });
 
-    ipcMain.on('start-recorder', async (event) => {
-        await handleStartRecorder();
-
-        event.reply('started-recorder');
+    ipcMain.handle('start-recorder', async () => {
+        return await startRecorder();
     });
 
-    ipcMain.on('stop-recorder', async (event) => {
-        await handleStopRecorder();
-
-        event.reply('stopped-recorder');
-    });
-
-    ipcMain.on('start-process-monitor', async (event) => {
-        handleStartProcessMonitor(event);
-    });
-
-    ipcMain.on('stop-process-monitor', async (event) => {
-        handleStopProcessMonitor(event);
-    });
-
-    ipcMain.handle('set-setting', async (event, { key, value }) => {
-        return setSetting(key, value);
+    ipcMain.handle('stop-recorder', async () => {
+        return await stopRecorder();
     });
 
     ipcMain.handle('get-available-screens', async (event) => {
@@ -62,16 +55,69 @@ function setIpcListeners() {
         return await getAvailableSpeakers(event);
     });
 
-    ipcMain.handle('get-store-value', async (event, key) => {
-        return getStoreValue(key);
+    /* -------------------------------------------------------------------------- */
+    /*                               PROCESS MONITOR                              */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('start-process-monitor', async (event) => {
+        return await startProcessMonitor(event);
     });
 
-    ipcMain.handle('get-app-version', async () => {
-        return getVersion();
+    ipcMain.handle('stop-process-monitor', async (event) => {
+        return await stopProcessMonitor(event);
     });
 
     ipcMain.handle('get-active-processes', async () => {
         return getActiveProcesses();
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  SETTINGS                                  */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('set-setting', async (event, { key, value }) => {
+        return await setSetting(key, value);
+    });
+
+    ipcMain.handle('get-setting', async (event, key) => {
+        console.debug(key);
+        return await getSetting(key);
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                                    STORE                                   */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('get-store-value', async (event, key) => {
+        return getStoreValue(key);
+    });
+
+    ipcMain.handle('set-store-value', async (event, { key, value }) => {
+        return setStoreValue(key, value);
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                              LIBRARY INTERFACE                             */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('get-has-installed-library-app', async () => {
+        return await getHasInstalledLibraryApp();
+    });
+
+    ipcMain.handle('test-library-app-connection', async () => {
+        return await testLibraryAppConnection();
+    });
+
+    ipcMain.handle('open-library-video', async (event, recording) => {
+        return await openLibraryVideo(recording);
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                                    OTHER                                   */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('get-app-version', async () => {
+        return getVersion();
     });
 
     ipcMain.handle('store-env-variables', async (event, variables) => {
@@ -82,12 +128,13 @@ function setIpcListeners() {
         return setUser(user);
     });
 
-    ipcMain.handle('get-has-installed-library-app', async () => {
-        return await getHasInstalledLibraryApp();
+    ipcMain.handle('open-recording-folder', async (event, recording) => {
+        console.debug('ipc listener');
+        return await openRecordingFolder(recording);
     });
 
-    ipcMain.handle('test-library-app-connection', async () => {
-        return await testLibraryAppConnection();
+    ipcMain.handle('open-system-player', async (event, recording) => {
+        return await openSystemPlayer(recording);
     });
 }
 
