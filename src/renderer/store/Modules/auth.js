@@ -35,7 +35,6 @@ const actions = {
 
         if (response.status) {
             await commit('SET_USER', response.data);
-            console.log(response.data);
         }
 
         return response;
@@ -46,6 +45,20 @@ const actions = {
      */
     async logout({ commit }) {
         commit('LOGOUT');
+    },
+
+    /**
+     * Refresh
+     */
+    async refresh({ commit, getters }) {
+        const refresh = getters.tokens.refresh;
+        const response = await api.auth.refresh({ refresh });
+
+        if (response.status) {
+            await commit('SET_TOKENS', response.data);
+        }
+
+        return response;
     },
 };
 
