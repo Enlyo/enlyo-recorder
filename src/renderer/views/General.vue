@@ -148,11 +148,7 @@ export default {
 
     data() {
         return {
-            settings: {
-                actionAfterRecording: 'open_library',
-                openLibraryIn: 'app',
-                autoAddToLibrary: true,
-            },
+            settings: {},
 
             hasInstalledLibraryApp: false,
         };

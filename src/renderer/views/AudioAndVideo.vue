@@ -149,15 +149,7 @@ export default {
 
     data() {
         return {
-            settings: {
-                screen: {},
-                speaker: {},
-                microphone: {},
-                resolution: 1080,
-                fps: 60,
-                speakerVolume: 1,
-                microphoneVolume: 1,
-            },
+            settings: {},
 
             availableScreens: [],
             availableSpeakers: [],
