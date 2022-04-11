@@ -33,4 +33,19 @@ export default class AuthService extends BaseApiService {
             return this.handleError(error);
         }
     }
+
+    /**
+     * Refresh
+     */
+    async refresh({ refresh }) {
+        try {
+            const res = await this.axios.post(`/${this.resource}jwt/refresh/`, {
+                refresh,
+            });
+
+            return this.handleResponse(res);
+        } catch (error) {
+            return this.handleError(error);
+        }
+    }
 }
