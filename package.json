@@ -4,7 +4,7 @@
     "description": "Screen recording software for gaming",
     "author": "Enlyo",
     "license": "GPL-2.0",
-    "version": "0.9.6-beta",
+    "version": "0.9.8-beta",
     "private": false,
     "main": "src/main/main.js",
     "build": {
@@ -12,7 +12,11 @@
         "win": {
             "target": "nsis",
             "icon": "public/icons/icon.ico",
-            "publisherName": "Enlyo"
+            "publisherName": "Enlyo",
+            "signingHashAlgorithms": [ "sha256" ],
+            "signAndEditExecutable": true,
+            "verifyUpdateCodeSignature": true,
+            "forceCodeSigning": true
         },
         "mac": {
             "icon": "public/icons/icon.icns"

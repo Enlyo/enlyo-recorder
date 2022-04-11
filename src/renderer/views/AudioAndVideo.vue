@@ -179,6 +179,10 @@ export default {
                 'settings'
             );
 
+            await this.getAvailableScreens();
+            await this.getAvailableSpeakers();
+            await this.getAvailableMicrophones();
+
             // First time only, set a default screen
             if (!this.settings.screen || !this.settings.screen.name) {
                 this.setDefaultScreen();
@@ -191,10 +195,6 @@ export default {
             if (!this.settings.microphone || !this.settings.microphone.name) {
                 this.setDefaultMicrophone();
             }
-
-            await this.getAvailableScreens();
-            await this.getAvailableSpeakers();
-            await this.getAvailableMicrophones();
         },
 
         /**
