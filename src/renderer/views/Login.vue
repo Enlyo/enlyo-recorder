@@ -6,31 +6,48 @@
                     <h1 class="title is-3 has-text-centered">Login</h1>
 
                     <form class="login-form">
-                        <b-message v-if="isError" type="is-danger">
-                            <span v-html="errorMessage" />
+                        <b-message v-if="error.detail" type="is-danger">
+                            <span v-html="error.detail" />
                         </b-message>
 
-                        <b-input
-                            v-model="form.email"
-                            rules="required|email"
-                            type="email"
-                            size="is-medium"
-                            placeholder="Email"
-                            autocomplete="email"
-                            name="Email"
-                        />
+                        <b-field
+                            :type="
+                                error.email.length > 0 ? 'is-danger' : 'email'
+                            "
+                            :message="error.email.join(', ')"
+                        >
+                            <b-input
+                                v-model="form.email"
+                                size="is-medium"
+                                type="email"
+                                placeholder="Email"
+                                autocomplete="email"
+                                name="Email"
+                                @input="clearErrors"
+                                @keyup.enter.native="login"
+                            />
+                        </b-field>
 
-                        <b-input
-                            v-model="form.password"
-                            class="password"
-                            rules="required"
-                            type="password"
-                            size="is-medium"
-                            password-reveal
-                            placeholder="Password"
-                            name="Password"
-                            @keyup.enter.native="login"
-                        />
+                        <b-field
+                            :type="
+                                error.password.length > 0
+                                    ? 'is-danger'
+                                    : 'password'
+                            "
+                            :message="error.password.join(', ')"
+                        >
+                            <b-input
+                                v-model="form.password"
+                                class="password"
+                                size="is-medium"
+                                type="password"
+                                password-reveal
+                                placeholder="Password"
+                                name="Password"
+                                @input="clearErrors"
+                                @keyup.enter.native="login"
+                            />
+                        </b-field>
 
                         <b-button
                             size="is-medium"
@@ -85,8 +102,11 @@ export default {
                 email: '',
                 password: '',
             },
-            isError: false,
-            errorMessage: `Something went wrong, please try again`,
+            error: {
+                email: [],
+                password: [],
+                detail: '',
+            },
             isLoading: false,
         };
     },
@@ -97,7 +117,6 @@ export default {
          */
         async login() {
             this.setLoading(true);
-            this.setError(false);
 
             const response = await this.$store.dispatch(
                 'auth/login',
@@ -113,29 +132,23 @@ export default {
 
             const { data } = response;
 
-            if ('detail' in data) {
-                this.setErrorMessage(data.detail);
-            } else {
-                this.setErrorMessage(response.data);
+            for (const key in data) {
+                this.$set(this.error, key, data[key]);
             }
 
-            this.setError(true);
             this.setLoading(false);
             return;
         },
 
         /**
-         * Set error
+         * Clear errors
          */
-        setError(bool) {
-            this.isError = bool;
-        },
-
-        /**
-         * Set error message
-         */
-        setErrorMessage(string) {
-            this.errorMessage = string;
+        clearErrors() {
+            this.error = {
+                email: [],
+                password: [],
+                detail: '',
+            };
         },
 
         /**

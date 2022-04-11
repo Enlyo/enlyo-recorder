@@ -9,6 +9,7 @@ const { Titlebar, Color } = require('custom-electron-titlebar');
  * Valid channels
  */
 const VALID_CHANNELS = {
+    request: [],
     response: ['start-recorder-request', 'stop-recorder-request'],
     invoke: [
         'get-active-processes',
@@ -30,6 +31,7 @@ const VALID_CHANNELS = {
         'stop-process-monitor',
         'store-env-variables',
         'test-library-app-connection',
+        'test-ipc-connection',
     ],
 };
 
