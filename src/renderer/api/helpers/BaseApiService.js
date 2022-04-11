@@ -22,7 +22,7 @@ export default class BaseApiService {
      */
     setUpAxios() {
         this.axios = axios.create({
-            baseURL: process.env.API_BASE || 'http://127.0.0.1:8000/',
+            baseURL: process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8000/',
         });
 
         this.axios.interceptors.request.use((config) => {

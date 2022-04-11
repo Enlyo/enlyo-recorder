@@ -186,14 +186,14 @@ export default {
          * Start process monitor
          */
         startProcessMonitor() {
-            window.ipc.invoke('start-process-monitor');
+            window.ipc.send('start-process-monitor');
         },
 
         /**
          * Stop process monitor
          */
         stopProcessMonitor() {
-            window.ipc.invoke('stop-process-monitor');
+            window.ipc.send('stop-process-monitor');
         },
 
         /* -------------------------------------------------------------------------- */

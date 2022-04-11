@@ -59,12 +59,12 @@ function setIpcListeners() {
     /*                               PROCESS MONITOR                              */
     /* -------------------------------------------------------------------------- */
 
-    ipcMain.handle('start-process-monitor', async (event) => {
-        return await startProcessMonitor(event);
+    ipcMain.on('start-process-monitor', async (event) => {
+        startProcessMonitor(event);
     });
 
-    ipcMain.handle('stop-process-monitor', async (event) => {
-        return await stopProcessMonitor(event);
+    ipcMain.on('stop-process-monitor', async (event) => {
+        stopProcessMonitor(event);
     });
 
     ipcMain.handle('get-active-processes', async () => {

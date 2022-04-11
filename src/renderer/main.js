@@ -25,6 +25,7 @@ new Vue({
         async storeEnvVariables() {
             await window.ipc.invoke('store-env-variables', {
                 appBase: process.env.VUE_APP_BASE,
+                apiBase: process.env.VUE_APP_API_BASE,
             });
         },
     },
