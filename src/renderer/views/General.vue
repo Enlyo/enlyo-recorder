@@ -111,8 +111,8 @@
                 >
                     <b-select
                         v-model="settings.actionAfterRecording"
-                        @input="setSetting('actionAfterRecording', $event)"
                         expanded
+                        @input="setSetting('actionAfterRecording', $event)"
                     >
                         <option value="none">No action</option>
                         <option value="open_folder">
@@ -148,13 +148,9 @@ export default {
 
     data() {
         return {
-            settings: {
-                actionAfterRecording: 'open_library',
-                openLibraryIn: 'browser',
-                autoAddToLibrary: false,
-            },
+            settings: {},
 
-            hasInstalledLibraryApp: true,
+            hasInstalledLibraryApp: false,
         };
     },
 

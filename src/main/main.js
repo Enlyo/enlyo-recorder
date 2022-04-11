@@ -46,7 +46,7 @@ if (isDevelopment) {
 async function createWindow() {
     win = new BrowserWindow({
         width: 600,
-        height: 800,
+        height: 900,
         frame: false,
         resizable: process.env.NODE_ENV === 'DEV',
         maximizable: false,

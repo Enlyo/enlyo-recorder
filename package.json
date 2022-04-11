@@ -51,6 +51,7 @@
         "@josephuspaye/list-open-windows": "^0.1.1"
     },
     "dependencies": {
+        "axios": "^0.26.1",
         "buefy": "^0.9.14",
         "core-js": "^3.6.5",
         "custom-electron-titlebar": "^4.1.0",
@@ -66,8 +67,11 @@
         "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.0.0-release.tar.gz",
         "rxjs": "^6.6.3",
         "uuid": "^8.3.0",
+        "vee-validate": "^4.5.10",
         "vue": "^2.6.11",
-        "vue-router": "^3.2.0"
+        "vue-router": "^3.2.0",
+        "vuex": "3",
+        "vuex-persistedstate": "^4.1.0"
     },
     "devDependencies": {
         "@vue/cli-plugin-babel": "~4.5.0",

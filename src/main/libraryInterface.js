@@ -19,12 +19,12 @@ const libraryInterface = {
      * Is library app installed chrome
      */
     async isLibraryAppInstalledChrome() {
-        const appPath = path.join(
-            app.getPath('userData'),
-            '../../Roaming/Microsoft/Windows/Start Menu/Programs'
-        );
-
         try {
+            const appPath = path.join(
+                app.getPath('userData'),
+                '../../Roaming/Microsoft/Windows/Start Menu/Programs'
+            );
+
             const files = await this.getFiles(appPath);
 
             const isInstalled = Boolean(
@@ -45,12 +45,12 @@ const libraryInterface = {
      * Is library app installed edge
      */
     async isLibraryAppInstalledEdge() {
-        const appPath = path.join(
-            app.getPath('userData'),
-            '../../Local/Microsoft/Edge/User Data/Default/Web Applications'
-        );
-
         try {
+            const appPath = path.join(
+                app.getPath('userData'),
+                '../../Local/Microsoft/Edge/User Data/Default/Web Applications'
+            );
+
             const files = await this.getFiles(appPath);
 
             const isInstalled = Boolean(
@@ -78,9 +78,9 @@ const libraryInterface = {
     },
 
     /**
-     * Open recording
+     * Open video
      */
-    openRecording({ id }) {
+    openVideo({ id }) {
         const openLibraryIn = store.get('settings.openLibraryIn');
 
         if (openLibraryIn === 'app') {

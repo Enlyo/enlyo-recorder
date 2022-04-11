@@ -1,13 +1,13 @@
 <template>
     <div id="app">
         <AppLayout :class="{ 'is-recording': isRecording }">
-            <AppNavigation v-if="!isRecording" />
+            <AppNavigation v-if="$route.path != '/login' && !isRecording" />
 
             <AppContent v-if="!isRecording">
                 <router-view />
             </AppContent>
 
-            <AppFooter>
+            <AppFooter v-if="$route.path != '/login'">
                 <RecordingPane @setIsRecording="isRecording = $event" />
             </AppFooter>
         </AppLayout>
@@ -15,18 +15,18 @@
 </template>
 
 <script>
-import AppNavigation from '@/components/layout/AppNavigation.vue';
+import AppContent from '@/components/layout/AppContent.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import AppLayout from '@/components/layout/AppLayout.vue';
-import AppContent from '@/components/layout/AppContent.vue';
+import AppNavigation from '@/components/layout/AppNavigation.vue';
 import RecordingPane from '@/components/RecordingPane.vue';
 
 export default {
     components: {
-        AppNavigation,
+        AppContent,
         AppFooter,
         AppLayout,
-        AppContent,
+        AppNavigation,
         RecordingPane,
     },
 

@@ -23,6 +23,10 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
+import api from '@/api';
+
 import Loader from '@/components/Loader.vue';
 import RecordButton from '@/components/RecordButton.vue';
 
@@ -36,8 +40,8 @@ export default {
 
     data() {
         return {
-            isRecording: false,
             isLoading: false,
+            isRecording: false,
             recordTime: 0,
             timer: null,
         };
@@ -51,6 +55,10 @@ export default {
                 ? date.substr(11, 8)
                 : date.substr(14, 5);
         },
+
+        ...mapGetters({
+            user: 'auth/user',
+        }),
     },
 
     async mounted() {
@@ -61,7 +69,7 @@ export default {
 
     beforeDestroy() {
         this.stopProcessMonitor();
-        this.resetRecordTime();
+        this.stopRecordTimer();
     },
 
     methods: {
@@ -70,32 +78,9 @@ export default {
         /* -------------------------------------------------------------------------- */
 
         /**
-         * Initialize recorder
-         */
-        initializeRecorder() {
-            window.ipc.send('initialize-recorder');
-        },
-
-        /**
-         * Start process monitor
-         */
-        startProcessMonitor() {
-            window.ipc.send('start-process-monitor');
-        },
-
-        /**
-         * Stop process monitor
-         */
-        stopProcessMonitor() {
-            window.ipc.send('stop-process-monitor');
-        },
-
-        /**
          * Set ipc listeners
          */
         setIpcListeners() {
-            window.ipc.on('started-recorder', this.handleRecorderStarted);
-            window.ipc.on('stopped-recorder', this.handleRecorderStopped);
             window.ipc.on('start-recorder-request', this.startRecorder);
             window.ipc.on('stop-recorder-request', this.stopRecorder);
         },
@@ -105,15 +90,10 @@ export default {
         /* -------------------------------------------------------------------------- */
 
         /**
-         * Set is recording
+         * Initialize recorder
          */
-        setIsRecording(bool) {
-            this.isRecording = bool;
-            this.$emit('setIsRecording', bool);
-        },
-
-        setIsLoading(bool) {
-            this.isLoading = bool;
+        initializeRecorder() {
+            window.ipc.invoke('initialize-recorder');
         },
 
         /**
@@ -124,60 +104,167 @@ export default {
         },
 
         /**
-         * Dispatch start recorder ipc
+         * Start recorder
          */
-        startRecorder() {
+        async startRecorder() {
             if (this.isRecording) return;
-            window.ipc.send('start-recorder');
-        },
 
-        /**
-         * Handle recorder started
-         */
-        handleRecorderStarted() {
+            await window.ipc.invoke('start-recorder');
+
             this.setIsRecording(true);
-            this.startRecordTime();
+            this.startRecordTimer();
         },
 
         /**
-         * Dispatch stop recorder ipc
+         * Set is recording
          */
-        stopRecorder() {
-            if (!this.isRecording) return;
-            this.setIsLoading(true);
-            window.ipc.send('stop-recorder');
-        },
-
-        /**
-         * Handle recorder stopped
-         */
-        handleRecorderStopped() {
-            this.setIsRecording(false);
-            this.setIsLoading(false);
-            this.resetRecordTime();
+        setIsRecording(bool) {
+            this.isRecording = bool;
+            this.$emit('setIsRecording', bool);
         },
 
         /**
          * Start record time
          */
-        startRecordTime() {
+        startRecordTimer() {
             this.timer = setInterval(() => this.recordTime++, 1000);
         },
 
         /**
-         * Stop record time
+         * Stop recorder
          */
-        stopRecordTime() {
-            clearInterval(this.timer);
+        async stopRecorder() {
+            if (!this.isRecording) return;
+
+            this.setIsLoading(true);
+            let recording = await window.ipc.invoke('stop-recorder');
+
+            const autoAddToLibrary = await this.getSetting('autoAddToLibrary');
+            if (autoAddToLibrary) {
+                recording = await this.addToLibrary(recording);
+            }
+
+            const actionAfterRecording = await this.getSetting(
+                'actionAfterRecording'
+            );
+            if (actionAfterRecording === 'open_folder') {
+                await this.openRecordingFolder(recording);
+            }
+            if (actionAfterRecording === 'open_system_player') {
+                await this.openSystemPlayer(recording);
+            }
+            if (actionAfterRecording === 'open_library') {
+                await this.openLibraryVideo(recording);
+            }
+
+            this.setIsRecording(false);
+            this.setIsLoading(false);
+            this.stopRecordTimer();
+        },
+
+        /**
+         * Set is loading
+         */
+        setIsLoading(bool) {
+            this.isLoading = bool;
         },
 
         /**
          * Reset record time
          */
-        resetRecordTime() {
-            this.stopRecordTime();
+        stopRecordTimer() {
+            clearInterval(this.timer);
             this.recordTime = 0;
             this.timer = null;
+        },
+
+        /* -------------------------------------------------------------------------- */
+        /*                               PROCESS MONITOR                              */
+        /* -------------------------------------------------------------------------- */
+
+        /**
+         * Start process monitor
+         */
+        startProcessMonitor() {
+            window.ipc.invoke('start-process-monitor');
+        },
+
+        /**
+         * Stop process monitor
+         */
+        stopProcessMonitor() {
+            window.ipc.invoke('stop-process-monitor');
+        },
+
+        /* -------------------------------------------------------------------------- */
+        /*                                   LIBRARY                                  */
+        /* -------------------------------------------------------------------------- */
+
+        /**
+         * Add to library
+         */
+        async addToLibrary(recording) {
+            const personalChannel = this.user.channels.find(
+                (channel) => channel.type === 'personal'
+            );
+
+            const response = await api.video.create(personalChannel.slug, {
+                duration: recording.duration,
+                end_time: recording.duration,
+                source: 'local',
+                start_time: 0,
+                title: this.removeExtension(recording.name),
+                tag_strings: [],
+                custom_thumbnail: recording.thumbnail,
+                filename: recording.name,
+                filesize: recording.size,
+            });
+
+            if (response.status) {
+                recording.id = response.data.id;
+            }
+            return recording;
+        },
+
+        /**
+         * Open library video
+         */
+        async openLibraryVideo(recording) {
+            if (!recording.id) return;
+
+            return await window.ipc.invoke('open-library-video', recording);
+        },
+
+        /* -------------------------------------------------------------------------- */
+        /*                                    OTHER                                   */
+        /* -------------------------------------------------------------------------- */
+
+        /**
+         * Get setting
+         */
+        async getSetting(key) {
+            return await window.ipc.invoke('get-setting', key);
+        },
+
+        /**
+         * Open recording folder
+         */
+        async openRecordingFolder(recording) {
+            return await window.ipc.invoke('open-recording-folder', recording);
+        },
+
+        /**
+         * Open system player
+         */
+        async openSystemPlayer(recording) {
+            return await window.ipc.invoke('open-system-player', recording);
+        },
+
+        /**
+         * Remove extension from filename
+         */
+        removeExtension(file) {
+            return file.substr(0, file.lastIndexOf('.')) || file;
         },
     },
 };

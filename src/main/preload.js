@@ -1,36 +1,37 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const { Titlebar, Color } = require('custom-electron-titlebar');
-const path = require('path');
+
+/* -------------------------------------------------------------------------- */
+/*                               CONTEXT BRIDGE                               */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Valid request channels
+ * Valid channels
  */
 const VALID_CHANNELS = {
-    request: [
-        'initialize-recorder',
-        'start-recorder',
-        'stop-recorder',
-        'start-process-monitor',
-        'stop-process-monitor',
-    ],
-    response: [
-        'started-recorder',
-        'stopped-recorder',
-        'stop-recorder-request',
-        'start-recorder-request',
-    ],
+    request: [],
+    response: ['start-recorder-request', 'stop-recorder-request'],
     invoke: [
+        'get-active-processes',
+        'get-available-microphones',
         'get-available-screens',
         'get-available-speakers',
-        'get-available-microphones',
-        'set-setting',
-        'get-store-value',
         'get-app-version',
-        'get-active-processes',
-        'store-env-variables',
-        'get-active-processes',
         'get-has-installed-library-app',
+        'get-setting',
+        'get-store-value',
+        'initialize-recorder',
+        'open-library-video',
+        'open-recording-folder',
+        'open-system-player',
+        'set-setting',
+        'start-recorder',
+        'start-process-monitor',
+        'stop-recorder',
+        'stop-process-monitor',
+        'store-env-variables',
         'test-library-app-connection',
+        'test-ipc-connection',
     ],
 };
 
@@ -38,21 +39,30 @@ contextBridge.exposeInMainWorld('ipc', {
     send: (channel, data) => {
         if (VALID_CHANNELS.request.includes(channel)) {
             ipcRenderer.send(channel, data);
+            return;
         }
+        console.warn(`${channel} is not valid`);
     },
 
     on: (channel, func) => {
         if (VALID_CHANNELS.response.includes(channel)) {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
+            return;
         }
+        console.warn(`${channel} is not valid`);
     },
 
     invoke: async (channel, data) => {
         if (VALID_CHANNELS.invoke.includes(channel)) {
             return await ipcRenderer.invoke(channel, data);
         }
+        console.warn(`${channel} is not valid`);
     },
 });
+
+/* -------------------------------------------------------------------------- */
+/*                                  TITLEBAR                                  */
+/* -------------------------------------------------------------------------- */
 
 window.addEventListener('DOMContentLoaded', () => {
     // Title bar implemenation
