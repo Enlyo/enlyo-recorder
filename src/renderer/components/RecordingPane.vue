@@ -139,20 +139,14 @@ export default {
             this.setIsLoading(true);
             let recording = await window.ipc.invoke('stop-recorder');
 
-            console.log('finished 1');
-
             const autoAddToLibrary = await this.getSetting('autoAddToLibrary');
-            console.log(autoAddToLibrary);
             if (autoAddToLibrary) {
                 recording = await this.addToLibrary(recording);
             }
 
-            console.log('finished 2');
-
             const actionAfterRecording = await this.getSetting(
                 'actionAfterRecording'
             );
-            console.log(actionAfterRecording);
             if (actionAfterRecording === 'open_folder') {
                 await this.openRecordingFolder(recording);
             }
@@ -213,15 +207,19 @@ export default {
             const personalChannel = this.user.channels.find(
                 (channel) => channel.type === 'personal'
             );
+
             const response = await api.video.create(personalChannel.slug, {
                 duration: recording.duration,
-                endTime: recording.duration,
+                end_time: recording.duration,
                 source: 'local',
-                startTime: 0,
-                title: recording.name,
+                start_time: 0,
+                title: this.removeExtension(recording.name),
                 tag_strings: [],
+                custom_thumbnail: recording.thumbnail,
+                filename: recording.name,
+                filesize: recording.size,
             });
-            console.log(response);
+
             if (response.status) {
                 recording.id = response.data.id;
             }
@@ -252,7 +250,6 @@ export default {
          * Open recording folder
          */
         async openRecordingFolder(recording) {
-            console.log('open recording folder');
             return await window.ipc.invoke('open-recording-folder', recording);
         },
 
@@ -261,6 +258,13 @@ export default {
          */
         async openSystemPlayer(recording) {
             return await window.ipc.invoke('open-system-player', recording);
+        },
+
+        /**
+         * Remove extension from filename
+         */
+        removeExtension(file) {
+            return file.substr(0, file.lastIndexOf('.')) || file;
         },
     },
 };

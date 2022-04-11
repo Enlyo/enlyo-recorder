@@ -80,7 +80,6 @@ function setIpcListeners() {
     });
 
     ipcMain.handle('get-setting', async (event, key) => {
-        console.debug(key);
         return await getSetting(key);
     });
 
@@ -129,7 +128,6 @@ function setIpcListeners() {
     });
 
     ipcMain.handle('open-recording-folder', async (event, recording) => {
-        console.debug('ipc listener');
         return await openRecordingFolder(recording);
     });
 

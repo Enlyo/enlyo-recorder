@@ -65,10 +65,19 @@ async function stopRecorder() {
     const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
     const data = await videoEditor.remux(inputFile, outputFile);
+    data.size = await fileManager.getFileSize(outputFile);
     data.folder = OUTPUT_PATH;
     data.name = outputName;
     data.file = outputFile;
     await fileManager.deleteFile(inputFile);
+
+    await videoEditor.generateThumbnail(outputFile, RAW_RECORDING_PATH);
+    const thumbnailFile = getMostRecentFile(RAW_RECORDING_PATH);
+    const thumbnail = await fileManager.readFile(
+        RAW_RECORDING_PATH + '/' + thumbnailFile.file
+    );
+    data.thumbnail = thumbnail;
+    await fileManager.deleteFile(thumbnailFile.file);
 
     return data;
 }
@@ -167,9 +176,7 @@ function setSetting(key, value) {
  */
 async function getSetting(key) {
     const storeKey = `settings.${key}`;
-    console.debug(storeKey);
     const storeValue = getStoreValue(storeKey);
-    console.debug(storeValue);
     return storeValue;
 }
 
@@ -238,7 +245,6 @@ function storeEnvVariables(variables) {
  * Open system player
  */
 function openSystemPlayer(recording) {
-    console.debug(recording);
     require('electron').shell.openExternal(recording.file);
 }
 
@@ -246,7 +252,6 @@ function openSystemPlayer(recording) {
  * Open recording folder
  */
 function openRecordingFolder(recording) {
-    console.debug(recording);
     require('electron').shell.openPath(recording.folder);
 }
 
