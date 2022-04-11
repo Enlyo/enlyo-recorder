@@ -12,7 +12,6 @@
         "win": {
             "target": "nsis",
             "icon": "public/icons/icon.ico",
-            "publisherName": "Enlyo",
             "signingHashAlgorithms": [ "sha256" ],
             "signAndEditExecutable": true,
             "verifyUpdateCodeSignature": true,
