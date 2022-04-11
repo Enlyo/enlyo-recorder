@@ -53,6 +53,7 @@ async function stopRecorder() {
 
     await screenRecorder.stop();
 
+    // Remux video
     const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
     const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
 
@@ -71,13 +72,13 @@ async function stopRecorder() {
     data.file = outputFile;
     await fileManager.deleteFile(inputFile);
 
+    // Generate thumbnail
     await videoEditor.generateThumbnail(outputFile, RAW_RECORDING_PATH);
-    const thumbnailFile = getMostRecentFile(RAW_RECORDING_PATH);
-    const thumbnail = await fileManager.readFile(
-        RAW_RECORDING_PATH + '/' + thumbnailFile.file
-    );
+    const tmpThumbnail = getMostRecentFile(RAW_RECORDING_PATH);
+    const tmpThumbnailFile = `${RAW_RECORDING_PATH}/${tmpThumbnail.file}`;
+    const thumbnail = await fileManager.readFile(tmpThumbnailFile);
     data.thumbnail = thumbnail;
-    await fileManager.deleteFile(thumbnailFile.file);
+    await fileManager.deleteFile(tmpThumbnailFile);
 
     return data;
 }
