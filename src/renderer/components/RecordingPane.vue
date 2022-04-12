@@ -208,6 +208,10 @@ export default {
                 (channel) => channel.type === 'personal'
             );
 
+            // TODO: required because expired token gives a 503 error
+            // when a thumbnail is sent
+            await this.$store.dispatch('auth/refresh');
+
             const response = await api.video.create(personalChannel.slug, {
                 duration: recording.duration,
                 end_time: recording.duration,
