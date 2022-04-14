@@ -72,10 +72,11 @@ async function createWindow() {
     win = new BrowserWindow({
         width: 600,
         height: 900,
-        frame: false,
+        frame: true,
         resizable: process.env.NODE_ENV === 'DEV',
         maximizable: false,
         fullscreenable: false,
+        titleBarStyle: 'hidden',
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
