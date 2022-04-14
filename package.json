@@ -36,7 +36,15 @@
         ],
         "publish": [
             "github"
-        ]
+        ],
+        "protocols": [
+            {
+              "name": "enlyo-recorder",
+              "schemes": [
+                "enlyo-recorder"
+              ]
+            }
+          ]
     },
     "scripts": {
         "postinstall": "node ./scripts/postinstall.js",

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, dialog } = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
 const { getAppVersion } = require('./helpers');
@@ -41,6 +41,31 @@ if (isDevelopment) {
 }
 
 /**
+ * Reegister protocols
+ */
+
+if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient('enlyo-recorder', process.execPath, [
+            path.resolve(process.argv[1]),
+        ]);
+    }
+} else {
+    app.setAsDefaultProtocolClient('enlyo-recorder');
+}
+
+if (isDevelopment && process.platform === 'win32') {
+    // Set the path of electron.exe and your app.
+    // These two additional parameters are only available on windows.
+    // Setting this is required to get this working in dev mode.
+    app.setAsDefaultProtocolClient('enlyo-recorder', process.execPath, [
+        path.resolve(process.argv[1]),
+    ]);
+} else {
+    app.setAsDefaultProtocolClient('enlyo-recorder');
+}
+
+/**
  * Create window
  */
 async function createWindow() {
@@ -80,7 +105,7 @@ async function createWindow() {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-
+//
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -102,6 +127,28 @@ app.on('activate', () => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
+
+// Handle the protocol. In this case, we choose to show an Error Box.
+app.on('open-url', (event, url) => {
+    if (win) {
+        if (win.isMinimized()) win.restore();
+        win.focus();
+    }
+});
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        // Someone tried to run a second instance, we should focus our window.
+        if (win) {
+            if (win.isMinimized()) win.restore();
+            win.focus();
+        }
+    });
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
