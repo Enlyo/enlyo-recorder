@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 import api from '../../api/index';
 
 const state = {
@@ -55,7 +57,7 @@ const actions = {
         const response = await api.auth.refresh({ refresh });
 
         if (response.status) {
-            await commit('SET_TOKENS', response.data);
+            await commit('SET_ACCESS_TOKEN', response.data.access);
         }
 
         return response;
@@ -68,6 +70,13 @@ const mutations = {
      */
     SET_TOKENS(state, tokens) {
         state.tokens = tokens;
+    },
+
+    /**
+     * Set access token
+     */
+    SET_ACCESS_TOKEN(state, accessToken) {
+        Vue.set(state.tokens, 'access', accessToken);
     },
 
     /**

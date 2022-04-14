@@ -28,9 +28,11 @@ export default class BaseApiService {
         this.axios.interceptors.request.use((config) => {
             const tokens = store.getters['auth/tokens'];
 
-            config.headers.Authorization = tokens.access
-                ? `JWT ${tokens.access}`
-                : '';
+            config.headers = {
+                Authorization: `JWT ${tokens.access}`,
+                Accept: 'application/json',
+                'Content-Type': 'application/json;charset=UTF-8',
+            };
             return config;
         });
 
@@ -38,18 +40,18 @@ export default class BaseApiService {
             (response) => {
                 return response;
             },
-            async function (error) {
+            async (error) => {
                 const originalRequest = error.config;
 
                 if (error.response.status === 401 && !originalRequest._retry) {
                     originalRequest._retry = true;
                     const response = await store.dispatch('auth/refresh');
-
                     if (response.status) {
-                        axios.defaults.headers.common['Authorization'] =
-                            response.data.access
-                                ? `JWT ${response.data.access}`
-                                : '';
+                        axios.defaults.headers.common[
+                            'Authorization'
+                        ] = `JWT ${response.data.access}`;
+                        axios.defaults.headers.common['Content-Type'] =
+                            'application/json';
                         return this.axios(originalRequest);
                     }
                     return Promise.reject(error);
