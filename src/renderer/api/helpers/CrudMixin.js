@@ -1,5 +1,3 @@
-import { createQueryStringFromObject } from '@/utils/helpers.js';
-
 export default (superclass) =>
     class extends superclass {
         /**
@@ -7,11 +5,9 @@ export default (superclass) =>
          *
          * @returns {ApiResponse}
          */
-        async index(filters = null) {
+        async index() {
             try {
-                const query = createQueryStringFromObject(filters);
-
-                const res = await this.axios.get(`/${this.resource}${query}`);
+                const res = await this.axios.get(`/${this.resource}`);
 
                 return this.handleResponse(res, 'index');
             } catch (error) {

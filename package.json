@@ -12,7 +12,9 @@
         "win": {
             "target": "nsis",
             "icon": "public/icons/icon.ico",
-            "signingHashAlgorithms": [ "sha256" ],
+            "signingHashAlgorithms": [
+                "sha256"
+            ],
             "signAndEditExecutable": true,
             "verifyUpdateCodeSignature": true,
             "forceCodeSigning": true
@@ -38,12 +40,12 @@
         ],
         "protocols": [
             {
-              "name": "enlyo-recorder",
-              "schemes": [
-                "enlyo-recorder"
-              ]
+                "name": "enlyo-recorder",
+                "schemes": [
+                    "enlyo-recorder"
+                ]
             }
-          ]
+        ]
     },
     "scripts": {
         "postinstall": "node ./scripts/postinstall.js",
@@ -72,7 +74,11 @@
         "node-window-manager": "^2.2.4",
         "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-0.0.0.tar.gz",
         "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.0.0-release.tar.gz",
+        "pusher": "^5.0.1",
+        "pusher-js": "^7.0.6",
         "rxjs": "^6.6.3",
+        "simple-peer": "^9.11.1",
+        "simple-peer-files": "^1.2.3",
         "uuid": "^8.3.0",
         "vee-validate": "^4.5.10",
         "vue": "^2.6.11",

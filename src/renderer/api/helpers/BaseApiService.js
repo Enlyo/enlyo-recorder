@@ -29,10 +29,13 @@ export default class BaseApiService {
             const tokens = store.getters['auth/tokens'];
 
             config.headers = {
-                Authorization: `JWT ${tokens.access}`,
                 Accept: 'application/json',
                 'Content-Type': 'application/json;charset=UTF-8',
             };
+
+            if (tokens.access) {
+                config.headers['Authorization'] = `JWT ${tokens.access}`;
+            }
             return config;
         });
 

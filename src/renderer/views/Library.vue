@@ -188,6 +188,8 @@
 </template>
 
 <script>
+import room from '../room';
+
 import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
@@ -284,26 +286,47 @@ export default {
         /**
          * Join room
          */
-        joinRoom() {
-            this.setSetting('roomToken', this.settings.roomToken);
+        async joinRoom() {
+            const { status } = await room.join(this.settings.roomToken);
 
-            this.setSetting('hasJoinedRoom', true);
-            this.$set(this.settings, 'hasJoinedRoom', true);
+            if (status) {
+                this.setSetting('roomToken', this.settings.roomToken);
 
-            this.setSetting('autoShareWithRoom', true);
-            this.$set(this.settings, 'autoShareWithRoom', true);
+                this.setSetting('hasJoinedRoom', true);
+                this.$set(this.settings, 'hasJoinedRoom', true);
+
+                this.setSetting('autoShareWithRoom', true);
+                this.$set(this.settings, 'autoShareWithRoom', true);
+
+                this.$buefy.toast.open({
+                    message: 'Successfully joined the room',
+                    type: 'is-primary',
+                    duration: 1000,
+                });
+
+                return;
+            }
 
             this.$buefy.toast.open({
-                message: 'Successfully joined the room',
+                message:
+                    'The room that you are trying to join does not exist (anymore)',
                 type: 'is-primary',
                 duration: 1000,
             });
+
+            this.setSetting('hasJoinedRoom', false);
+            this.$set(this.settings, 'hasJoinedRoom', false);
+
+            this.setSetting('autoShareWithRoom', false);
+            this.$set(this.settings, 'autoShareWithRoom', false);
         },
 
         /**
          * Leave room
          */
         leaveRoom() {
+            room.leave();
+
             this.setSetting('hasJoinedRoom', false);
             this.$set(this.settings, 'hasJoinedRoom', false);
 
