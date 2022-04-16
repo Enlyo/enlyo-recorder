@@ -1,12 +1,11 @@
 <template>
     <div class="library">
-        <div class="">
+        <!-- AUTO ADD -->
+        <div class="auto-add">
             <SectionHead title="Auto add" class="pt-0" />
 
             <SectionCard>
-                <label class="label is-medium mb-2">
-                    Add recording to library
-                </label>
+                <label class="label is-medium mb-2"> Add recordings </label>
                 <b-field
                     message="Do you want to automatically add new recordings to the Enlyo library?"
                 >
@@ -27,7 +26,10 @@
                     </b-radio>
                 </b-field>
             </SectionCard>
+        </div>
 
+        <!-- OPEN BEHAVIOR -->
+        <div class="open-behavior">
             <SectionHead title="Open behavior" class="mt-4" />
 
             <SectionCard class="mt-4">
@@ -102,6 +104,86 @@
                 </p>
             </SectionCard>
         </div>
+
+        <!-- SHARING ROOM -->
+        <div class="sharing-room mt-5">
+            <SectionHead title="Sharing room" />
+
+            <div class="columns is-mobile">
+                <div class="column">
+                    <SectionCard>
+                        <b-field
+                            label="Join room"
+                            :message="
+                                settings.hasJoinedRoom
+                                    ? 'Want to leave the room? Simply press leave'
+                                    : 'Want to join a room? Enter the room token and press join'
+                            "
+                        >
+                            <div class="join-room">
+                                <b-input
+                                    v-model="settings.roomToken"
+                                    class="joined-room"
+                                    expanded
+                                    :disabled="settings.hasJoinedRoom"
+                                />
+                                <b-button
+                                    :type="
+                                        settings.hasJoinedRoom
+                                            ? 'is-danger'
+                                            : 'is-primary'
+                                    "
+                                    :disabled="!canToggleRoom"
+                                    @click="
+                                        settings.hasJoinedRoom
+                                            ? leaveRoom()
+                                            : joinRoom()
+                                    "
+                                >
+                                    {{
+                                        settings.hasJoinedRoom
+                                            ? 'Leave'
+                                            : 'Join'
+                                    }}
+                                </b-button>
+                            </div>
+                        </b-field>
+                    </SectionCard>
+                </div>
+                <div class="column">
+                    <SectionCard>
+                        <b-field
+                            label="Share recordings"
+                            :message="
+                                settings.hasJoinedRoom
+                                    ? 'Do you want to automatically share recordings with the room?'
+                                    : 'You first need to join a room before you are able to share recordings'
+                            "
+                        >
+                            <div class="radio-wrapper">
+                                <b-radio
+                                    v-model="settings.autoShareWithRoom"
+                                    name="autoshare"
+                                    :native-value="true"
+                                    :disabled="!settings.hasJoinedRoom"
+                                >
+                                    Yes
+                                </b-radio>
+                                <b-radio
+                                    v-model="settings.autoShareWithRoom"
+                                    class="ml-4"
+                                    name="autoshare"
+                                    :native-value="false"
+                                    :disabled="!settings.hasJoinedRoom"
+                                >
+                                    No
+                                </b-radio>
+                            </div>
+                        </b-field>
+                    </SectionCard>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -123,6 +205,16 @@ export default {
 
             hasInstalledLibraryApp: false,
         };
+    },
+
+    computed: {
+        canToggleRoom() {
+            if (this.settings.hasJoinedRoom) return true;
+
+            return (
+                this.settings.roomToken && this.settings.roomToken.length > 0
+            );
+        },
     },
 
     watch: {
@@ -188,11 +280,65 @@ export default {
         async testLibraryAppConnection() {
             await window.ipc.invoke('test-library-app-connection');
         },
+
+        /**
+         * Join room
+         */
+        joinRoom() {
+            this.setSetting('roomToken', this.settings.roomToken);
+
+            this.setSetting('hasJoinedRoom', true);
+            this.$set(this.settings, 'hasJoinedRoom', true);
+
+            this.setSetting('autoShareWithRoom', true);
+            this.$set(this.settings, 'autoShareWithRoom', true);
+
+            this.$buefy.toast.open({
+                message: 'Successfully joined the room',
+                type: 'is-primary',
+                duration: 1000,
+            });
+        },
+
+        /**
+         * Leave room
+         */
+        leaveRoom() {
+            this.setSetting('hasJoinedRoom', false);
+            this.$set(this.settings, 'hasJoinedRoom', false);
+
+            this.setSetting('autoShareWithRoom', false);
+            this.$set(this.settings, 'autoShareWithRoom', false);
+
+            this.$buefy.toast.open({
+                message: 'Left the room',
+                type: 'is-primary',
+                duration: 1000,
+            });
+        },
     },
 };
 </script>
 
 <style lang="scss" scoped>
+.join-room {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+
+    .joined-room {
+        flex-grow: 1;
+        margin-right: 0.5rem;
+    }
+}
+
+.radio-wrapper {
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.5s;

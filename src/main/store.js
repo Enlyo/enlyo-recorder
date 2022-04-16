@@ -51,6 +51,15 @@ const schema = {
             name: {
                 type: 'string',
             },
+            roomToken: {
+                type: 'string',
+            },
+            hasJoinedRoom: {
+                type: 'boolean',
+            },
+            autoAddToRoom: {
+                type: 'boolean',
+            },
         },
         default: {
             screen: {},
@@ -67,6 +76,9 @@ const schema = {
             actionAfterRecording: 'open_library',
             folder: '',
             name: 'enlyo-recording',
+            roomToken: '',
+            hasJoinedRoom: false,
+            autoAddToRoom: false,
         },
     },
     env: {
@@ -91,6 +103,9 @@ const migrations = {
     '0.9.13': (store) => {
         store.set('settings.folder', '');
         store.set('settings.name', 'enlyo-recording');
+        store.set('settings.roomToken', '');
+        store.set('settings.hasJoinedRoom', false);
+        store.set('settings.autoAddToRoom', false);
     },
 };
 
