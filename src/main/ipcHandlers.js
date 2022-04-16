@@ -1,4 +1,4 @@
-const { Notification } = require('electron');
+const { Notification, dialog } = require('electron');
 const fileManager = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
@@ -8,15 +8,6 @@ const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName, getAppVersion } = require('./helpers');
 const { store } = require('./store');
 
-const VIDEO_PATH = require('electron').app.getPath('videos');
-const RECORDING_FOLDER = 'enlyo';
-const OUTPUT_PATH = `${VIDEO_PATH}/${RECORDING_FOLDER}`;
-const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
-
-const OUTPUT_APPEND_MESSAGE = 'enlyo-recording';
-const INPUT_FORMAT = 'mkv';
-const OUTPUT_FORMAT = 'mp4';
-
 /* -------------------------------------------------------------------------- */
 /*                               SCREEN RECORDER                              */
 /* -------------------------------------------------------------------------- */
@@ -25,10 +16,14 @@ const OUTPUT_FORMAT = 'mp4';
  * Initialize recorder
  */
 async function initializeRecorder() {
+    const OUTPUT_PATH = store.get('settings.folder');
+    const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
+
+    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+
     const settings = store.get('settings');
     screenRecorder.setSettings({ outputPath: RAW_RECORDING_PATH, ...settings });
 
-    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
     screenRecorder.initialize();
 }
 
@@ -47,6 +42,13 @@ async function startRecorder() {
  * Stop recorder
  */
 async function stopRecorder() {
+    const OUTPUT_PATH = store.get('settings.folder');
+    const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
+
+    const OUTPUT_APPEND_MESSAGE = store.get('settings.name');
+    const INPUT_FORMAT = 'mkv';
+    const OUTPUT_FORMAT = 'mp4';
+
     new Notification({
         title: 'Stopped recording',
     }).show();
@@ -151,7 +153,7 @@ function getActiveProcesses() {
 /**
  * Set setting
  */
-function setSetting(key, value) {
+async function setSetting(key, value) {
     const storeKey = `settings.${key}`;
     setStoreValue(storeKey, value);
 
@@ -169,6 +171,9 @@ function setSetting(key, value) {
         return screenRecorder.setSpeakerVolume(value);
     } else if (key === 'microphoneVolume') {
         return screenRecorder.setMicrophoneVolume(value);
+    } else if (key === 'folder') {
+        await fileManager.createDirIfNotExists(value);
+        return screenRecorder.setFolder(value);
     }
 }
 
@@ -263,6 +268,31 @@ function setUser(user) {
     store.set('user', user);
 }
 
+/**
+ * Select folder
+ */
+async function selectFolder(win) {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory'],
+    });
+    return result;
+}
+
+/**
+ * Set default folder
+ */
+async function setDefaultFolder() {
+    const VIDEO_PATH = require('electron').app.getPath('videos');
+    const RECORDING_FOLDER = 'enlyo';
+    const OUTPUT_PATH = `${VIDEO_PATH}/${RECORDING_FOLDER}`;
+
+    await fileManager.createDirIfNotExists(OUTPUT_PATH);
+
+    store.set('folder', OUTPUT_PATH);
+
+    return OUTPUT_PATH;
+}
+
 module.exports.getActiveProcesses = getActiveProcesses;
 module.exports.getAvailableMicrophones = getAvailableMicrophones;
 module.exports.getAvailableScreens = getAvailableScreens;
@@ -275,6 +305,8 @@ module.exports.initializeRecorder = initializeRecorder;
 module.exports.openLibraryVideo = openLibraryVideo;
 module.exports.openSystemPlayer = openSystemPlayer;
 module.exports.openRecordingFolder = openRecordingFolder;
+module.exports.selectFolder = selectFolder;
+module.exports.setDefaultFolder = setDefaultFolder;
 module.exports.setSetting = setSetting;
 module.exports.setStoreValue = setStoreValue;
 module.exports.setUser = setUser;

@@ -25,6 +25,8 @@ const VALID_CHANNELS = {
         'open-recording-folder',
         'open-system-player',
         'set-setting',
+        'select-folder',
+        'set-default-folder',
         'start-recorder',
         'stop-recorder',
         'store-env-variables',

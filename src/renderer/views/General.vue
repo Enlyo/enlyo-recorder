@@ -1,108 +1,62 @@
 <template>
     <div class="general">
-        <div class="">
-            <SectionHead title="Enlyo Library" class="pt-0" />
+        <!-- GENERAL SETTINGS -->
+        <div class="general-settings pt-0">
+            <SectionHead title="Save" />
 
-            <SectionCard>
-                <label class="label is-medium mb-2">
-                    Add recording to library
-                </label>
-                <b-field
-                    message="Do you want to automatically add new recordings to the Enlyo library?"
-                >
-                    <b-radio
-                        v-model="settings.autoAddToLibrary"
-                        :native-value="true"
-                        @input="setSetting('autoAddToLibrary', $event)"
-                    >
-                        Yes
-                    </b-radio>
-                    <b-radio
-                        v-model="settings.autoAddToLibrary"
-                        class="ml-2"
-                        :native-value="false"
-                        @input="setSetting('autoAddToLibrary', $event)"
-                    >
-                        No
-                    </b-radio>
-                </b-field>
-            </SectionCard>
-
-            <SectionCard class="mt-4">
-                <label class="label is-medium mb-2">
-                    Open library in app
-                </label>
-                <b-field>
-                    <b-radio
-                        v-model="settings.openLibraryIn"
-                        :disabled="!hasInstalledLibraryApp"
-                        native-value="app"
-                        @input="setSetting('openLibraryIn', $event)"
-                    >
-                        Yes
-                        <span v-if="!hasInstalledLibraryApp">
-                            (not installed)
-                        </span>
-                    </b-radio>
-                </b-field>
-                <b-field>
-                    <b-radio
-                        v-model="settings.openLibraryIn"
-                        native-value="browser"
-                        @input="setSetting('openLibraryIn', $event)"
-                    >
-                        No, open in browser
-                    </b-radio>
-                </b-field>
-
-                <transition name="fade">
-                    <b-button
-                        v-if="settings.openLibraryIn === 'app'"
-                        type="is-primary"
-                        size="is-small"
-                        @click="testLibraryAppConnection"
-                    >
-                        Test connection
-                    </b-button>
-                </transition>
-
-                <hr class="my-3" />
-
-                <p v-if="hasInstalledLibraryApp" class="has-text-grey is-14px">
-                    Problems opening the app?
-                    <a
-                        href="https://discord.gg/C95AyZz9yu"
-                        class="link"
-                        target="_blank"
-                    >
-                        Contact us</a
-                    >
-                    or check out our
-                    <a
-                        href="https://enlyo.helpscoutdocs.com"
-                        class="link"
-                        target="_blank"
-                    >
-                        Helpcenter</a
-                    >
-                </p>
-
-                <p v-else class="has-text-grey is-14px">
-                    Life is better with the Enlyo Library app! Click
-                    <a
-                        href="https://app.enlyo.com/install"
-                        class="link"
-                        target="_blank"
-                    >
-                        here
-                    </a>
-                    to get it
-                </p>
-            </SectionCard>
+            <div class="columns is-mobile">
+                <div class="column">
+                    <SectionCard>
+                        <b-field
+                            label="Folder"
+                            message="Where do you want to save your videos?"
+                        >
+                            <div class="select-folder">
+                                <b-input
+                                    v-model="settings.folder"
+                                    class="selected-folder"
+                                    expanded
+                                    disabled
+                                />
+                                <b-button
+                                    type="is-primary"
+                                    @click="selectFolder"
+                                >
+                                    Select
+                                </b-button>
+                            </div>
+                        </b-field>
+                    </SectionCard>
+                </div>
+                <div class="column">
+                    <SectionCard>
+                        <b-field
+                            label="Name"
+                            message="How do you want to name your videos (we will add a date stamp)?"
+                        >
+                            <div class="select-name">
+                                <b-input
+                                    v-model="settings.name"
+                                    class="selected-name"
+                                    expanded
+                                />
+                                <b-button
+                                    type="is-primary"
+                                    :disabled="!validName"
+                                    @click="setName"
+                                >
+                                    Set
+                                </b-button>
+                            </div>
+                        </b-field>
+                    </SectionCard>
+                </div>
+            </div>
         </div>
 
-        <div>
-            <SectionHead title="Post recording" class="mt-4" />
+        <!-- POST RECORDING SETTINGS -->
+        <div class="post-recording-settings mt-4">
+            <SectionHead title="Post recording" />
 
             <SectionCard>
                 <label class="label is-medium mb-2"> Action </label>
@@ -154,6 +108,12 @@ export default {
         };
     },
 
+    computed: {
+        validName() {
+            return this.settings.name && this.settings.name.length > 0;
+        },
+    },
+
     watch: {
         settings: {
             handler(newValue) {
@@ -174,10 +134,12 @@ export default {
     async mounted() {
         await this.getSettings();
 
-        await this.getHasInstalledLibraryApp();
+        if (!this.settings.folder) {
+            this.setDefaultFolder();
+        }
 
-        if (!this.hasInstalledLibraryApp) {
-            this.setSetting('openLibraryIn', 'browser');
+        if (!this.settings.name) {
+            this.setDefaultName();
         }
     },
 
@@ -203,19 +165,41 @@ export default {
         },
 
         /**
-         * Get has installed library app
+         * Select folder
          */
-        async getHasInstalledLibraryApp() {
-            this.hasInstalledLibraryApp = await window.ipc.invoke(
-                'get-has-installed-library-app'
+        async selectFolder() {
+            const { canceled, filePaths } = await window.ipc.invoke(
+                'select-folder'
             );
+            if (!canceled) {
+                this.$set(this.settings, 'folder', filePaths[0]);
+
+                this.setSetting('folder', this.settings.folder);
+            }
         },
 
         /**
-         * Test library app connection
+         * Set default folder
          */
-        async testLibraryAppConnection() {
-            await window.ipc.invoke('test-library-app-connection');
+        async setDefaultFolder() {
+            const folder = await window.ipc.invoke('set-default-folder');
+            this.$set(this.settings, 'folder', folder);
+        },
+
+        /**
+         * Set name
+         */
+        setName() {
+            this.setSetting('name', this.settings.name);
+        },
+
+        /**
+         * Set default name
+         */
+        setDefaultName() {
+            const DEFAULT_NAME = 'enlyo-recording';
+            this.setSetting('name', DEFAULT_NAME);
+            this.$set(this.settings, 'name', DEFAULT_NAME);
         },
     },
 };
@@ -228,5 +212,18 @@ export default {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
+}
+
+.select-folder,
+.select-name {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+
+    .selected-folder,
+    .selected-name {
+        flex-grow: 1;
+        margin-right: 0.5rem;
+    }
 }
 </style>

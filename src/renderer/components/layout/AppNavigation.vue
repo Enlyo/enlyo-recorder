@@ -26,6 +26,10 @@ export default {
                     to: `/audio-and-video`,
                 },
                 {
+                    label: 'Library',
+                    to: `/library`,
+                },
+                {
                     label: 'Auto recording',
                     to: `/auto-recording`,
                 },

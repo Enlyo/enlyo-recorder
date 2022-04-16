@@ -14,6 +14,7 @@ const {
     getActiveProcesses,
     storeEnvVariables,
     setUser,
+    selectFolder,
     getHasInstalledLibraryApp,
     testLibraryAppConnection,
     openLibraryVideo,
@@ -21,12 +22,13 @@ const {
     openRecordingFolder,
     getSetting,
     setStoreValue,
+    setDefaultFolder,
 } = require('./ipcHandlers');
 
 /**
  * Set ipc listeners
  */
-function setIpcListeners() {
+function setIpcListeners(win) {
     /* -------------------------------------------------------------------------- */
     /*                               SCREEN RECORDER                              */
     /* -------------------------------------------------------------------------- */
@@ -133,6 +135,14 @@ function setIpcListeners() {
 
     ipcMain.handle('open-system-player', async (event, recording) => {
         return await openSystemPlayer(recording);
+    });
+
+    ipcMain.handle('select-folder', async () => {
+        return await selectFolder(win);
+    });
+
+    ipcMain.handle('set-default-folder', async () => {
+        return await setDefaultFolder();
     });
 }
 

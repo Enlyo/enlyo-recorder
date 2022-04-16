@@ -45,6 +45,12 @@ const schema = {
                     'open_library',
                 ],
             },
+            folder: {
+                type: 'string',
+            },
+            name: {
+                type: 'string',
+            },
         },
         default: {
             screen: {},
@@ -59,6 +65,8 @@ const schema = {
             autoAddToLibrary: true,
             openLibraryIn: 'app',
             actionAfterRecording: 'open_library',
+            folder: '',
+            name: 'enlyo-recording',
         },
     },
     env: {
@@ -79,6 +87,10 @@ const migrations = {
         store.set('settings.autoAddToLibrary', true);
         store.set('settings.openLibraryIn', 'app');
         store.set('settings.actionAfterRecording', 'open_library');
+    },
+    '0.9.13': (store) => {
+        store.set('settings.folder', '');
+        store.set('settings.name', 'enlyo-recording');
     },
 };
 

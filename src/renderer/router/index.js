@@ -6,6 +6,7 @@ import store from '../store';
 import AudioAndVideo from '../views/AudioAndVideo.vue';
 import AutoRecording from '../views/AutoRecording.vue';
 import General from '../views/General.vue';
+import Library from '../views/Library.vue';
 import Login from '../views/Login.vue';
 
 Vue.use(VueRouter);
@@ -18,21 +19,27 @@ const routes = [
     },
 
     {
-        path: '/login',
-        name: 'Login',
-        component: Login,
+        path: '/audio-and-video',
+        name: 'AudiAndVideo',
+        component: AudioAndVideo,
     },
 
     {
-        path: '/audio-and-video',
-        name: 'AudioAndVideo',
-        component: AudioAndVideo,
+        path: '/library',
+        name: 'Library',
+        component: Library,
     },
 
     {
         path: '/auto-recording',
         name: 'Auto recording',
         component: AutoRecording,
+    },
+
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login,
     },
 ];
 

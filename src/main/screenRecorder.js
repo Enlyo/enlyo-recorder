@@ -138,6 +138,13 @@ const screenRecorder = {
     },
 
     /**
+     * Set folder
+     */
+    setFolder(outputPath) {
+        this.setSetting('Output', 'RecFilePath', outputPath);
+    },
+
+    /**
      * Get available screens
      */
     getAvailableScreens() {
