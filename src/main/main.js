@@ -8,6 +8,8 @@ const {
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
 
+console.debug(app.getPath('userData'));
+
 /**
  * Is Development
  */

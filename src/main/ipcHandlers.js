@@ -1,4 +1,4 @@
-const { Notification } = require('electron');
+const { Notification, safeStorage } = require('electron');
 const fileManager = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
@@ -225,6 +225,53 @@ function openLibraryVideo(recording) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                                    AUTH                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Set user
+ */
+function setUser(user) {
+    store.set('user', user);
+}
+
+/**
+ * Set credentials
+ */
+function setCredentials(email, password) {
+    const emailBuffer = safeStorage.encryptString(email);
+    const passwordBuffer = safeStorage.encryptString(password);
+    const credentials = {
+        email: emailBuffer.toString('latin1'),
+        password: passwordBuffer.toString('latin1'),
+    };
+    store.set('credentials', credentials);
+}
+
+/**
+ * Get credentials
+ */
+function getCredentials() {
+    const credentials = store.get('credentials');
+
+    if (!credentials || !credentials.email || !credentials.password) {
+        return { email: '', password: '' };
+    }
+
+    const email = safeStorage.decryptString(
+        Buffer.from(credentials.email, 'latin1')
+    );
+    const password = safeStorage.decryptString(
+        Buffer.from(credentials.password, 'latin1')
+    );
+
+    return {
+        email,
+        password,
+    };
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                    OTHER                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -256,13 +303,6 @@ function openRecordingFolder(recording) {
     require('electron').shell.openPath(recording.folder);
 }
 
-/**
- * Set user
- */
-function setUser(user) {
-    store.set('user', user);
-}
-
 module.exports.getActiveProcesses = getActiveProcesses;
 module.exports.getAvailableMicrophones = getAvailableMicrophones;
 module.exports.getAvailableScreens = getAvailableScreens;
@@ -284,3 +324,5 @@ module.exports.stopProcessMonitor = stopProcessMonitor;
 module.exports.stopRecorder = stopRecorder;
 module.exports.storeEnvVariables = storeEnvVariables;
 module.exports.testLibraryAppConnection = testLibraryAppConnection;
+module.exports.setCredentials = setCredentials;
+module.exports.getCredentials = getCredentials;

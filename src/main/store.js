@@ -45,6 +45,9 @@ const schema = {
                     'open_library',
                 ],
             },
+            credentials: {
+                type: 'object',
+            },
         },
         default: {
             screen: {},
@@ -59,6 +62,7 @@ const schema = {
             autoAddToLibrary: true,
             openLibraryIn: 'app',
             actionAfterRecording: 'open_library',
+            credentials: {},
         },
     },
     env: {
@@ -82,6 +86,10 @@ const migrations = {
     },
 };
 
-const store = new Store({ schema, migrations });
+const store = new Store({
+    schema,
+    migrations,
+    encryptionKey: 'this_only_obfuscates',
+});
 
 module.exports.store = store;

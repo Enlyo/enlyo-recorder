@@ -35,31 +35,6 @@ export default class BaseApiService {
             };
             return config;
         });
-
-        this.axios.interceptors.response.use(
-            (response) => {
-                return response;
-            },
-            async (error) => {
-                const originalRequest = error.config;
-
-                if (error.response.status === 401 && !originalRequest._retry) {
-                    originalRequest._retry = true;
-                    const response = await store.dispatch('auth/refresh');
-                    if (response.status) {
-                        axios.defaults.headers.common[
-                            'Authorization'
-                        ] = `JWT ${response.data.access}`;
-                        axios.defaults.headers.common['Content-Type'] =
-                            'application/json';
-                        return this.axios(originalRequest);
-                    }
-                    return Promise.reject(error);
-                }
-
-                return Promise.reject(error);
-            }
-        );
     }
 
     /**
