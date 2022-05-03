@@ -9,10 +9,12 @@ const {
     getAvailableScreens,
     getAvailableSpeakers,
     getAvailableMicrophones,
+    getCredentials,
     getStoreValue,
     getVersion,
     getActiveProcesses,
     storeEnvVariables,
+    setCredentials,
     setUser,
     selectFolder,
     getHasInstalledLibraryApp,
@@ -114,6 +116,22 @@ function setIpcListeners(win) {
     });
 
     /* -------------------------------------------------------------------------- */
+    /*                                    AUTH                                    */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('set-user', async (event, user) => {
+        return setUser(user);
+    });
+
+    ipcMain.handle('set-credentials', async (event, { email, password }) => {
+        return setCredentials(email, password);
+    });
+
+    ipcMain.handle('get-credentials', async () => {
+        return getCredentials();
+    });
+
+    /* -------------------------------------------------------------------------- */
     /*                                    OTHER                                   */
     /* -------------------------------------------------------------------------- */
 
@@ -123,10 +141,6 @@ function setIpcListeners(win) {
 
     ipcMain.handle('store-env-variables', async (event, variables) => {
         return storeEnvVariables(variables);
-    });
-
-    ipcMain.handle('set-user', async (event, user) => {
-        return setUser(user);
     });
 
     ipcMain.handle('open-recording-folder', async (event, recording) => {

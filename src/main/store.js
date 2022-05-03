@@ -60,6 +60,9 @@ const schema = {
             autoAddToRoom: {
                 type: 'boolean',
             },
+            credentials: {
+                type: 'object',
+            },
         },
         default: {
             screen: {},
@@ -79,6 +82,7 @@ const schema = {
             roomToken: '',
             hasJoinedRoom: false,
             autoAddToRoom: false,
+            credentials: {},
         },
     },
     env: {
@@ -109,6 +113,10 @@ const migrations = {
     },
 };
 
-const store = new Store({ schema, migrations });
+const store = new Store({
+    schema,
+    migrations,
+    encryptionKey: 'this_only_obfuscates',
+});
 
 module.exports.store = store;

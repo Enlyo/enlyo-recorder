@@ -21,6 +21,7 @@ const actions = {
         const response = await api.auth.login({ email, password });
 
         if (response.status) {
+            window.ipc.invoke('set-credentials', { email, password });
             await commit('SET_TOKENS', response.data);
 
             dispatch('me');
@@ -46,18 +47,33 @@ const actions = {
      * Logout
      */
     async logout({ commit }) {
+        window.ipc.invoke('set-credentails', { email: '', password: '' });
         commit('LOGOUT');
     },
 
     /**
      * Refresh
      */
-    async refresh({ commit, getters }) {
+    async refresh({ commit, dispatch, getters }) {
         const refresh = getters.tokens.refresh;
-        const response = await api.auth.refresh({ refresh });
+        let response = await api.auth.refresh({ refresh });
 
         if (response.status) {
             await commit('SET_ACCESS_TOKEN', response.data.access);
+            return response;
+        }
+
+        await commit('SET_USER', {});
+        await commit('SET_ACCESS_TOKENS', {});
+
+        // Log in again based on saved credentials
+        const { email, password } = window.ipc.invoke('get-credentials');
+        response = await api.auth.login({ email, password });
+
+        if (response.status) {
+            await commit('SET_TOKENS', response.data);
+
+            dispatch('me');
         }
 
         return response;

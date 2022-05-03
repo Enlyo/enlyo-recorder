@@ -210,7 +210,21 @@ export default {
 
             // TODO: required because expired token gives a 503 error
             // when a thumbnail is sent
-            await this.$store.dispatch('auth/refresh');
+            let refreshResponse = await this.$store.dispatch('auth/refresh');
+            if (!refreshResponse.status) {
+                this.$buefy.toast.open({
+                    duration: 3000,
+                    message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved locally`,
+                    type: 'is-danger',
+                });
+
+                this.setIsRecording(false);
+                this.setIsLoading(false);
+                this.stopRecordTimer();
+
+                this.$router.push('/login');
+                return;
+            }
 
             const response = await api.video.create(personalChannel.slug, {
                 duration: recording.duration,
@@ -226,7 +240,14 @@ export default {
 
             if (response.status) {
                 recording.id = response.data.id;
+                return recording;
             }
+
+            this.$buefy.toast.open({
+                duration: 3000,
+                message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved locally`,
+                type: 'is-danger',
+            });
             return recording;
         },
 
