@@ -100,6 +100,19 @@ const libraryInterface = {
     testConnection() {
         require('electron').shell.openExternal(`web+enlyo://?action=test`);
     },
+
+    /**
+     * Open
+     */
+    open() {
+        if (this.isLibraryAppInstalled) {
+            require('electron').shell.openExternal(
+                `web+enlyo://?action=redirect&path=/`
+            );
+            return;
+        }
+        require('electron').shell.openExternal(`${APP_BASE}/`);
+    },
 };
 
 module.exports.libraryInterface = libraryInterface;
