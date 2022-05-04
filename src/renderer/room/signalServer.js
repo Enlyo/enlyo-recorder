@@ -7,10 +7,9 @@ import SimplePeer from 'simple-peer';
  * Signal Server
  */
 export default class SignalServer extends EventEmitter {
-    constructor(pf, token) {
+    constructor(pf) {
         super();
 
-        this.token = token;
         this._pusher = null;
         this._pf = pf;
         this._id = null;
@@ -25,7 +24,7 @@ export default class SignalServer extends EventEmitter {
     /**
      * Start
      */
-    start(id) {
+    start(id, token) {
         this._id = id;
 
         this._pusher = new Pusher(process.env.VUE_APP_PUSHER_SECRET, {
@@ -33,7 +32,7 @@ export default class SignalServer extends EventEmitter {
             authEndpoint: process.env.VUE_APP_PUSHER_AUTH_ENDPOINT,
             auth: {
                 headers: {
-                    Authorization: `JWT ${this.token}`,
+                    Authorization: `JWT ${token}`,
                 },
             },
         });

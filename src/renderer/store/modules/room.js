@@ -27,7 +27,6 @@ const actions = {
      * Remove shared files
      */
     removeSharedFiles({ commit }) {
-        console.log('remove shared files');
         commit('REMOVE_SHARED_FILES');
     },
 };

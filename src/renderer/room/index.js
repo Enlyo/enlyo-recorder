@@ -6,10 +6,7 @@ import api from '../api';
 import store from '../store';
 
 export default {
-    signalServer: new SignalServer(
-        new PeerFiles(),
-        store.getters['auth/tokens'].access
-    ),
+    signalServer: new SignalServer(new PeerFiles()),
 
     get sharedFiles() {
         return store.getters['room/sharedFiles'];
@@ -23,6 +20,7 @@ export default {
      * Join
      */
     async join(id) {
+        await store.dispatch('auth/refresh');
         const response = await api.room.show(id);
 
         if (response.status) {
@@ -48,7 +46,8 @@ export default {
      * Start signal server
      */
     startSignalServer(id) {
-        this.signalServer.start(id);
+        const token = store.getters['auth/tokens'].access;
+        this.signalServer.start(id, token);
 
         this.setupSignalServerListeners();
     },
