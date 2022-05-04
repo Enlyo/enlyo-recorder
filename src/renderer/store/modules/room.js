@@ -22,6 +22,14 @@ const actions = {
     removeSharedFile({ commit }, { id }) {
         commit('REMOVE_SHARED_FILE', { id });
     },
+
+    /**
+     * Remove shared files
+     */
+    removeSharedFiles({ commit }) {
+        console.log('remove shared files');
+        commit('REMOVE_SHARED_FILES');
+    },
 };
 
 const mutations = {
@@ -37,6 +45,13 @@ const mutations = {
      */
     REMOVE_SHARED_FILE(state, { id }) {
         Vue.delete(state.sharedFiles, id);
+    },
+
+    /**
+     * Remove shared files
+     */
+    REMOVE_SHARED_FILES(state) {
+        state.sharedFiles = {};
     },
 };
 

@@ -9,16 +9,29 @@ async function getFileSize(file) {
 }
 
 /**
- * Read file
+ * Get thumbnail
  */
-async function readFile(file) {
+async function getThumbnail(file) {
     return new Promise((resolve) => {
         fs.readFile(file, (err, data) => {
             if (err) {
-                console.error(err);
                 return;
             }
             resolve(`data:image/png;base64,${data.toString('base64')}`);
+        });
+    });
+}
+
+/**
+ * getVideo
+ */
+async function getVideo(file) {
+    return new Promise((resolve) => {
+        fs.readFile(file, (err, data) => {
+            if (err) {
+                return;
+            }
+            resolve(data);
         });
     });
 }
@@ -63,8 +76,9 @@ function orderRecentFiles(dir) {
         .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
 }
 
-module.exports.readFile = readFile;
+module.exports.createDirIfNotExists = createDirIfNotExists;
+module.exports.deleteFile = deleteFile;
 module.exports.getFileSize = getFileSize;
 module.exports.getMostRecentFile = getMostRecentFile;
-module.exports.deleteFile = deleteFile;
-module.exports.createDirIfNotExists = createDirIfNotExists;
+module.exports.getThumbnail = getThumbnail;
+module.exports.getVideo = getVideo;

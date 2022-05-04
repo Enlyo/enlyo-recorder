@@ -334,7 +334,7 @@ export default {
             this.$set(this.settings, 'autoShareWithRoom', false);
 
             this.$buefy.toast.open({
-                message: 'Left the room',
+                message: 'You left the room',
                 type: 'is-primary',
                 duration: 1000,
             });

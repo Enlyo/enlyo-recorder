@@ -39,6 +39,8 @@ export default {
     leave() {
         this.signalServer.stop();
 
+        store.dispatch('room/removeSharedFiles');
+
         this.removeSignalServerListeners();
     },
 

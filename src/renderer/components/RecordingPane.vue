@@ -24,11 +24,13 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { convertBufferToFile } from '@/helpers';
 
 import api from '@/api';
 
 import Loader from '@/components/Loader.vue';
 import RecordButton from '@/components/RecordButton.vue';
+import room from '../room';
 
 export default {
     name: 'RecordingPane',
@@ -137,7 +139,11 @@ export default {
             if (!this.isRecording) return;
 
             this.setIsLoading(true);
+
             let recording = await window.ipc.invoke('stop-recorder');
+
+            let file = convertBufferToFile(recording.video, recording.name);
+            room.shareFiles([file]);
 
             const autoAddToLibrary = await this.getSetting('autoAddToLibrary');
             if (autoAddToLibrary) {
@@ -214,7 +220,7 @@ export default {
             if (!refreshResponse.status) {
                 this.$buefy.toast.open({
                     duration: 3000,
-                    message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved locally`,
+                    message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved to your recording folder`,
                     type: 'is-danger',
                 });
 
@@ -245,7 +251,7 @@ export default {
 
             this.$buefy.toast.open({
                 duration: 3000,
-                message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved locally`,
+                message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved to your recorder folder`,
                 type: 'is-danger',
             });
             return recording;

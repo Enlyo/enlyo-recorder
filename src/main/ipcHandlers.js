@@ -43,19 +43,12 @@ async function startRecorder() {
  */
 async function stopRecorder() {
     const OUTPUT_PATH = store.get('settings.folder');
-    const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
-
     const OUTPUT_APPEND_MESSAGE = store.get('settings.name');
+
     const INPUT_FORMAT = 'mkv';
     const OUTPUT_FORMAT = 'mp4';
 
-    new Notification({
-        title: 'Stopped recording',
-    }).show();
-
-    await screenRecorder.stop();
-
-    // Remux video
+    const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
     const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
     const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
 
@@ -67,22 +60,51 @@ async function stopRecorder() {
     );
     const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
-    const data = await videoEditor.remux(inputFile, outputFile);
-    data.size = await fileManager.getFileSize(outputFile);
+    // Show notification
+    new Notification({
+        title: 'Stopped recording',
+    }).show();
+
+    // Stop recorder
+    await screenRecorder.stop();
+
+    // Remux video
+    const data = await _remuxVideo(inputFile, outputFile);
+
+    // Enrich data
     data.folder = OUTPUT_PATH;
     data.name = outputName;
-    data.file = outputFile;
+    data.thumbnail = await _generateThumbnail(outputFile, RAW_RECORDING_PATH);
+    data.video = await fileManager.getVideo(outputFile);
+
+    // Remove temp video
     await fileManager.deleteFile(inputFile);
 
-    // Generate thumbnail
-    await videoEditor.generateThumbnail(outputFile, RAW_RECORDING_PATH);
-    const tmpThumbnail = getMostRecentFile(RAW_RECORDING_PATH);
-    const tmpThumbnailFile = `${RAW_RECORDING_PATH}/${tmpThumbnail.file}`;
-    const thumbnail = await fileManager.readFile(tmpThumbnailFile);
-    data.thumbnail = thumbnail;
-    await fileManager.deleteFile(tmpThumbnailFile);
+    return data;
+}
+
+/**
+ * Remux video
+ */
+async function _remuxVideo(inputFile, outputFile) {
+    const data = await videoEditor.remux(inputFile, outputFile);
+    data.size = await fileManager.getFileSize(outputFile);
+    data.file = outputFile;
 
     return data;
+}
+
+/**
+ * Generate thumbnail
+ */
+async function _generateThumbnail(video, path) {
+    // Generate thumbnail
+    await videoEditor.generateThumbnail(video, path);
+    const tmpThumbnail = getMostRecentFile(path);
+    const tmpThumbnailFile = `${path}/${tmpThumbnail.file}`;
+    const thumbnail = await fileManager.getThumbnail(tmpThumbnailFile);
+    await fileManager.deleteFile(tmpThumbnailFile);
+    return thumbnail;
 }
 
 /**

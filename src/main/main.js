@@ -38,7 +38,9 @@ if (isDevelopment) {
             watchRenderer: true,
             ignored: [ignored],
         });
-    } catch (_) {}
+    } catch (_) {
+        console.warn('electron reloader does not work');
+    }
 }
 
 /**
