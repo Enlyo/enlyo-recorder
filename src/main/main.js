@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, dialog } = require('electron');
+const { app, BrowserWindow, shell, Tray, Menu } = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
 const { getAppVersion } = require('./helpers');
@@ -7,6 +7,8 @@ const {
     setupTitlebar,
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
+
+const { libraryInterface } = require('./libraryInterface');
 
 /**
  * Is Development
@@ -85,6 +87,8 @@ async function createWindow() {
         },
     });
 
+    let tray = createTray(win);
+
     if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
         await win.loadURL('http://localhost:8001/');
@@ -101,6 +105,59 @@ async function createWindow() {
         e.preventDefault();
         shell.openExternal(url);
     });
+
+    win.on('close', function (event) {
+        if (!app.isQuiting) {
+            event.preventDefault();
+            win.hide();
+
+            return;
+        }
+
+        if (tray) {
+            tray.destroy();
+        }
+
+        return false;
+    });
+}
+
+/**
+ * Create tray
+ */
+function createTray(win) {
+    const iconPath = path.join(__dirname, '../../public/icons/icon.ico');
+    let appIcon = new Tray(iconPath);
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Open recorder',
+            click: function () {
+                win.show();
+            },
+        },
+        {
+            label: 'Open library',
+            click: function () {
+                libraryInterface.open();
+            },
+        },
+        { type: 'separator' },
+
+        {
+            label: 'Quit',
+            click: function () {
+                app.isQuiting = true;
+                app.quit();
+            },
+        },
+    ]);
+
+    appIcon.on('double-click', function (event) {
+        win.show();
+    });
+    appIcon.setToolTip('Enlyo');
+    appIcon.setContextMenu(contextMenu);
+    return appIcon;
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -135,6 +192,10 @@ app.on('open-url', (event, url) => {
         if (win.isMinimized()) win.restore();
         win.focus();
     }
+});
+
+app.on('before-quit', function () {
+    app.isQuiting = true;
 });
 
 const gotTheLock = app.requestSingleInstanceLock();
