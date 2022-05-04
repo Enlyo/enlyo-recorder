@@ -20,6 +20,7 @@ import AppFooter from '@/components/layout/AppFooter.vue';
 import AppLayout from '@/components/layout/AppLayout.vue';
 import AppNavigation from '@/components/layout/AppNavigation.vue';
 import RecordingPane from '@/components/RecordingPane.vue';
+import room from './room';
 
 export default {
     components: {
@@ -33,7 +34,81 @@ export default {
     data() {
         return {
             isRecording: false,
+            settings: {},
         };
+    },
+
+    async mounted() {
+        await this.getSettings();
+
+        if (this.settings.hasJoinedRoom && this.settings.roomToken) {
+            await this.joinRoom();
+        }
+    },
+
+    methods: {
+        /**
+         * Get settings
+         */
+        async getSettings() {
+            this.settings = await window.ipc.invoke(
+                'get-store-value',
+                'settings'
+            );
+        },
+
+        /**
+         * Set setting
+         */
+        async setSetting(key, value) {
+            await window.ipc.invoke('set-setting', {
+                key,
+                value,
+            });
+        },
+
+        /**
+         * Join room
+         */
+        async joinRoom() {
+            const { status } = await room.join(this.settings.roomToken);
+
+            if (status) {
+                this.setSetting('roomToken', this.settings.roomToken);
+
+                this.setSetting('hasJoinedRoom', true);
+                this.$set(this.settings, 'hasJoinedRoom', true);
+
+                this.setSetting('autoShareWithRoom', true);
+                this.$set(this.settings, 'autoShareWithRoom', true);
+
+                this.$buefy.toast.open({
+                    message: 'Successfully joined the room',
+                    type: 'is-success',
+                    duration: 3000,
+                    position: 'is-bottom',
+                });
+
+                return;
+            }
+
+            this.$buefy.toast.open({
+                message:
+                    'The room that you are trying to join does not exist (anymore)',
+                type: 'is-danger',
+                duration: 3000,
+                position: 'is-bottom',
+            });
+
+            this.setSetting('hasJoinedRoom', false);
+            this.$set(this.settings, 'hasJoinedRoom', false);
+
+            this.setSetting('autoShareWithRoom', false);
+            this.$set(this.settings, 'autoShareWithRoom', false);
+
+            this.setSetting('roomToken', '');
+            this.$set(this.settings, 'roomToken', '');
+        },
     },
 };
 </script>

@@ -32,7 +32,7 @@
                     <SectionCard>
                         <b-field
                             label="Name"
-                            message="How do you want to name your videos (we will add a date stamp)?"
+                            message="How do you want to name your videos?"
                         >
                             <div class="select-name">
                                 <b-input

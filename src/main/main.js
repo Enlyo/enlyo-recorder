@@ -127,6 +127,10 @@ async function createWindow() {
  * Create tray
  */
 function createTray(win) {
+    if (process.platform != 'win32') {
+        return {};
+    }
+
     const iconPath = path.join(__dirname, '../../public/icons/icon.ico');
     let appIcon = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
