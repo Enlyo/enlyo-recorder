@@ -124,6 +124,9 @@ export default {
                 key: 'autoRecordProcesses',
                 value: this.autoRecordProcesses,
             });
+
+            window.ipc.send('stop-process-monitor');
+            window.ipc.send('start-process-monitor');
         },
 
         /**
@@ -134,6 +137,9 @@ export default {
                 key: 'customRecordProcesses',
                 value: this.customRecordProcesses,
             });
+
+            window.ipc.send('stop-process-monitor');
+            window.ipc.send('start-process-monitor');
         },
 
         /**

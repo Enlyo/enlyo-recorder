@@ -20,6 +20,8 @@ export default {
      * Join
      */
     async join(id) {
+        store.dispatch('room/removeSharedFiles');
+
         await store.dispatch('auth/refresh');
         const response = await api.room.show(id);
 

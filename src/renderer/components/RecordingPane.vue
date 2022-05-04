@@ -143,7 +143,14 @@ export default {
             let recording = await window.ipc.invoke('stop-recorder');
 
             let file = convertBufferToFile(recording.video, recording.name);
-            room.shareFiles([file]);
+
+            const hasJoinedRoom = await this.getSetting('hasJoinedRoom');
+            const autoShareWithRoom = await this.getSetting(
+                'autoShareWithRoom'
+            );
+            if (hasJoinedRoom && autoShareWithRoom) {
+                room.shareFiles([file]);
+            }
 
             const autoAddToLibrary = await this.getSetting('autoAddToLibrary');
             if (autoAddToLibrary) {

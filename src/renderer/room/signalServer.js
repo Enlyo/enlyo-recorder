@@ -268,7 +268,9 @@ export default class SignalServer extends EventEmitter {
      * Add member
      */
     addMember(member, showNotification = true, initiateP2PConnection = true) {
-        if (member.id === this.getMyMemberId) return;
+        if (member.id === this.getMyMemberId) {
+            return;
+        }
 
         this.emit('addMember', {
             id: member.id,
