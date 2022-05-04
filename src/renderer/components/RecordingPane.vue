@@ -222,6 +222,7 @@ export default {
                     duration: 3000,
                     message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved to your recording folder`,
                     type: 'is-danger',
+                    position: 'is-bottom',
                 });
 
                 this.setIsRecording(false);
@@ -253,6 +254,7 @@ export default {
                 duration: 3000,
                 message: `Something went wrong while adding the recording to the library... Don't worry, it is still saved to your recorder folder`,
                 type: 'is-danger',
+                position: 'is-bottom',
             });
             return recording;
         },

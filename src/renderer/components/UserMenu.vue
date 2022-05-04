@@ -101,8 +101,8 @@ export default {
         showToast(message) {
             Toast.open({
                 message,
-                type: 'is-white',
-                duration: 2000,
+                type: 'is-primary',
+                duration: 3000,
                 position: 'is-bottom',
             });
         },

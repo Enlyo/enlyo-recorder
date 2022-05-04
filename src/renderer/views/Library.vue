@@ -300,8 +300,9 @@ export default {
 
                 this.$buefy.toast.open({
                     message: 'Successfully joined the room',
-                    type: 'is-primary',
-                    duration: 1000,
+                    type: 'is-success',
+                    duration: 3000,
+                    position: 'is-bottom',
                 });
 
                 return;
@@ -310,8 +311,9 @@ export default {
             this.$buefy.toast.open({
                 message:
                     'The room that you are trying to join does not exist (anymore)',
-                type: 'is-primary',
-                duration: 1000,
+                type: 'is-danger',
+                duration: 3000,
+                position: 'is-bottom',
             });
 
             this.setSetting('hasJoinedRoom', false);
@@ -334,9 +336,10 @@ export default {
             this.$set(this.settings, 'autoShareWithRoom', false);
 
             this.$buefy.toast.open({
-                message: 'You left the room',
+                message: 'Successfully left the room',
                 type: 'is-primary',
-                duration: 1000,
+                duration: 3000,
+                position: 'is-success',
             });
         },
     },

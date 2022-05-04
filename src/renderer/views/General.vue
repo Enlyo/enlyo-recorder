@@ -191,6 +191,13 @@ export default {
          */
         setName() {
             this.setSetting('name', this.settings.name);
+
+            this.$buefy.toast.open({
+                message: `Default name changed to ${this.settings.name}`,
+                type: 'is-success',
+                duration: 3000,
+                position: 'is-bottom',
+            });
         },
 
         /**
