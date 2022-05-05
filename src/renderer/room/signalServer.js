@@ -34,6 +34,9 @@ export default class SignalServer extends EventEmitter {
                 headers: {
                     Authorization: `JWT ${token}`,
                 },
+                params: {
+                    app_type: 'recorder',
+                },
             },
         });
 
@@ -291,6 +294,8 @@ export default class SignalServer extends EventEmitter {
      */
     removeMember(member) {
         this.emit('removeMember', { id: member.id });
+
+        delete this._peers[member.id];
     }
 
     /* -------------------------------------------------------------------------- */
@@ -356,7 +361,7 @@ export default class SignalServer extends EventEmitter {
      * Remove shared with me file
      */
     removeSharedWithMeFile(msg) {
-        this.emit('removeSharedWithMeFile', {
+        this.emit('removeSharedFile', {
             id: msg.id,
         });
     }

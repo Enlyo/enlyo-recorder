@@ -7,7 +7,7 @@
             <SectionCard>
                 <label class="label is-medium mb-2"> Add recordings </label>
                 <b-field
-                    message="Do you want to automatically add new recordings to the Enlyo library?"
+                    message="Do you want to automatically add new recordings to your Enlyo Library?"
                 >
                     <b-radio
                         v-model="settings.autoAddToLibrary"
@@ -70,8 +70,6 @@
                     </b-button>
                 </transition>
 
-                <hr class="my-3" />
-
                 <p v-if="hasInstalledLibraryApp" class="has-text-grey is-14px">
                     Problems opening the app?
                     <a
@@ -112,14 +110,7 @@
             <div class="columns is-mobile">
                 <div class="column">
                     <SectionCard>
-                        <b-field
-                            label="Join room"
-                            :message="
-                                settings.hasJoinedRoom
-                                    ? 'Want to leave the room? Simply press leave'
-                                    : 'Want to join a room? Enter the room token and press join'
-                            "
-                        >
+                        <b-field label="Join room">
                             <div class="join-room">
                                 <b-input
                                     v-model="settings.roomToken"
@@ -148,38 +139,24 @@
                                 </b-button>
                             </div>
                         </b-field>
-                    </SectionCard>
-                </div>
-                <div class="column">
-                    <SectionCard>
-                        <b-field
-                            label="Share recordings"
-                            :message="
-                                settings.hasJoinedRoom
-                                    ? 'Do you want to automatically share recordings with the room?'
-                                    : 'You first need to join a room before you are able to share recordings'
-                            "
+                        <transition name="fade">
+                            <b-button
+                                v-if="settings.hasJoinedRoom"
+                                type="is-primary"
+                                size="is-small"
+                                @click="openSharingRoom"
+                            >
+                                Open sharing room
+                            </b-button>
+                        </transition>
+
+                        <p
+                            v-if="!settings.hasJoinedRoom"
+                            class="has-text-grey is-14px"
                         >
-                            <div class="radio-wrapper">
-                                <b-radio
-                                    v-model="settings.autoShareWithRoom"
-                                    name="autoshare"
-                                    :native-value="true"
-                                    :disabled="!settings.hasJoinedRoom"
-                                >
-                                    Yes
-                                </b-radio>
-                                <b-radio
-                                    v-model="settings.autoShareWithRoom"
-                                    class="ml-4"
-                                    name="autoshare"
-                                    :native-value="false"
-                                    :disabled="!settings.hasJoinedRoom"
-                                >
-                                    No
-                                </b-radio>
-                            </div>
-                        </b-field>
+                            Join a room to automatically share all your new
+                            recordings
+                        </p>
                     </SectionCard>
                 </div>
             </div>
@@ -284,6 +261,13 @@ export default {
         },
 
         /**
+         * Open sharing room
+         */
+        async openSharingRoom() {
+            await window.ipc.invoke('open-sharing-room');
+        },
+
+        /**
          * Join room
          */
         async joinRoom() {
@@ -337,9 +321,9 @@ export default {
 
             this.$buefy.toast.open({
                 message: 'Successfully left the room',
-                type: 'is-primary',
+                type: 'is-success',
                 duration: 3000,
-                position: 'is-success',
+                position: 'is-bottom',
             });
         },
     },

@@ -135,6 +135,17 @@ export default {
     },
 
     /**
+     * Handle remove shared file request
+     */
+    removeSharedWithMeFile({ id }) {
+        if (this.sharedFiles[id]) {
+            store.dispatch('room/removeSharedFile', {
+                id,
+            });
+        }
+    },
+
+    /**
      * Remove shared file
      */
     removeSharedFile(file) {
