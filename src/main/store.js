@@ -57,9 +57,6 @@ const schema = {
             hasJoinedRoom: {
                 type: 'boolean',
             },
-            autoAddToRoom: {
-                type: 'boolean',
-            },
             credentials: {
                 type: 'object',
             },
@@ -81,7 +78,6 @@ const schema = {
             name: 'enlyo-recording',
             roomToken: '',
             hasJoinedRoom: false,
-            autoAddToRoom: false,
             credentials: {},
         },
     },

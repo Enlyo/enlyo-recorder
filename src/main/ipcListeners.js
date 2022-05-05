@@ -20,6 +20,7 @@ const {
     getHasInstalledLibraryApp,
     testLibraryAppConnection,
     openLibraryVideo,
+    openSharingRoom,
     openSystemPlayer,
     openRecordingFolder,
     getSetting,
@@ -113,6 +114,10 @@ function setIpcListeners(win) {
 
     ipcMain.handle('open-library-video', async (event, recording) => {
         return await openLibraryVideo(recording);
+    });
+
+    ipcMain.handle('open-sharing-room', async () => {
+        return await openSharingRoom();
     });
 
     /* -------------------------------------------------------------------------- */

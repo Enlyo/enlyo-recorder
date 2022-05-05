@@ -24,6 +24,7 @@ const VALID_CHANNELS = {
         'initialize-recorder',
         'open-library-video',
         'open-recording-folder',
+        'open-sharing-room',
         'open-system-player',
         'set-setting',
         'select-folder',

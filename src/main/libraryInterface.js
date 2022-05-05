@@ -78,6 +78,25 @@ const libraryInterface = {
     },
 
     /**
+     * Open sharing room
+     */
+    openSharingRoom(roomToken) {
+        const openLibraryIn = store.get('settings.openLibraryIn');
+
+        if (openLibraryIn === 'app') {
+            require('electron').shell.openExternal(
+                `web+enlyo://?action=open_room&token=${roomToken}`
+            );
+        } else {
+            const APP_BASE =
+                store.get('env.appBase') || 'https://app.enlyo.com';
+            require('electron').shell.openExternal(
+                `${APP_BASE}/sharing-room/?room=${roomToken}`
+            );
+        }
+    },
+
+    /**
      * Open video
      */
     openVideo({ id }) {

@@ -251,6 +251,14 @@ function openLibraryVideo(recording) {
     libraryInterface.openVideo({ id: recording.id });
 }
 
+/**
+ * Open sharing room
+ */
+function openSharingRoom() {
+    const roomToken = store.get('settings.roomToken');
+    libraryInterface.openSharingRoom(roomToken);
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                    AUTH                                    */
 /* -------------------------------------------------------------------------- */
@@ -366,6 +374,7 @@ module.exports.getVersion = getVersion;
 module.exports.initializeRecorder = initializeRecorder;
 module.exports.openLibraryVideo = openLibraryVideo;
 module.exports.openSystemPlayer = openSystemPlayer;
+module.exports.openSharingRoom = openSharingRoom;
 module.exports.openRecordingFolder = openRecordingFolder;
 module.exports.selectFolder = selectFolder;
 module.exports.setDefaultFolder = setDefaultFolder;
