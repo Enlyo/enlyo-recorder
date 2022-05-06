@@ -88,6 +88,10 @@ async function createWindow() {
         },
     });
 
+    if (process.argv.includes('--hidden')) {
+        win.hide();
+    }
+
     let tray = createTray(win);
 
     if (process.env.NODE_ENV === 'DEV') {
@@ -165,6 +169,34 @@ function createTray(win) {
     return appIcon;
 }
 
+const appFolder = path.dirname(process.execPath);
+const exeName = path.basename(process.execPath);
+const updateExe = path.resolve(appFolder, exeName);
+
+/**
+ * Launch at startup
+ */
+function launchAtStartup() {
+    if (process.platform === 'darwin') {
+        app.setLoginItemSettings({
+            openAtLogin: true,
+            openAsHidden: true,
+        });
+    } else {
+        app.setLoginItemSettings({
+            openAtLogin: true,
+            openAsHidden: true,
+            path: updateExe,
+            args: [
+                '--processStart',
+                `"${exeName}"`,
+                '--process-start-args',
+                `"--hidden"`,
+            ],
+        });
+    }
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -176,6 +208,7 @@ app.on('ready', async () => {
     createWindow();
     setIpcListeners(win);
     initUpdates(win);
+    launchAtStartup();
 });
 
 // Quit when all windows are closed.
