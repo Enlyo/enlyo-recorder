@@ -224,10 +224,10 @@ app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// Handle the protocol. In this case, we choose to show an Error Box.
+// Handle open protocol
 app.on('open-url', (event, url) => {
     if (win) {
-        if (win.isMinimized()) win.restore();
+        win.show();
         win.focus();
     }
 });
