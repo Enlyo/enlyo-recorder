@@ -7,7 +7,7 @@
             <SectionCard>
                 <b-field label="Screen">
                     <b-select
-                        v-model="settings.screen"
+                        v-model="tmpSettings.screen"
                         expanded
                         @input="setSetting('screen', $event)"
                         @focus="getAvailableScreens"
@@ -33,7 +33,7 @@
                     <SectionCard>
                         <b-field label="Resolution">
                             <b-select
-                                v-model="settings.resolution"
+                                v-model="tmpSettings.resolution"
                                 expanded
                                 @input="setSetting('resolution', $event)"
                             >
@@ -48,7 +48,7 @@
                     <SectionCard>
                         <b-field label="Frame rate">
                             <b-select
-                                v-model="settings.fps"
+                                v-model="tmpSettings.fps"
                                 expanded
                                 @input="setSetting('fps', $event)"
                             >
@@ -70,7 +70,7 @@
                     <SectionCard>
                         <b-field label="Input device">
                             <b-select
-                                v-model="settings.microphone"
+                                v-model="tmpSettings.microphone"
                                 expanded
                                 @input="setSetting('microphone', $event)"
                                 @focus="getAvailableMicrophones"
@@ -87,7 +87,7 @@
 
                         <b-field>
                             <b-slider
-                                v-model="settings.microphoneVolume"
+                                v-model="tmpSettings.microphoneVolume"
                                 size="is-small"
                                 :min="0"
                                 :max="1"
@@ -102,7 +102,7 @@
                     <SectionCard>
                         <b-field label="Output device">
                             <b-select
-                                v-model="settings.speaker"
+                                v-model="tmpSettings.speaker"
                                 expanded
                                 @input="setSetting('speaker', $event)"
                                 @focus="getAvailableSpeakers"
@@ -119,7 +119,7 @@
 
                         <b-field>
                             <b-slider
-                                v-model="settings.speakerVolume"
+                                v-model="tmpSettings.speakerVolume"
                                 size="is-small"
                                 :min="0"
                                 :max="1"
@@ -139,6 +139,8 @@
 import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'AudioAndVideo',
 
@@ -149,7 +151,7 @@ export default {
 
     data() {
         return {
-            settings: {},
+            tmpSettings: {},
 
             availableScreens: [],
             availableSpeakers: [],
@@ -157,69 +159,26 @@ export default {
         };
     },
 
+    computed: {
+        ...mapGetters({
+            settings: 'settings/settings',
+        }),
+    },
+
     async mounted() {
-        await this.getSettings();
+        this.tmpSettings = JSON.parse(JSON.stringify(this.settings));
+
+        await this.getAvailableScreens();
+        await this.getAvailableSpeakers();
+        await this.getAvailableMicrophones();
     },
 
     methods: {
         /**
-         * Get settings
+         * Set setting
          */
-        async getSettings() {
-            this.settings = await window.ipc.invoke(
-                'get-store-value',
-                'settings'
-            );
-
-            await this.getAvailableScreens();
-            await this.getAvailableSpeakers();
-            await this.getAvailableMicrophones();
-
-            // First time only, set a default screen
-            if (!this.settings.screen || !this.settings.screen.name) {
-                this.setDefaultScreen();
-            }
-            // First time only, set a default speaker
-            if (!this.settings.speaker || !this.settings.speaker.name) {
-                this.setDefaultSpeaker();
-            }
-            // First time only, set a default microphone
-            if (!this.settings.microphone || !this.settings.microphone.name) {
-                this.setDefaultMicrophone();
-            }
-        },
-
-        /**
-         * Set default screen
-         */
-        async setDefaultScreen() {
-            const defaultScreen = this.availableScreens[0];
-            this.settings.screen = defaultScreen;
-            this.setSetting('screen', defaultScreen);
-
-            return;
-        },
-
-        /**
-         * Set default speaker
-         */
-        async setDefaultSpeaker() {
-            const defaultSpeaker = this.availableSpeakers[0];
-            this.settings.speaker = defaultSpeaker;
-            this.setSetting('speaker', defaultSpeaker);
-
-            return;
-        },
-
-        /**
-         * Set default microphone
-         */
-        async setDefaultMicrophone() {
-            const defaultMicrophone = this.availableMicrophones[0];
-            this.settings.microphone = defaultMicrophone;
-            this.setSetting('microphone', defaultMicrophone);
-
-            return;
+        async setSetting(key, value) {
+            await this.$store.dispatch('settings/setSetting', { key, value });
         },
 
         /**
@@ -247,16 +206,6 @@ export default {
             this.availableMicrophones = await window.ipc.invoke(
                 'get-available-microphones'
             );
-        },
-
-        /**
-         * Set setting
-         */
-        async setSetting(key, value) {
-            await window.ipc.invoke('set-setting', {
-                key,
-                value,
-            });
         },
     },
 };

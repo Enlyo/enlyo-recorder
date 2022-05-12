@@ -19,8 +19,6 @@ async function initializeRecorder() {
     const OUTPUT_PATH = store.get('settings.folder');
     const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
 
-    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
-
     const settings = store.get('settings');
     screenRecorder.setSettings({ outputPath: RAW_RECORDING_PATH, ...settings });
 
@@ -34,6 +32,12 @@ async function startRecorder() {
     new Notification({
         title: 'Started recording',
     }).show();
+
+    const OUTPUT_PATH = store.get('settings.folder');
+    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
+
+    await fileManager.createDirIfNotExists(OUTPUT_PATH);
+    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
 
     return await screenRecorder.start();
 }
@@ -354,11 +358,15 @@ async function selectFolder(win) {
 async function setDefaultFolder() {
     const VIDEO_PATH = require('electron').app.getPath('videos');
     const RECORDING_FOLDER = 'enlyo';
-    const OUTPUT_PATH = `${VIDEO_PATH}/${RECORDING_FOLDER}`;
+    const OUTPUT_PATH = path.join(VIDEO_PATH, RECORDING_FOLDER);
+    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
 
     await fileManager.createDirIfNotExists(OUTPUT_PATH);
+    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
 
-    store.set('folder', OUTPUT_PATH);
+    setStoreValue('settings.folder', OUTPUT_PATH);
+
+    screenRecorder.setFolder(RAW_RECORDING_PATH);
 
     return OUTPUT_PATH;
 }

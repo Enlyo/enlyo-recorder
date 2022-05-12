@@ -53,6 +53,8 @@ import SectionHead from '@/components/SectionHead.vue';
 import AddGameForm from '@/components/AddGameForm.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'AutoRecording',
 
@@ -88,6 +90,10 @@ export default {
                     a.title.toLowerCase().localeCompare(b.title.toLowerCase())
             );
         },
+
+        ...mapGetters({
+            settings: 'settings/settings',
+        }),
     },
 
     watch: {
@@ -117,29 +123,31 @@ export default {
         },
 
         /**
+         * Set setting
+         */
+        async setSetting(key, value) {
+            await this.$store.dispatch('settings/setSetting', { key, value });
+        },
+
+        /**
          * Update auto record processes settings
          */
         async updateAutoRecordProcesses() {
-            await window.ipc.invoke('set-setting', {
-                key: 'autoRecordProcesses',
-                value: this.autoRecordProcesses,
-            });
+            this.setSetting('autoRecordProcesses', this.autoRecordProcesses);
 
-            window.ipc.send('stop-process-monitor');
-            window.ipc.send('start-process-monitor');
+            this.resetProcessMonitor();
         },
 
         /**
          * Update custom record processes settings
          */
         async updateCustomRecordProcesses() {
-            await window.ipc.invoke('set-setting', {
-                key: 'customRecordProcesses',
-                value: this.customRecordProcesses,
-            });
+            this.setSetting(
+                'customRecordProcesses',
+                this.customRecordProcesses
+            );
 
-            window.ipc.send('stop-process-monitor');
-            window.ipc.send('start-process-monitor');
+            this.resetProcessMonitor();
         },
 
         /**

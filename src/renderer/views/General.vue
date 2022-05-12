@@ -36,7 +36,7 @@
                         >
                             <div class="select-name">
                                 <b-input
-                                    v-model="settings.name"
+                                    v-model="tmpSettings.name"
                                     class="selected-name"
                                     expanded
                                 />
@@ -92,6 +92,8 @@
 import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'General',
 
@@ -102,7 +104,7 @@ export default {
 
     data() {
         return {
-            settings: {},
+            tmpSettings: {},
 
             hasInstalledLibraryApp: false,
         };
@@ -110,17 +112,22 @@ export default {
 
     computed: {
         validName() {
-            return this.settings.name && this.settings.name.length > 0;
+            return this.tmpSettings.name && this.tmpSettings.name.length > 0;
         },
+
+        ...mapGetters({
+            settings: 'settings/settings',
+        }),
     },
 
     watch: {
         settings: {
             handler(newValue) {
+                this.$set(this.tmpSettings, 'name', newValue.name);
+
                 if (newValue.autoAddToLibrary) {
                     return;
                 }
-
                 this.settings.actionAfterRecording =
                     newValue.actionAfterRecording === 'open_library'
                         ? 'none'
@@ -131,37 +138,16 @@ export default {
         },
     },
 
-    async mounted() {
-        await this.getSettings();
-
-        if (!this.settings.folder) {
-            this.setDefaultFolder();
-        }
-
-        if (!this.settings.name) {
-            this.setDefaultName();
-        }
+    mounted() {
+        this.tmpSettings = JSON.parse(JSON.stringify(this.settings));
     },
 
     methods: {
         /**
-         * Get settings
-         */
-        async getSettings() {
-            this.settings = await window.ipc.invoke(
-                'get-store-value',
-                'settings'
-            );
-        },
-
-        /**
          * Set setting
          */
         async setSetting(key, value) {
-            await window.ipc.invoke('set-setting', {
-                key,
-                value,
-            });
+            await this.$store.dispatch('settings/setSetting', { key, value });
         },
 
         /**
@@ -171,42 +157,25 @@ export default {
             const { canceled, filePaths } = await window.ipc.invoke(
                 'select-folder'
             );
+
             if (!canceled) {
-                this.$set(this.settings, 'folder', filePaths[0]);
-
-                this.setSetting('folder', this.settings.folder);
+                const folder = filePaths[0];
+                await this.setSetting('folder', folder);
             }
-        },
-
-        /**
-         * Set default folder
-         */
-        async setDefaultFolder() {
-            const folder = await window.ipc.invoke('set-default-folder');
-            this.$set(this.settings, 'folder', folder);
         },
 
         /**
          * Set name
          */
-        setName() {
-            this.setSetting('name', this.settings.name);
+        async setName() {
+            await this.setSetting('name', this.tmpSettings.name);
 
             this.$buefy.toast.open({
-                message: `Default name changed to ${this.settings.name}`,
+                message: `Default name changed to ${this.tmpSettings.name}`,
                 type: 'is-success',
                 duration: 3000,
                 position: 'is-bottom',
             });
-        },
-
-        /**
-         * Set default name
-         */
-        setDefaultName() {
-            const DEFAULT_NAME = 'enlyo-recording';
-            this.setSetting('name', DEFAULT_NAME);
-            this.$set(this.settings, 'name', DEFAULT_NAME);
         },
     },
 };

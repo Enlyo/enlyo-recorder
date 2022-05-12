@@ -10,14 +10,14 @@
                     message="Do you want to automatically add new recordings to your Enlyo Library?"
                 >
                     <b-radio
-                        v-model="settings.autoAddToLibrary"
+                        v-model="tmpSettings.autoAddToLibrary"
                         :native-value="true"
                         @input="setSetting('autoAddToLibrary', $event)"
                     >
                         Yes
                     </b-radio>
                     <b-radio
-                        v-model="settings.autoAddToLibrary"
+                        v-model="tmpSettings.autoAddToLibrary"
                         class="ml-2"
                         :native-value="false"
                         @input="setSetting('autoAddToLibrary', $event)"
@@ -38,7 +38,7 @@
                 </label>
                 <b-field>
                     <b-radio
-                        v-model="settings.openLibraryIn"
+                        v-model="tmpSettings.openLibraryIn"
                         :disabled="!hasInstalledLibraryApp"
                         native-value="app"
                         @input="setSetting('openLibraryIn', $event)"
@@ -51,7 +51,7 @@
                 </b-field>
                 <b-field>
                     <b-radio
-                        v-model="settings.openLibraryIn"
+                        v-model="tmpSettings.openLibraryIn"
                         native-value="browser"
                         @input="setSetting('openLibraryIn', $event)"
                     >
@@ -61,7 +61,7 @@
 
                 <transition name="fade">
                     <b-button
-                        v-if="settings.openLibraryIn === 'app'"
+                        v-if="tmpSettings.openLibraryIn === 'app'"
                         type="is-primary"
                         size="is-small"
                         @click="testLibraryAppConnection"
@@ -113,26 +113,26 @@
                         <b-field label="Join room">
                             <div class="join-room">
                                 <b-input
-                                    v-model="settings.roomToken"
+                                    v-model="tmpSettings.roomToken"
                                     class="joined-room"
                                     expanded
-                                    :disabled="settings.hasJoinedRoom"
+                                    :disabled="tmpSettings.hasJoinedRoom"
                                 />
                                 <b-button
                                     :type="
-                                        settings.hasJoinedRoom
+                                        tmpSettings.hasJoinedRoom
                                             ? 'is-danger'
                                             : 'is-primary'
                                     "
                                     :disabled="!canToggleRoom"
                                     @click="
-                                        settings.hasJoinedRoom
+                                        tmpSettings.hasJoinedRoom
                                             ? leaveRoom()
                                             : joinRoom()
                                     "
                                 >
                                     {{
-                                        settings.hasJoinedRoom
+                                        tmpSettings.hasJoinedRoom
                                             ? 'Leave'
                                             : 'Join'
                                     }}
@@ -141,7 +141,7 @@
                         </b-field>
                         <transition name="fade">
                             <b-button
-                                v-if="settings.hasJoinedRoom"
+                                v-if="tmpSettings.hasJoinedRoom"
                                 type="is-primary"
                                 size="is-small"
                                 @click="openSharingRoom"
@@ -151,7 +151,7 @@
                         </transition>
 
                         <p
-                            v-if="!settings.hasJoinedRoom"
+                            v-if="!tmpSettings.hasJoinedRoom"
                             class="has-text-grey is-14px"
                         >
                             Join a room to automatically share all your new
@@ -170,6 +170,8 @@ import room from '../room';
 import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'Library',
 
@@ -180,7 +182,7 @@ export default {
 
     data() {
         return {
-            settings: {},
+            tmpSettings: {},
 
             hasInstalledLibraryApp: false,
         };
@@ -188,25 +190,33 @@ export default {
 
     computed: {
         canToggleRoom() {
-            if (this.settings.hasJoinedRoom) return true;
+            if (this.tmpSettings.hasJoinedRoom) return true;
 
             return (
-                this.settings.roomToken && this.settings.roomToken.length > 0
+                this.tmpSettings.roomToken &&
+                this.tmpSettings.roomToken.length > 0
             );
         },
+
+        ...mapGetters({
+            settings: 'settings/settings',
+        }),
     },
 
     watch: {
         settings: {
             handler(newValue) {
+                this.tmpSettings = JSON.parse(JSON.stringify(this.settings));
+
                 if (newValue.autoAddToLibrary) {
                     return;
                 }
 
-                this.settings.actionAfterRecording =
+                const actionAfterRecording =
                     newValue.actionAfterRecording === 'open_library'
                         ? 'none'
                         : newValue.actionAfterRecording;
+                this.setSetting('actionAfterRecording', actionAfterRecording);
             },
             deep: true,
             immediate: true,
@@ -214,10 +224,9 @@ export default {
     },
 
     async mounted() {
-        await this.getSettings();
+        this.tmpSettings = JSON.parse(JSON.stringify(this.settings));
 
         await this.getHasInstalledLibraryApp();
-
         if (!this.hasInstalledLibraryApp) {
             this.setSetting('openLibraryIn', 'browser');
         }
@@ -225,23 +234,10 @@ export default {
 
     methods: {
         /**
-         * Get settings
-         */
-        async getSettings() {
-            this.settings = await window.ipc.invoke(
-                'get-store-value',
-                'settings'
-            );
-        },
-
-        /**
          * Set setting
          */
         async setSetting(key, value) {
-            await window.ipc.invoke('set-setting', {
-                key,
-                value,
-            });
+            await this.$store.dispatch('settings/setSetting', { key, value });
         },
 
         /**
@@ -271,16 +267,12 @@ export default {
          * Join room
          */
         async joinRoom() {
-            const { status } = await room.join(this.settings.roomToken);
+            const { status } = await room.join(this.tmpSettings.roomToken);
 
             if (status) {
-                this.setSetting('roomToken', this.settings.roomToken);
-
+                this.setSetting('roomToken', this.tmpSettings.roomToken);
                 this.setSetting('hasJoinedRoom', true);
-                this.$set(this.settings, 'hasJoinedRoom', true);
-
                 this.setSetting('autoShareWithRoom', true);
-                this.$set(this.settings, 'autoShareWithRoom', true);
 
                 this.$buefy.toast.open({
                     message: 'Successfully joined the room',
@@ -301,10 +293,7 @@ export default {
             });
 
             this.setSetting('hasJoinedRoom', false);
-            this.$set(this.settings, 'hasJoinedRoom', false);
-
             this.setSetting('autoShareWithRoom', false);
-            this.$set(this.settings, 'autoShareWithRoom', false);
         },
 
         /**
@@ -314,10 +303,7 @@ export default {
             room.leave();
 
             this.setSetting('hasJoinedRoom', false);
-            this.$set(this.settings, 'hasJoinedRoom', false);
-
             this.setSetting('autoShareWithRoom', false);
-            this.$set(this.settings, 'autoShareWithRoom', false);
 
             this.$buefy.toast.open({
                 message: 'Successfully left the room',
