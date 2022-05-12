@@ -13,7 +13,7 @@
                         >
                             <div class="select-folder">
                                 <b-input
-                                    v-model="settings.folder"
+                                    v-model="tmpSettings.folder"
                                     class="selected-folder"
                                     expanded
                                     disabled
@@ -123,7 +123,7 @@ export default {
     watch: {
         settings: {
             handler(newValue) {
-                this.$set(this.tmpSettings, 'name', newValue.name);
+                this.tmpSettings = JSON.parse(JSON.stringify(this.settings));
 
                 if (newValue.autoAddToLibrary) {
                     return;
