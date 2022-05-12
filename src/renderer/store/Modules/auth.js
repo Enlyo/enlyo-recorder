@@ -47,7 +47,7 @@ const actions = {
      * Logout
      */
     async logout({ commit }) {
-        window.ipc.invoke('set-credentails', { email: '', password: '' });
+        window.ipc.invoke('set-credentials', { email: '', password: '' });
         commit('LOGOUT');
     },
 
@@ -64,7 +64,7 @@ const actions = {
         }
 
         await commit('SET_USER', {});
-        await commit('SET_ACCESS_TOKENS', {});
+        await commit('SET_TOKENS', {});
 
         // Log in again based on saved credentials
         const { email, password } = window.ipc.invoke('get-credentials');

@@ -7,6 +7,7 @@ const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName, getAppVersion } = require('./helpers');
 const { store } = require('./store');
+const path = require('path');
 
 /* -------------------------------------------------------------------------- */
 /*                               SCREEN RECORDER                              */
@@ -17,7 +18,7 @@ const { store } = require('./store');
  */
 async function initializeRecorder() {
     const OUTPUT_PATH = store.get('settings.folder');
-    const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
+    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
 
     const settings = store.get('settings');
     screenRecorder.setSettings({ outputPath: RAW_RECORDING_PATH, ...settings });
@@ -52,7 +53,7 @@ async function stopRecorder() {
     const INPUT_FORMAT = 'mkv';
     const OUTPUT_FORMAT = 'mp4';
 
-    const RAW_RECORDING_PATH = `${OUTPUT_PATH}/tmp`;
+    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
     const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
     const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
 
@@ -198,8 +199,9 @@ async function setSetting(key, value) {
     } else if (key === 'microphoneVolume') {
         return screenRecorder.setMicrophoneVolume(value);
     } else if (key === 'folder') {
-        await fileManager.createDirIfNotExists(value);
-        return screenRecorder.setFolder(value);
+        const RAW_RECORDING_PATH = path.join(value, 'tmp');
+        await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+        return screenRecorder.setFolder(RAW_RECORDING_PATH);
     }
 }
 
