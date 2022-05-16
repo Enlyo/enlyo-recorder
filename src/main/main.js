@@ -197,10 +197,32 @@ function launchAtStartup() {
     }
 }
 
+/**
+ * Request single instance
+ */
+function requestSingleInstance() {
+    const gotTheLock = app.requestSingleInstanceLock();
+
+    if (!gotTheLock) {
+        app.quit();
+    } else {
+        app.on('second-instance', () => {
+            // Someone tried to run a second instance, we should focus our window.
+            if (win) {
+                if (win.isMinimized()) win.restore();
+                if (!win.isVisible()) win.show();
+                win.focus();
+            }
+        });
+    }
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win;
-//
+let win = null;
+
+requestSingleInstance();
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -235,20 +257,6 @@ app.on('open-url', (event, url) => {
 app.on('before-quit', function () {
     app.isQuiting = true;
 });
-
-const gotTheLock = app.requestSingleInstanceLock();
-
-if (!gotTheLock) {
-    app.quit();
-} else {
-    app.on('second-instance', () => {
-        // Someone tried to run a second instance, we should focus our window.
-        if (win) {
-            if (win.isMinimized()) win.restore();
-            win.focus();
-        }
-    });
-}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
