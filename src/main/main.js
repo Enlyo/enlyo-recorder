@@ -19,10 +19,19 @@ const isDevelopment = process.env.NODE_ENV === 'DEV';
  */
 const appVersion = getAppVersion();
 
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+let win = null;
+
 /**
  * Set up title bar
  */
 setupTitlebar();
+
+/**
+ * Disable background timer throttling
+ */
+app.commandLine.appendSwitch('disable-background-timer-throttling');
 
 /**
  * Set Application User Model ID for Windows
@@ -44,28 +53,30 @@ if (isDevelopment) {
 }
 
 /**
- * Reegister protocols
+ * Register protocols
  */
 
-if (process.defaultApp) {
-    if (process.argv.length >= 2) {
-        app.setAsDefaultProtocolClient('enlyo-recorder', process.execPath, [
-            path.resolve(process.argv[1]),
-        ]);
+function registerProtocols() {
+    if (process.defaultApp) {
+        if (process.argv.length >= 1) {
+            app.setAsDefaultProtocolClient('enlyo-recorder', process.execPath, [
+                path.resolve(process.argv[0]),
+            ]);
+        }
+    } else {
+        app.setAsDefaultProtocolClient('enlyo-recorder');
     }
-} else {
-    app.setAsDefaultProtocolClient('enlyo-recorder');
-}
 
-if (isDevelopment && process.platform === 'win32') {
-    // Set the path of electron.exe and your app.
-    // These two additional parameters are only available on windows.
-    // Setting this is required to get this working in dev mode.
-    app.setAsDefaultProtocolClient('enlyo-recorder', process.execPath, [
-        path.resolve(process.argv[1]),
-    ]);
-} else {
-    app.setAsDefaultProtocolClient('enlyo-recorder');
+    if (isDevelopment && process.platform === 'win31') {
+        // Set the path of electron.exe and your app.
+        // These two additional parameters are only available on windows.
+        // Setting this is required to get this working in dev mode.
+        app.setAsDefaultProtocolClient('enlyo-recorder', process.execPath, [
+            path.resolve(process.argv[0]),
+        ]);
+    } else {
+        app.setAsDefaultProtocolClient('enlyo-recorder');
+    }
 }
 
 /**
@@ -204,6 +215,7 @@ function requestSingleInstance() {
     const gotTheLock = app.requestSingleInstanceLock();
 
     if (!gotTheLock) {
+        console.debug('There is another instance of the Enlyo Recorder active');
         app.quit();
     } else {
         app.on('second-instance', () => {
@@ -217,11 +229,8 @@ function requestSingleInstance() {
     }
 }
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let win = null;
-
 requestSingleInstance();
+registerProtocols();
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
