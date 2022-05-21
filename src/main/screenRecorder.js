@@ -376,7 +376,6 @@ const screenRecorder = {
      */
     _setupScene() {
         if (this.settings.captureMode === 'screen') {
-            console.debug('screen capture');
             return this._setupSceneScreenCapture();
         }
         if (this.settings.captureMode === 'game') {
