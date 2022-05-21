@@ -28,7 +28,7 @@
         </div>
 
         <!-- GENERAL SETTINGS -->
-        <div class="general-settings pt-0">
+        <div class="general-settings mt-4 pt-0">
             <SectionHead title="Save" />
 
             <div class="columns is-mobile">
