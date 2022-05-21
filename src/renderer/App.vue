@@ -48,6 +48,8 @@ export default {
     async mounted() {
         await this.getSettings();
 
+        this.initializeRecorder();
+
         // First time only, set a default folder
         if (!this.settings.folder) {
             this.setDefaultFolder();
@@ -74,6 +76,13 @@ export default {
     },
 
     methods: {
+        /**
+         * Initialize recorder
+         */
+        initializeRecorder() {
+            window.ipc.invoke('initialize-recorder');
+        },
+
         /**
          * Get settings
          */

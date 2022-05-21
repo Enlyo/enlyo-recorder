@@ -64,7 +64,6 @@ export default {
     },
 
     async mounted() {
-        this.initializeRecorder();
         this.startProcessMonitor();
         this.setIpcListeners();
     },
@@ -90,13 +89,6 @@ export default {
         /* -------------------------------------------------------------------------- */
         /*                                  RECORDING                                 */
         /* -------------------------------------------------------------------------- */
-
-        /**
-         * Initialize recorder
-         */
-        initializeRecorder() {
-            window.ipc.invoke('initialize-recorder');
-        },
 
         /**
          * Toggle recorder
