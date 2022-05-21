@@ -60,6 +60,9 @@ const schema = {
             credentials: {
                 type: 'object',
             },
+            captureMode: {
+                type: 'string',
+            },
         },
         default: {
             screen: {},
@@ -79,6 +82,7 @@ const schema = {
             roomToken: '',
             hasJoinedRoom: false,
             credentials: {},
+            captureMode: 'screen',
         },
     },
     env: {
@@ -106,6 +110,9 @@ const migrations = {
         store.set('settings.roomToken', '');
         store.set('settings.hasJoinedRoom', false);
         store.set('settings.autoAddToRoom', false);
+    },
+    '0.9.13': (store) => {
+        store.set('settings.captureMode', 'screen');
     },
 };
 

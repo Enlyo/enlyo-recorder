@@ -13,16 +13,17 @@ const screenRecorder = {
     isInitialized: false,
     isRecording: false,
     settings: {
-        outputPath: '/',
-        format: 'mkv',
         bitRate: 12000,
+        captureMode: 'screen',
+        format: 'mkv',
         fps: 60,
-        screen: null,
-        resolution: 1080,
-        speaker: null,
-        speakerVolume: 1,
         microphone: null,
         microphoneVolume: 1,
+        outputPath: '/',
+        resolution: 1080,
+        screen: null,
+        speaker: null,
+        speakerVolume: 1,
     },
     _scene: null,
     _signals: new Subject(),
@@ -63,6 +64,18 @@ const screenRecorder = {
         this.settings.fps = fps;
 
         this.setSetting('Video', 'FPSCommon', fps);
+    },
+
+    /**
+     * Set capture mode
+     */
+    setCaptureMode(captureMode) {
+        if (!this.isInitialized) this.initialize();
+
+        this.settings.captureMode = captureMode;
+
+        this._scene = this._setupScene();
+        this._setupSources();
     },
 
     /**
@@ -362,6 +375,16 @@ const screenRecorder = {
      * Set up scene
      */
     _setupScene() {
+        if (this.settings.captureMode === 'screen') {
+            console.debug('screen capture');
+            return this._setupSceneScreenCapture();
+        }
+        if (this.settings.captureMode === 'game') {
+            return this._setupSceneGameCapture();
+        }
+    },
+
+    _setupSceneScreenCapture() {
         if (!this.settings.screen) {
             this.settings.screen = this.getDefaultScreen();
         }
@@ -400,6 +423,42 @@ const screenRecorder = {
             x: 1.0 / videoScaleFactor,
             y: 1.0 / videoScaleFactor,
         };
+
+        return scene;
+    },
+
+    _setupSceneGameCapture() {
+        if (!this.settings.screen) {
+            this.settings.screen = this.getDefaultScreen();
+        }
+
+        const { width, height, aspectRatio } = this.parseResolution(
+            this.settings.screen.name
+        );
+
+        const gameSource = osn.InputFactory.create(
+            'game_capture',
+            'game-video'
+        );
+
+        gameSource.update({
+            auto_capture_rules_path: path.join(
+                __dirname,
+                '../../public/game_capture_list.json'
+            ),
+            width: width,
+            height: height,
+        });
+        gameSource.save();
+
+        const outputWidth = Math.round(this.settings.resolution / 0.5625); // 16:9 ratio
+        const outputHeight = Math.round(outputWidth / aspectRatio);
+        this.setSetting('Video', 'Base', `${outputWidth}x${outputHeight}`);
+        this.setSetting('Video', 'Output', `${outputWidth}x${outputHeight}`);
+
+        // A scene is necessary here to properly scale captured screen size to output video size
+        const scene = osn.SceneFactory.create('default-scene');
+        scene.add(gameSource);
 
         return scene;
     },

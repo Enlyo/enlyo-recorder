@@ -186,6 +186,8 @@ async function setSetting(key, value) {
 
     if (key === 'fps') {
         return screenRecorder.setFps(value);
+    } else if (key === 'captureMode') {
+        return screenRecorder.setCaptureMode(value);
     } else if (key === 'screen') {
         return screenRecorder.setScreen(value);
     } else if (key === 'resolution') {

@@ -1,5 +1,32 @@
 <template>
     <div class="general">
+        <!-- CAPTURE SETTINGS -->
+        <div class="capture-settings pt-0">
+            <SectionHead title="Capture mode" />
+            <SectionCard>
+                <b-field label="Capture mode" :message="captureModeMessage">
+                    <div class="">
+                        <b-radio
+                            v-model="tmpSettings.captureMode"
+                            @input="setSetting('captureMode', 'screen')"
+                            name="name"
+                            native-value="screen"
+                        >
+                            Screen
+                        </b-radio>
+                        <b-radio
+                            v-model="tmpSettings.captureMode"
+                            @input="setSetting('captureMode', 'game')"
+                            name="name"
+                            native-value="game"
+                        >
+                            Game
+                        </b-radio>
+                    </div>
+                </b-field>
+            </SectionCard>
+        </div>
+
         <!-- GENERAL SETTINGS -->
         <div class="general-settings pt-0">
             <SectionHead title="Save" />
@@ -113,6 +140,13 @@ export default {
     computed: {
         validName() {
             return this.tmpSettings.name && this.tmpSettings.name.length > 0;
+        },
+
+        captureModeMessage() {
+            if (this.tmpSettings.captureMode === 'screen') {
+                return 'Record your whole screen (not only your game)';
+            }
+            return 'Record only the game window (might not work for some games)';
         },
 
         ...mapGetters({
