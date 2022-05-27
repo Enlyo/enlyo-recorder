@@ -1,20 +1,33 @@
+let ffmpeg;
+let ffmpegPath;
+let ffprobePath;
+
+/**
+ * Set up ffmpeg
+ */
+function setUpFfmpeg() {
+    ffmpeg = require('fluent-ffmpeg');
+    ffmpegPath = require('ffmpeg-static').replace(
+        'app.asar',
+        'app.asar.unpacked'
+    );
+    ffprobePath = require('ffprobe-static').path.replace(
+        'app.asar',
+        'app.asar.unpacked'
+    );
+    //
+    //tell the ffmpeg package where it can find the needed binaries.
+    ffmpeg.setFfmpegPath(ffmpegPath);
+    ffmpeg.setFfprobePath(ffprobePath);
+}
+
 /**
  * Remux
  */
 async function remux(inputFile, outputFile) {
-    const ffmpeg = require('fluent-ffmpeg');
-    const ffmpegPath = require('ffmpeg-static').replace(
-        'app.asar',
-        'app.asar.unpacked'
-    );
-    const ffprobePath = require('ffprobe-static').path.replace(
-        'app.asar',
-        'app.asar.unpacked'
-    );
-
-    // Tell the ffmpeg package where it can find the needed binaries.
-    ffmpeg.setFfmpegPath(ffmpegPath);
-    ffmpeg.setFfprobePath(ffprobePath);
+    if (!ffmpeg) {
+        setUpFfmpeg();
+    }
 
     let duration;
     ffmpeg.ffprobe(inputFile, (error, metadata) => {
@@ -37,18 +50,9 @@ async function remux(inputFile, outputFile) {
  * Generate thumbnail
  */
 async function generateThumbnail(outputfile, folder) {
-    const ffmpeg = require('fluent-ffmpeg');
-    const ffmpegPath = require('ffmpeg-static').replace(
-        'app.asar',
-        'app.asar.unpacked'
-    );
-    const ffprobePath = require('ffprobe-static').path.replace(
-        'app.asar',
-        'app.asar.unpacked'
-    );
-    // Tell the ffmpeg package where it can find the needed binaries.
-    ffmpeg.setFfmpegPath(ffmpegPath);
-    ffmpeg.setFfprobePath(ffprobePath);
+    if (!ffmpeg) {
+        setUpFfmpeg();
+    }
 
     return new Promise((resolve) => {
         ffmpeg(outputfile)
@@ -63,5 +67,32 @@ async function generateThumbnail(outputfile, folder) {
     });
 }
 
+/**
+ * Clip
+ */
+async function clip(inputFile, outputFile, startTime, endTime) {
+    if (!ffmpeg) {
+        setUpFfmpeg();
+    }
+
+    const duration = endTime - startTime;
+
+    return new Promise((resolve) => {
+        ffmpeg(inputFile)
+            .output(outputFile)
+            .setStartTime(startTime)
+            .setDuration(duration)
+            .withVideoCodec('copy')
+            .withAudioCodec('copy')
+            .on('end', function (err) {
+                if (!err) {
+                    resolve();
+                }
+            })
+            .run();
+    });
+}
+
 module.exports.remux = remux;
 module.exports.generateThumbnail = generateThumbnail;
+module.exports.clip = clip;
