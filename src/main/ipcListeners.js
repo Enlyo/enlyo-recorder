@@ -1,5 +1,6 @@
 const { ipcMain } = require('electron');
 const {
+    initializePusher,
     initializeRecorder,
     startRecorder,
     stopRecorder,
@@ -25,6 +26,7 @@ const {
     openRecordingFolder,
     getSetting,
     setStoreValue,
+    setAuthTokens,
     setDefaultFolder,
 } = require('./ipcHandlers');
 
@@ -104,6 +106,10 @@ function setIpcListeners(win) {
     /*                              LIBRARY INTERFACE                             */
     /* -------------------------------------------------------------------------- */
 
+    ipcMain.handle('initialize-pusher', async () => {
+        return await initializePusher();
+    });
+
     ipcMain.handle('get-has-installed-library-app', async () => {
         return await getHasInstalledLibraryApp();
     });
@@ -123,6 +129,10 @@ function setIpcListeners(win) {
     /* -------------------------------------------------------------------------- */
     /*                                    AUTH                                    */
     /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('set-auth-tokens', async (event, tokens) => {
+        return setAuthTokens(tokens);
+    });
 
     ipcMain.handle('set-user', async (event, user) => {
         return setUser(user);

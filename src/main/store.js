@@ -63,6 +63,12 @@ const schema = {
             captureMode: {
                 type: 'string',
             },
+            user: {
+                type: 'object',
+            },
+            authTokens: {
+                type: 'object',
+            },
         },
         default: {
             screen: {},
@@ -111,7 +117,7 @@ const migrations = {
         store.set('settings.hasJoinedRoom', false);
         store.set('settings.autoAddToRoom', false);
     },
-    '0.9.13': (store) => {
+    '0.9.14': (store) => {
         store.set('settings.captureMode', 'screen');
     },
 };

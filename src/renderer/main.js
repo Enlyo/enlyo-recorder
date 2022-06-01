@@ -26,6 +26,8 @@ new Vue({
             await window.ipc.invoke('store-env-variables', {
                 appBase: process.env.VUE_APP_BASE,
                 apiBase: process.env.VUE_APP_API_BASE,
+                pusherSecret: process.env.VUE_APP_PUSHER_SECRET,
+                pusherAuthEndpoint: process.env.VUE_APP_PUSHER_AUTH_ENDPOINT,
             });
         },
     },

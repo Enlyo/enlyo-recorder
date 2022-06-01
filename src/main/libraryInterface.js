@@ -130,6 +130,7 @@ const libraryInterface = {
             );
             return;
         }
+        const APP_BASE = store.get('env.appBase') || 'https://app.enlyo.com';
         require('electron').shell.openExternal(`${APP_BASE}/`);
     },
 };

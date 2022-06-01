@@ -124,6 +124,8 @@ export default {
             );
 
             if (response.status) {
+                this.initializePusher();
+
                 this.setLoading(false);
                 this.$router.push('/');
 
@@ -156,6 +158,13 @@ export default {
          */
         setLoading(bool) {
             this.isLoading = bool;
+        },
+
+        /**
+         * Initialize pusher
+         */
+        initializePusher() {
+            window.ipc.invoke('initialize-pusher');
         },
     },
 };

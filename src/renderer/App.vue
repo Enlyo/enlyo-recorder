@@ -42,10 +42,15 @@ export default {
     computed: {
         ...mapGetters({
             settings: 'settings/settings',
+            isAuthenticated: 'auth/isAuthenticated',
         }),
     },
 
     async mounted() {
+        if (this.isAuthenticated) {
+            this.initializePusher();
+        }
+
         await this.getSettings();
 
         this.initializeRecorder();
@@ -76,6 +81,13 @@ export default {
     },
 
     methods: {
+        /**
+         * Initialize pusher
+         */
+        initializePusher() {
+            window.ipc.invoke('initialize-pusher');
+        },
+
         /**
          * Initialize recorder
          */

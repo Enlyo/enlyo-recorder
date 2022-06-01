@@ -15,8 +15,8 @@ function setUpFfmpeg() {
         'app.asar',
         'app.asar.unpacked'
     );
-    //
-    //tell the ffmpeg package where it can find the needed binaries.
+
+    // tell the ffmpeg package where it can find the needed binaries.
     ffmpeg.setFfmpegPath(ffmpegPath);
     ffmpeg.setFfprobePath(ffprobePath);
 }

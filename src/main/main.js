@@ -215,7 +215,7 @@ function requestSingleInstance() {
     const gotTheLock = app.requestSingleInstanceLock();
 
     if (!gotTheLock) {
-        console.debug('There is another instance of the Enlyo Recorder active');
+        console.warn('There is another instance of the Enlyo Recorder active');
         app.quit();
     } else {
         app.on('second-instance', () => {

@@ -8,6 +8,7 @@ const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName, getAppVersion } = require('./helpers');
 const { store } = require('./store');
 const path = require('path');
+const { pusher } = require('./pusher');
 
 /* -------------------------------------------------------------------------- */
 /*                               SCREEN RECORDER                              */
@@ -181,29 +182,35 @@ function getActiveProcesses() {
  * Set setting
  */
 async function setSetting(key, value) {
-    const storeKey = `settings.${key}`;
-    setStoreValue(storeKey, value);
+    try {
+        const storeKey = `settings.${key}`;
+        setStoreValue(storeKey, value);
 
-    if (key === 'fps') {
-        return screenRecorder.setFps(value);
-    } else if (key === 'captureMode') {
-        return screenRecorder.setCaptureMode(value);
-    } else if (key === 'screen') {
-        return screenRecorder.setScreen(value);
-    } else if (key === 'resolution') {
-        return screenRecorder.setResolution(value);
-    } else if (key === 'speaker') {
-        return screenRecorder.setSpeaker(value);
-    } else if (key === 'microphone') {
-        return screenRecorder.setMicrophone(value);
-    } else if (key === 'speakerVolume') {
-        return screenRecorder.setSpeakerVolume(value);
-    } else if (key === 'microphoneVolume') {
-        return screenRecorder.setMicrophoneVolume(value);
-    } else if (key === 'folder') {
-        const RAW_RECORDING_PATH = path.join(value, 'tmp');
-        await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
-        return screenRecorder.setFolder(RAW_RECORDING_PATH);
+        if (key === 'fps') {
+            return screenRecorder.setFps(value);
+        } else if (key === 'captureMode') {
+            return screenRecorder.setCaptureMode(value);
+        } else if (key === 'screen') {
+            return screenRecorder.setScreen(value);
+        } else if (key === 'resolution') {
+            return screenRecorder.setResolution(value);
+        } else if (key === 'speaker') {
+            return screenRecorder.setSpeaker(value);
+        } else if (key === 'microphone') {
+            return screenRecorder.setMicrophone(value);
+        } else if (key === 'speakerVolume') {
+            return screenRecorder.setSpeakerVolume(value);
+        } else if (key === 'microphoneVolume') {
+            return screenRecorder.setMicrophoneVolume(value);
+        } else if (key === 'folder') {
+            const RAW_RECORDING_PATH = path.join(value, 'tmp');
+            await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+            return screenRecorder.setFolder(RAW_RECORDING_PATH);
+        }
+    } catch {
+        console.warn('Could not set setting');
+        console.warn(key);
+        console.warn(value);
     }
 }
 
@@ -239,6 +246,13 @@ function setStoreValue(key, value) {
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Initialize pusher
+ */
+function initializePusher() {
+    return pusher.start();
+}
+
+/**
  * Get has installed library app
  */
 function getHasInstalledLibraryApp() {
@@ -270,6 +284,13 @@ function openSharingRoom() {
 /* -------------------------------------------------------------------------- */
 /*                                    AUTH                                    */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Set auth tokens
+ */
+function setAuthTokens(authTokens) {
+    store.set('authTokens', authTokens);
+}
 
 /**
  * Set user
@@ -383,12 +404,14 @@ module.exports.getHasInstalledLibraryApp = getHasInstalledLibraryApp;
 module.exports.getSetting = getSetting;
 module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;
+module.exports.initializePusher = initializePusher;
 module.exports.initializeRecorder = initializeRecorder;
 module.exports.openLibraryVideo = openLibraryVideo;
 module.exports.openSystemPlayer = openSystemPlayer;
 module.exports.openSharingRoom = openSharingRoom;
 module.exports.openRecordingFolder = openRecordingFolder;
 module.exports.selectFolder = selectFolder;
+module.exports.setAuthTokens = setAuthTokens;
 module.exports.setDefaultFolder = setDefaultFolder;
 module.exports.setSetting = setSetting;
 module.exports.setStoreValue = setStoreValue;

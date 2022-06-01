@@ -22,6 +22,7 @@ const actions = {
 
         if (response.status) {
             window.ipc.invoke('set-credentials', { email, password });
+            window.ipc.invoke('set-auth-tokens', response.data);
             await commit('SET_TOKENS', response.data);
 
             dispatch('me');
@@ -37,6 +38,7 @@ const actions = {
         const response = await api.auth.me();
 
         if (response.status) {
+            window.ipc.invoke('set-user', response.data);
             await commit('SET_USER', response.data);
         }
 
@@ -48,6 +50,9 @@ const actions = {
      */
     async logout({ commit }) {
         window.ipc.invoke('set-credentials', { email: '', password: '' });
+        window.ipc.invoke('set-user', {});
+        window.ipc.invoke('set-auth-tokens', {});
+
         commit('LOGOUT');
     },
 

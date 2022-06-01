@@ -1,15 +1,29 @@
 /**
+ * Get file type
+ */
+function getFileType(file) {
+    const _split = file.split('.');
+    return _split[_split.length - 1];
+}
+
+/**
  * Generate output name
  */
 function generateOutputName(
     rawRecordingName,
     appendMessage = 'enlyo-recording',
-    inputFormat,
-    outputFormat
+    appendTo = 'front',
+    inputFormat = 'mp4',
+    outputFormat = 'mp4'
 ) {
     rawRecordingName = rawRecordingName.replace(inputFormat, '');
     rawRecordingName = rawRecordingName.replace(' ', '-');
-    return `${appendMessage}-${rawRecordingName}${outputFormat}`;
+    if (appendTo === 'back')
+        rawRecordingName = rawRecordingName.replace('.', '');
+
+    return appendTo === 'front'
+        ? `${appendMessage}-${rawRecordingName}${outputFormat}`
+        : `${rawRecordingName}-${appendMessage}.${outputFormat}`;
 }
 
 /**
@@ -50,6 +64,7 @@ function toTitleCase(phrase) {
 
 module.exports.generateOutputName = generateOutputName;
 module.exports.getAppVersion = getAppVersion;
+module.exports.getFileType = getFileType;
 module.exports.getUniqueListBy = getUniqueListBy;
 module.exports.parseCaption = parseCaption;
 module.exports.toTitleCase = toTitleCase;
