@@ -28,6 +28,7 @@ const {
     setStoreValue,
     setAuthTokens,
     setDefaultFolder,
+    stopPusher,
 } = require('./ipcHandlers');
 
 /**
@@ -106,8 +107,12 @@ function setIpcListeners(win) {
     /*                              LIBRARY INTERFACE                             */
     /* -------------------------------------------------------------------------- */
 
-    ipcMain.handle('initialize-pusher', async () => {
-        return await initializePusher();
+    ipcMain.handle('initialize-pusher', async (event, token) => {
+        return await initializePusher(token);
+    });
+
+    ipcMain.handle('stop-pusher', async (event, token) => {
+        return await stopPusher(token);
     });
 
     ipcMain.handle('get-has-installed-library-app', async () => {

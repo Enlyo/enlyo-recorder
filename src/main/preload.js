@@ -34,6 +34,7 @@ const VALID_CHANNELS = {
         'set-credentials',
         'set-user',
         'start-recorder',
+        'stop-pusher',
         'stop-recorder',
         'store-env-variables',
         'test-library-app-connection',

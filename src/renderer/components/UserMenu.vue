@@ -56,9 +56,11 @@
 
 <script>
 import { ToastProgrammatic as Toast } from 'buefy';
-import EnAvatar from './EnAvatar';
-
 import { mapGetters } from 'vuex';
+
+import room from '../room';
+
+import EnAvatar from './EnAvatar';
 
 export default {
     name: 'UserMenu',
@@ -77,6 +79,9 @@ export default {
         async logout() {
             await this.$store.dispatch('auth/logout');
             this.$router.push('/login');
+
+            this.clearRoom();
+            this.stopPusher();
         },
 
         copyHandle() {
@@ -105,6 +110,31 @@ export default {
                 duration: 3000,
                 position: 'is-bottom',
             });
+        },
+
+        /**
+         * Stop pusher
+         */
+        stopPusher() {
+            window.ipc.invoke('stop-pusher');
+        },
+
+        /**
+         * Clear room
+         */
+        clearRoom() {
+            room.leave();
+
+            this.setSetting('hasJoinedRoom', false);
+            this.setSetting('autoShareWithRoom', false);
+            this.setSetting('roomToken', '');
+        },
+
+        /**
+         * Set setting
+         */
+        async setSetting(key, value) {
+            await this.$store.dispatch('settings/setSetting', { key, value });
         },
     },
 };

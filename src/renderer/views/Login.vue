@@ -93,6 +93,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'Login',
 
@@ -111,6 +113,12 @@ export default {
         };
     },
 
+    computed: {
+        ...mapGetters({
+            settings: 'settings/settings',
+        }),
+    },
+
     methods: {
         /**
          * Login
@@ -124,22 +132,30 @@ export default {
             );
 
             if (response.status) {
-                this.initializePusher();
-
-                this.setLoading(false);
-                this.$router.push('/');
+                await this.handleLoginSuccesfull();
 
                 return;
             }
 
             const { data } = response;
+            const errors = data.response.data;
 
-            for (const key in data) {
-                this.$set(this.error, key, data[key]);
+            for (const key in errors) {
+                this.$set(this.error, key, errors[key]);
             }
 
             this.setLoading(false);
             return;
+        },
+
+        /**
+         * Handle login successfull
+         */
+        async handleLoginSuccesfull() {
+            this.setLoading(false);
+            this.$router.push('/');
+
+            this.initializePusher();
         },
 
         /**
@@ -164,7 +180,8 @@ export default {
          * Initialize pusher
          */
         initializePusher() {
-            window.ipc.invoke('initialize-pusher');
+            let token = this.$store.getters['auth/tokens'].access;
+            window.ipc.invoke('initialize-pusher', token);
         },
     },
 };

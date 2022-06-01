@@ -6,12 +6,12 @@ const { generateOutputName, getFileType } = require('./helpers');
 
 const PUSHER_SECRET = store.get('env.pusherSecret');
 const PUSHER_AUTH_ENDPOINT = store.get('env.pusherAuthEndpoint');
-const authTokens = store.get('authTokens');
 const user = store.get('user');
 
 const pusher = {
     _pusher: null,
     _channel: null,
+    _id: null,
 
     /* -------------------------------------------------------------------------- */
     /*                              SETUP AND DESTROY                             */
@@ -20,13 +20,14 @@ const pusher = {
     /**
      * Start
      */
-    start() {
+    start(token) {
+        console.debug(token);
         this._pusher = new Pusher(PUSHER_SECRET, {
             cluster: 'eu',
             authEndpoint: PUSHER_AUTH_ENDPOINT,
             auth: {
                 headers: {
-                    Authorization: `JWT ${authTokens.access}`,
+                    Authorization: `JWT ${token}`,
                 },
                 params: {
                     app_type: 'recorder',
@@ -38,17 +39,41 @@ const pusher = {
     },
 
     /**
+     * Stop
+     */
+    stop() {
+        this.unsubscribe();
+        this._pusher = null;
+        this._id = null;
+        console.debug('unsubscribe');
+    },
+
+    /**
      * Subscribe
      */
     subscribe(id) {
         if (!this._pusher) {
             return;
         }
+        console.debug('subscribe');
         this._channel = this._pusher.subscribe(`presence-${id}`);
+        this._id = id;
 
         this._channel.bind('pusher:subscription_succeeded', () => {
             this.setUpListeners();
+            console.debug('ojoined');
         });
+    },
+
+    /**
+     * Unsubscribe
+     */
+    unsubscribe() {
+        if (!this._pusher) {
+            return;
+        }
+        this._pusher.unsubscribe(`presence-${this._id}`);
+        this._channel = null;
     },
 
     /**

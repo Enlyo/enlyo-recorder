@@ -248,8 +248,15 @@ function setStoreValue(key, value) {
 /**
  * Initialize pusher
  */
-function initializePusher() {
-    return pusher.start();
+function initializePusher(token) {
+    return pusher.start(token);
+}
+
+/**
+ * Stop pusher
+ */
+function stopPusher() {
+    return pusher.stop();
 }
 
 /**
@@ -419,6 +426,7 @@ module.exports.setUser = setUser;
 module.exports.startProcessMonitor = startProcessMonitor;
 module.exports.startRecorder = startRecorder;
 module.exports.stopProcessMonitor = stopProcessMonitor;
+module.exports.stopPusher = stopPusher;
 module.exports.stopRecorder = stopRecorder;
 module.exports.storeEnvVariables = storeEnvVariables;
 module.exports.testLibraryAppConnection = testLibraryAppConnection;

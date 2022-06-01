@@ -25,7 +25,7 @@ const actions = {
             window.ipc.invoke('set-auth-tokens', response.data);
             await commit('SET_TOKENS', response.data);
 
-            dispatch('me');
+            await dispatch('me');
         }
 
         return response;

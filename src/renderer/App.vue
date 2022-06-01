@@ -15,14 +15,15 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
+import room from './room';
+
 import AppContent from '@/components/layout/AppContent.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import AppLayout from '@/components/layout/AppLayout.vue';
 import AppNavigation from '@/components/layout/AppNavigation.vue';
 import RecordingPane from '@/components/RecordingPane.vue';
-import room from './room';
-
-import { mapGetters } from 'vuex';
 
 export default {
     components: {
@@ -47,10 +48,6 @@ export default {
     },
 
     async mounted() {
-        if (this.isAuthenticated) {
-            this.initializePusher();
-        }
-
         await this.getSettings();
 
         this.initializeRecorder();
@@ -75,6 +72,13 @@ export default {
         if (!this.settings.microphone || !this.settings.microphone.name) {
             this.setDefaultMicrophone();
         }
+
+        if (!this.isAuthenticated) {
+            return;
+        }
+        await this.refreshCredentials();
+
+        this.initializePusher();
         if (this.settings.hasJoinedRoom && this.settings.roomToken) {
             await this.joinRoom();
         }
@@ -82,10 +86,52 @@ export default {
 
     methods: {
         /**
+         * Refresh credentials
+         */
+        async refreshCredentials() {
+            await this.$store.dispatch('auth/refresh');
+        },
+
+        /**
          * Initialize pusher
          */
         initializePusher() {
-            window.ipc.invoke('initialize-pusher');
+            let token = this.$store.getters['auth/tokens'].access;
+            window.ipc.invoke('initialize-pusher', token);
+        },
+
+        /**
+         * Join room
+         */
+        async joinRoom() {
+            const { status } = await room.join(this.settings.roomToken);
+
+            if (status) {
+                await this.setSetting('roomToken', this.settings.roomToken);
+                await this.setSetting('hasJoinedRoom', true);
+                await this.setSetting('autoShareWithRoom', true);
+
+                this.$buefy.toast.open({
+                    message: 'Successfully joined the room',
+                    type: 'is-success',
+                    duration: 3000,
+                    position: 'is-bottom',
+                });
+
+                return;
+            }
+
+            this.$buefy.toast.open({
+                message:
+                    'The room that you are trying to join does not exist (anymore)',
+                type: 'is-danger',
+                duration: 3000,
+                position: 'is-bottom',
+            });
+
+            await this.setSetting('hasJoinedRoom', false);
+            await this.setSetting('autoShareWithRoom', false);
+            await this.setSetting('roomToken', '');
         },
 
         /**
@@ -142,40 +188,6 @@ export default {
          */
         async setDefaultMicrophone() {
             await this.$store.dispatch('settings/setDefaultMicrophone');
-        },
-
-        /**
-         * Join room
-         */
-        async joinRoom() {
-            const { status } = await room.join(this.settings.roomToken);
-
-            if (status) {
-                await this.setSetting('roomToken', this.settings.roomToken);
-                await this.setSetting('hasJoinedRoom', true);
-                await this.setSetting('autoShareWithRoom', true);
-
-                this.$buefy.toast.open({
-                    message: 'Successfully joined the room',
-                    type: 'is-success',
-                    duration: 3000,
-                    position: 'is-bottom',
-                });
-
-                return;
-            }
-
-            this.$buefy.toast.open({
-                message:
-                    'The room that you are trying to join does not exist (anymore)',
-                type: 'is-danger',
-                duration: 3000,
-                position: 'is-bottom',
-            });
-
-            await this.setSetting('hasJoinedRoom', false);
-            await this.setSetting('autoShareWithRoom', false);
-            await this.setSetting('roomToken', '');
         },
     },
 };
