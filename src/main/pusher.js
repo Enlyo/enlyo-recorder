@@ -21,7 +21,6 @@ const pusher = {
      * Start
      */
     start(token) {
-        console.debug(token);
         this._pusher = new Pusher(PUSHER_SECRET, {
             cluster: 'eu',
             authEndpoint: PUSHER_AUTH_ENDPOINT,
@@ -45,7 +44,6 @@ const pusher = {
         this.unsubscribe();
         this._pusher = null;
         this._id = null;
-        console.debug('unsubscribe');
     },
 
     /**
@@ -55,13 +53,11 @@ const pusher = {
         if (!this._pusher) {
             return;
         }
-        console.debug('subscribe');
         this._channel = this._pusher.subscribe(`presence-${id}`);
         this._id = id;
 
         this._channel.bind('pusher:subscription_succeeded', () => {
             this.setUpListeners();
-            console.debug('ojoined');
         });
     },
 
