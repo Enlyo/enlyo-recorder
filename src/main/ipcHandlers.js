@@ -61,6 +61,7 @@ async function stopRecorder() {
     const outputName = generateOutputName(
         rawRecordingName,
         OUTPUT_APPEND_MESSAGE,
+        'front',
         INPUT_FORMAT,
         OUTPUT_FORMAT
     );
