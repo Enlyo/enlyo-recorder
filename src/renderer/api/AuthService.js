@@ -1,8 +1,30 @@
 import BaseApiService from './helpers/BaseApiService';
 
+import axios from 'axios';
+import store from '@/store';
+
 export default class AuthService extends BaseApiService {
     constructor(resource, name, ctx) {
         super(resource, name, ctx);
+
+        // Override to not use baseapiservice axios interceptors
+        this.axios = axios.create({
+            baseURL: process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8000/',
+        });
+
+        this.axios.interceptors.request.use((config) => {
+            const tokens = store.getters['auth/tokens'];
+
+            config.headers = {
+                Accept: 'application/json',
+                'Content-Type': 'application/json;charset=UTF-8',
+            };
+
+            if (tokens.access) {
+                config.headers['Authorization'] = `JWT ${tokens.access}`;
+            }
+            return config;
+        });
     }
 
     /**

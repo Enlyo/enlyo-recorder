@@ -1,6 +1,7 @@
 import Vue from 'vue';
 
 import api from '../../api/index';
+import router from '../../router';
 
 const state = {
     tokens: {},
@@ -72,15 +73,16 @@ const actions = {
         await commit('SET_TOKENS', {});
 
         // Log in again based on saved credentials
-        const { email, password } = window.ipc.invoke('get-credentials');
+        const { email, password } = await window.ipc.invoke('get-credentials');
         response = await api.auth.login({ email, password });
 
         if (response.status) {
             await commit('SET_TOKENS', response.data);
-
             dispatch('me');
+            return response;
         }
 
+        router.push('/login');
         return response;
     },
 };

@@ -89,6 +89,7 @@ export default {
          * Refresh credentials
          */
         async refreshCredentials() {
+            await this.$store.dispatch('auth/me');
             await this.$store.dispatch('auth/refresh');
         },
 
