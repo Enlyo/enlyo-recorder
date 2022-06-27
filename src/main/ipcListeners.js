@@ -1,5 +1,6 @@
 const { ipcMain } = require('electron');
 const {
+    deleteFile,
     initializePusher,
     initializeRecorder,
     startRecorder,
@@ -13,6 +14,7 @@ const {
     getCredentials,
     getStoreValue,
     getVersion,
+    getFileUrl,
     getActiveProcesses,
     storeEnvVariables,
     setCredentials,
@@ -29,6 +31,7 @@ const {
     setAuthTokens,
     setDefaultFolder,
     stopPusher,
+    showWindow,
 } = require('./ipcHandlers');
 
 /**
@@ -159,12 +162,24 @@ function setIpcListeners(win) {
         return getVersion();
     });
 
+    ipcMain.handle('show-window', async () => {
+        return showWindow(win);
+    });
+
     ipcMain.handle('store-env-variables', async (event, variables) => {
         return storeEnvVariables(variables);
     });
 
     ipcMain.handle('open-recording-folder', async (event, recording) => {
         return await openRecordingFolder(recording);
+    });
+
+    ipcMain.handle('get-file-url', async (event, filename) => {
+        return await getFileUrl(filename);
+    });
+
+    ipcMain.handle('delete-file', async (event, filename) => {
+        return await deleteFile(filename);
     });
 
     ipcMain.handle('open-system-player', async (event, recording) => {

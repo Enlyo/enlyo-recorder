@@ -4,7 +4,7 @@
     "description": "Screen recording software for gaming",
     "author": "Enlyo",
     "license": "GPL-2.0",
-    "version": "0.9.20-beta",
+    "version": "0.9.21-beta",
     "private": false,
     "main": "src/main/main.js",
     "build": {
@@ -105,6 +105,7 @@
         "sass": "^1.45.1",
         "sass-loader": "10.1.1",
         "shelljs": "^0.8.5",
+        "vue-devtools": "^5.1.4",
         "vue-template-compiler": "^2.6.11",
         "yarn-add-no-save": "^1.0.3"
     },

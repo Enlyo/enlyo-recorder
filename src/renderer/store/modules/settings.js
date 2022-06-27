@@ -14,6 +14,7 @@ const actions = {
      */
     async getSettings({ commit }) {
         const settings = await window.ipc.invoke('get-store-value', 'settings');
+        console.log(settings);
         commit('SET_SETTINGS', settings);
     },
 

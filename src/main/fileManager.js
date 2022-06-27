@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { promises: Fs } = require('fs');
 const path = require('path');
 
 /**
@@ -6,6 +7,25 @@ const path = require('path');
  */
 async function getFileSize(file) {
     return (await fs.promises.stat(file)).size;
+}
+
+/**
+ * Get file exists
+ */
+async function getFileExists(path) {
+    try {
+        await Fs.access(path);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Delete file
+ */
+async function deleteFile(path) {
+    fs.unlink(path);
 }
 
 /**
@@ -78,6 +98,7 @@ function orderRecentFiles(dir) {
 
 module.exports.createDirIfNotExists = createDirIfNotExists;
 module.exports.deleteFile = deleteFile;
+module.exports.getFileExists = getFileExists;
 module.exports.getFileSize = getFileSize;
 module.exports.getMostRecentFile = getMostRecentFile;
 module.exports.getThumbnail = getThumbnail;

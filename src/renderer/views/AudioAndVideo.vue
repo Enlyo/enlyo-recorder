@@ -2,7 +2,7 @@
     <div class="home">
         <!-- SCREEN SETTINGS -->
         <div class="screen-settings">
-            <SectionHead title="Screen" class="pt-0" />
+            <SettingsSectionHead title="Screen" class="pt-0" />
 
             <SectionCard>
                 <b-field label="Screen">
@@ -26,7 +26,7 @@
 
         <!-- VIDEO QUALITY SETTINGS -->
         <div class="video-quality-settings mt-4">
-            <SectionHead title="Video quality" />
+            <SettingsSectionHead title="Video quality" />
 
             <div class="columns is-mobile">
                 <div class="column">
@@ -63,7 +63,7 @@
 
         <!-- AUDIO INPUT SETTINGS -->
         <div class="audio-input-settings mt-4">
-            <SectionHead title="Audio devices" />
+            <SettingsSectionHead title="Audio devices" />
 
             <div class="columns is-mobile">
                 <div class="column">

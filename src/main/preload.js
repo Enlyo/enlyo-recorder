@@ -10,14 +10,16 @@ const { Titlebar, Color } = require('custom-electron-titlebar');
  */
 const VALID_CHANNELS = {
     request: ['start-process-monitor', 'stop-process-monitor'],
-    response: ['start-recorder-request', 'stop-recorder-request'],
+    response: ['start-recorder-request', 'stop-recorder-request', 'ping'],
     invoke: [
+        'delete-file',
         'get-active-processes',
         'get-available-microphones',
         'get-available-screens',
         'get-available-speakers',
         'get-app-version',
         'get-credentials',
+        'get-file-url',
         'get-has-installed-library-app',
         'get-setting',
         'get-store-value',
@@ -33,6 +35,7 @@ const VALID_CHANNELS = {
         'set-default-folder',
         'set-credentials',
         'set-user',
+        'show-window',
         'start-recorder',
         'stop-pusher',
         'stop-recorder',
@@ -66,6 +69,8 @@ contextBridge.exposeInMainWorld('ipc', {
         console.warn(`${channel} is not valid`);
     },
 });
+
+contextBridge.exposeInMainWorld('isNative', true);
 
 /* -------------------------------------------------------------------------- */
 /*                                  TITLEBAR                                  */

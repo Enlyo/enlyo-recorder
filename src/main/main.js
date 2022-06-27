@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, Tray, Menu } = require('electron');
+const { app, BrowserWindow, shell, Tray, Menu, protocol } = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
 const { getAppVersion } = require('./helpers');
@@ -8,6 +8,30 @@ const {
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
 const { libraryInterface } = require('./libraryInterface');
+
+protocol.registerSchemesAsPrivileged([
+    { scheme: 'local', privileges: { bypassCSP: true, supportFetchAPI: true } },
+]);
+
+// And this anywhere:
+function registerLocalVideoProtocol() {
+    protocol.registerFileProtocol('local', (request, callback) => {
+        const url = request.url.replace(/^local:\/\//, '');
+        // Decode URL to prevent errors when loading filenames with UTF-8 chars or chars like "#"
+        const decodedUrl = decodeURI(url); // Needed in case URL contains spaces
+        try {
+            // eslint-disable-next-line no-undef
+            return callback({
+                path: decodedUrl,
+            });
+        } catch (error) {
+            console.error(
+                'ERROR: registerLocalVideoProtocol: Could not get file path:',
+                error
+            );
+        }
+    });
+}
 
 /**
  * Is Development
@@ -32,6 +56,11 @@ setupTitlebar();
  * Disable background timer throttling
  */
 app.commandLine.appendSwitch('disable-background-timer-throttling');
+
+/**
+ * Enable experimental web platform features (required for browser-based filesystem access)
+ */
+app.commandLine.appendSwitch('enable-experimental-web-platform-features');
 
 /**
  * Set Application User Model ID for Windows
@@ -86,7 +115,7 @@ async function createWindow() {
     win = new BrowserWindow({
         width: 600,
         height: 900,
-        frame: true,
+        frame: false,
         resizable: process.env.NODE_ENV === 'DEV',
         maximizable: false,
         fullscreenable: false,
@@ -107,8 +136,10 @@ async function createWindow() {
 
     if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
-        await win.loadURL('http://localhost:8001/');
-        // if (!process.env.IS_TEST) win.webContents.openDevTools();
+        await win.loadURL('http://localhost:3000/');
+        require('vue-devtools').install();
+
+        if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
         // Load the index.html when not in development
         win.loadFile('./dist/index.html');
@@ -149,6 +180,20 @@ function createTray(win) {
     const iconPath = path.join(__dirname, '../../public/icons/icon.ico');
     let appIcon = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Start recording',
+            click: function () {
+                win.webContents.send('start-recorder-request');
+            },
+        },
+
+        {
+            label: 'Stop recording',
+            click: function () {
+                win.webContents.send('stop-recorder-request');
+            },
+        },
+
         {
             label: 'Open recorder',
             click: function () {
@@ -240,6 +285,9 @@ app.on('ready', async () => {
     setIpcListeners(win);
     initUpdates(win);
     launchAtStartup();
+
+    // protocol.registerFileProtocol('enlyo-video', fileHandler);
+    registerLocalVideoProtocol();
 });
 
 // Quit when all windows are closed.

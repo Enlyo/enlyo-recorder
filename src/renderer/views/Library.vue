@@ -165,8 +165,6 @@
 </template>
 
 <script>
-import room from '../room';
-
 import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
@@ -267,50 +265,45 @@ export default {
          * Join room
          */
         async joinRoom() {
-            const { status } = await room.join(this.tmpSettings.roomToken);
-
-            if (status) {
-                this.setSetting('roomToken', this.tmpSettings.roomToken);
-                this.setSetting('hasJoinedRoom', true);
-                this.setSetting('autoShareWithRoom', true);
-
-                this.$buefy.toast.open({
-                    message: 'Successfully joined the room',
-                    type: 'is-success',
-                    duration: 3000,
-                    position: 'is-bottom',
-                });
-
-                return;
-            }
-
-            this.$buefy.toast.open({
-                message:
-                    'The room that you are trying to join does not exist (anymore)',
-                type: 'is-danger',
-                duration: 3000,
-                position: 'is-bottom',
-            });
-
-            this.setSetting('hasJoinedRoom', false);
-            this.setSetting('autoShareWithRoom', false);
+            // TODO: Update this
+            // const { status } = await room.join(this.tmpSettings.roomToken);
+            // if (status) {
+            //     this.setSetting('roomToken', this.tmpSettings.roomToken);
+            //     this.setSetting('hasJoinedRoom', true);
+            //     this.setSetting('autoShareWithRoom', true);
+            //     this.$buefy.toast.open({
+            //         message: 'Successfully joined the room',
+            //         type: 'is-success',
+            //         duration: 3000,
+            //         position: 'is-bottom',
+            //     });
+            //     return;
+            // }
+            // this.$buefy.toast.open({
+            //     message:
+            //         'The room that you are trying to join does not exist (anymore)',
+            //     type: 'is-danger',
+            //     duration: 3000,
+            //     position: 'is-bottom',
+            // });
+            // this.setSetting('hasJoinedRoom', false);
+            // this.setSetting('autoShareWithRoom', false);
         },
 
         /**
          * Leave room
          */
         leaveRoom() {
-            room.leave();
-
-            this.setSetting('hasJoinedRoom', false);
-            this.setSetting('autoShareWithRoom', false);
-
-            this.$buefy.toast.open({
-                message: 'Successfully left the room',
-                type: 'is-success',
-                duration: 3000,
-                position: 'is-bottom',
-            });
+            // TODO: Update this
+            // room.leave();
+            // this.setSetting('hasJoinedRoom', false);
+            // this.setSetting('autoShareWithRoom', false);
+            // this.$buefy.toast.open({
+            //     message: 'Successfully left the room',
+            //     type: 'is-success',
+            //     duration: 3000,
+            //     position: 'is-bottom',
+            // });
         },
     },
 };

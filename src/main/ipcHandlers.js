@@ -376,6 +376,38 @@ function openRecordingFolder(recording) {
 }
 
 /**
+ * Get file url
+ */
+async function getFileUrl(filename) {
+    const OUTPUT_PATH = store.get('settings.folder');
+    const outputFile = `${OUTPUT_PATH}/${filename}`;
+
+    const fileExists = await fileManager.getFileExists(outputFile);
+    if (!fileExists) {
+        return { fileFound: false, dataUrl: null };
+    }
+
+    const dataUrl = `local://${outputFile}`;
+    return { fileFound: true, dataUrl };
+}
+
+/**
+ * Delete file
+ */
+async function deleteFile(filename) {
+    const OUTPUT_PATH = store.get('settings.folder');
+    const outputFile = `${OUTPUT_PATH}/${filename}`;
+
+    const fileExists = await fileManager.getFileExists(outputFile);
+    if (!fileExists) {
+        return { fileDeleted: false };
+    }
+
+    await fileManager.deleteFile(outputFile);
+    return { fileDeleted: true };
+}
+
+/**
  * Select folder
  */
 async function selectFolder(win) {
@@ -383,6 +415,13 @@ async function selectFolder(win) {
         properties: ['openDirectory'],
     });
     return result;
+}
+
+/**
+ * Show window
+ */
+async function showWindow(win) {
+    win.show();
 }
 
 /**
@@ -404,10 +443,12 @@ async function setDefaultFolder() {
     return OUTPUT_PATH;
 }
 
+module.exports.deleteFile = deleteFile;
 module.exports.getActiveProcesses = getActiveProcesses;
 module.exports.getAvailableMicrophones = getAvailableMicrophones;
 module.exports.getAvailableScreens = getAvailableScreens;
 module.exports.getAvailableSpeakers = getAvailableSpeakers;
+module.exports.getFileUrl = getFileUrl;
 module.exports.getHasInstalledLibraryApp = getHasInstalledLibraryApp;
 module.exports.getSetting = getSetting;
 module.exports.getStoreValue = getStoreValue;
@@ -433,3 +474,4 @@ module.exports.storeEnvVariables = storeEnvVariables;
 module.exports.testLibraryAppConnection = testLibraryAppConnection;
 module.exports.setCredentials = setCredentials;
 module.exports.getCredentials = getCredentials;
+module.exports.showWindow = showWindow;
