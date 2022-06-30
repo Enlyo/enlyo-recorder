@@ -136,7 +136,6 @@
 </template>
 
 <script>
-import SectionHead from '@/components/SectionHead.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
 import { mapGetters } from 'vuex';
@@ -145,7 +144,6 @@ export default {
     name: 'AudioAndVideo',
 
     components: {
-        SectionHead,
         SectionCard,
     },
 

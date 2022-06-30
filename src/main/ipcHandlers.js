@@ -1,14 +1,14 @@
-const { Notification, dialog, safeStorage } = require('electron');
+const { Notification, dialog } = require('electron');
 const fileManager = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
-const { libraryInterface } = require('./libraryInterface');
 const videoEditor = require('./videoEditor');
 const { getMostRecentFile } = require('./fileManager');
-const { generateOutputName, getAppVersion } = require('./helpers');
+const { generateOutputName, getAppVersion, getFileType } = require('./helpers');
 const { store } = require('./store');
 const path = require('path');
-const { pusher } = require('./pusher');
+const { clip } = require('./videoEditor');
+const { outputFile } = require('fs-extra');
 
 /* -------------------------------------------------------------------------- */
 /*                               SCREEN RECORDER                              */
@@ -78,11 +78,19 @@ async function stopRecorder() {
     // Remux video
     const data = await _remuxVideo(inputFile, outputFile);
 
+    // Create file handle
+    const fileHandle = {
+        filePath: outputFile,
+        name: outputName,
+        size: data.size,
+        url: `local://${outputFile}`,
+    };
+
     // Enrich data
     data.folder = OUTPUT_PATH;
     data.name = outputName;
     data.thumbnail = await _generateThumbnail(outputFile, RAW_RECORDING_PATH);
-    data.video = await fileManager.getVideo(outputFile);
+    data.fileHandle = fileHandle;
 
     // Remove temp video
     await fileManager.deleteFile(inputFile);
@@ -243,104 +251,294 @@ function setStoreValue(key, value) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                              LIBRARY INTERFACE                             */
+/*                                VIDEO EDITING                               */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Initialize pusher
+ * Clip moments
  */
-function initializePusher(token) {
-    return pusher.start(token);
-}
-
-/**
- * Stop pusher
- */
-function stopPusher() {
-    return pusher.stop();
-}
-
-/**
- * Get has installed library app
- */
-function getHasInstalledLibraryApp() {
-    return libraryInterface.isLibraryAppInstalled();
-}
-
-/**
- * Test library app connection
- */
-function testLibraryAppConnection() {
-    return libraryInterface.testConnection();
-}
-
-/**
- * Open library video
- */
-function openLibraryVideo(recording) {
-    libraryInterface.openVideo({ id: recording.id });
-}
-
-/**
- * Open sharing room
- */
-function openSharingRoom() {
-    const roomToken = store.get('settings.roomToken');
-    libraryInterface.openSharingRoom(roomToken);
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                    AUTH                                    */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Set auth tokens
- */
-function setAuthTokens(authTokens) {
-    store.set('authTokens', authTokens);
-}
-
-/**
- * Set user
- */
-function setUser(user) {
-    store.set('user', user);
-}
-
-/**
- * Set credentials
- */
-function setCredentials(email, password) {
-    const emailBuffer = safeStorage.encryptString(email);
-    const passwordBuffer = safeStorage.encryptString(password);
-    const credentials = {
-        email: emailBuffer.toString('latin1'),
-        password: passwordBuffer.toString('latin1'),
+async function clipMoments({ moments }) {
+    const clippedMoments = await _clipMoments({ moments });
+    return {
+        success: true,
+        clips: clippedMoments,
     };
-    store.set('credentials', credentials);
 }
 
-/**
- * Get credentials
- */
-function getCredentials() {
-    const credentials = store.get('credentials');
+async function _clipMoments({ moments }) {
+    let clippedMoments = [];
 
-    if (!credentials || !credentials.email || !credentials.password) {
-        return { email: '', password: '' };
+    for (let index = 0; index < moments.length; index++) {
+        const moment = moments[index];
+        const data = await _clipMoment(moment);
+        clippedMoments.push(data);
     }
 
-    const email = safeStorage.decryptString(
-        Buffer.from(credentials.email, 'latin1')
+    return clippedMoments;
+}
+
+/**
+ * Clip moment
+ */
+async function clipMoment({ fileName, filePath, startTime, endTime }) {
+    try {
+        return await _clipMoment({
+            fileName,
+            filePath,
+            startTime,
+            endTime,
+        });
+    } catch {
+        return {
+            success: false,
+        };
+    }
+}
+
+async function _clipMoment({ fileName, filePath, startTime, endTime }) {
+    const WORKSPACE_PATH = store.get('settings.folder');
+
+    const fileType = getFileType(fileName);
+    const inputFile = filePath;
+
+    const outputFilename = generateOutputName(
+        fileName,
+        `${startTime}-${endTime}`,
+        'back',
+        fileType,
+        fileType
     );
-    const password = safeStorage.decryptString(
-        Buffer.from(credentials.password, 'latin1')
-    );
+    const outputFile = path.join(WORKSPACE_PATH, outputFilename);
+
+    await clip(inputFile, outputFile, startTime, endTime);
+
+    const size = await fileManager.getFileSize(outputFile);
+    const url = `local://${outputFile}`;
 
     return {
-        email,
-        password,
+        success: true,
+        fileHandle: {
+            path: outputFile,
+            name: outputFilename,
+            size,
+            url,
+        },
+        file: {
+            name: outputFilename,
+            size,
+        },
     };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               FILE MANAGEMENT                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Get file exists
+ *
+ */
+async function getFileExists(filePath) {
+    return await fileManager.getFileExists(filePath);
+}
+
+/**
+ * Get file from picker
+ */
+async function getFileFromPicker(win) {
+    try {
+        return await _getFileFromPicker(win);
+    } catch (error) {
+        return { success: false, reason: error };
+    }
+}
+
+async function _getFileFromPicker(win) {
+    const result = await dialog.showOpenDialog(win, {
+        defaultPath: store.get('settings.folder'),
+        properties: ['openFile'],
+    });
+
+    if (!result.canceled) {
+        const filePath = result.filePaths[0];
+        const name = path.basename(filePath);
+        const size = await fileManager.getFileSize(filePath);
+        const url = `local://${result.filePaths[0]}`;
+
+        return {
+            fileFound: true,
+            fileHandle: {
+                path: filePath,
+                name,
+                size,
+                url,
+            },
+            file: {
+                name,
+                size,
+            },
+        };
+    }
+
+    return { fileFound: false, reason: 'canceled' };
+}
+
+/**
+ * Get file from folder
+ */
+async function getFileFromFolder(win, filename) {
+    try {
+        return await _getFileFromFolder(win, filename);
+    } catch (error) {
+        return { fileFound: false, reason: error };
+    }
+}
+
+async function _getFileFromFolder(win, filename) {
+    const result = await dialog.showOpenDialog(win, {
+        defaultPath: store.get('settings.folder'),
+        properties: ['openDirectory'],
+    });
+
+    if (result.canceled) {
+        return { success: false, reason: 'UserCanceled' };
+    }
+
+    const folderPath = result.filePaths[0];
+    const filePath = `${folderPath}/${filename}`;
+    const fileExists = await fileManager.getFileExists(filePath);
+
+    if (!fileExists) {
+        return { fileFound: false, reason: 'FileNotFound' };
+    }
+
+    const size = await fileManager.getFileSize(filePath);
+    const url = `local://${filePath}`;
+
+    return {
+        fileFound: true,
+        fileHandle: {
+            path: filePath,
+            name: filename,
+            size,
+            url,
+        },
+    };
+}
+
+/**
+ * Get file from default folder
+ */
+async function getFileFromDefaultFolder(filename) {
+    try {
+        return await _getFileFromDefaultFolder(filename);
+    } catch (error) {
+        return { fileFound: false, reason: error };
+    }
+}
+
+async function _getFileFromDefaultFolder(filename) {
+    const folderPath = store.get('settings.folder');
+    const filePath = `${folderPath}/${filename}`;
+    const fileExists = await fileManager.getFileExists(filePath);
+
+    if (!fileExists) {
+        return { fileFound: false, reason: 'FileNotFound' };
+    }
+
+    const size = await fileManager.getFileSize(filePath);
+    const url = `local://${filePath}`;
+
+    return {
+        fileFound: true,
+        fileHandle: {
+            path: filePath,
+            name: filename,
+            size,
+            url,
+        },
+    };
+}
+
+/**
+ * Delete file
+ */
+async function deleteFile(filePath) {
+    const fileExists = await fileManager.getFileExists(filePath);
+    if (!fileExists) {
+        return { fileDeleted: false };
+    }
+
+    await fileManager.deleteFile(filePath);
+    return { fileDeleted: true };
+}
+
+/**
+ * Delete file from default folder
+ */
+async function deleteFileFromDefaultFolder(filename) {
+    const DEFAULT_FOLDER = store.get('settings.folder');
+    const filePath = `${DEFAULT_FOLDER}/${filename}`;
+
+    const fileExists = await fileManager.getFileExists(filePath);
+    if (!fileExists) {
+        return { fileDeleted: false };
+    }
+
+    await fileManager.deleteFile(filePath);
+    return { fileDeleted: true };
+}
+
+/**
+ * Select folder
+ */
+async function selectFolder(win) {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory'],
+    });
+    return result;
+}
+
+/**
+ * Set default folder
+ */
+async function setDefaultFolder() {
+    const VIDEO_PATH = require('electron').app.getPath('videos');
+    const RECORDING_FOLDER = 'enlyo';
+    const OUTPUT_PATH = path.join(VIDEO_PATH, RECORDING_FOLDER);
+    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
+
+    await fileManager.createDirIfNotExists(OUTPUT_PATH);
+    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+
+    setStoreValue('settings.folder', OUTPUT_PATH);
+
+    screenRecorder.setFolder(RAW_RECORDING_PATH);
+
+    return OUTPUT_PATH;
+}
+
+/**
+ * Open recording folder
+ */
+function openRecordingFolder(recording) {
+    require('electron').shell.openPath(recording.folder);
+}
+
+/**
+ * Save file to default folder
+ */
+function saveFileToDefaultFolder(win, data) {
+    const DEFAULT_FOLDER = store.get('settings.folder');
+    const filePath = path.join(DEFAULT_FOLDER, data.name);
+
+    outputFile(filePath, data.buffer, (err) => {
+        if (err) {
+            return { fileSaved: false };
+        } else {
+            return { fileSaved: true };
+        }
+    });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -369,109 +567,38 @@ function openSystemPlayer(recording) {
 }
 
 /**
- * Open recording folder
- */
-function openRecordingFolder(recording) {
-    require('electron').shell.openPath(recording.folder);
-}
-
-/**
- * Get file url
- */
-async function getFileUrl(filename) {
-    const OUTPUT_PATH = store.get('settings.folder');
-    const outputFile = `${OUTPUT_PATH}/${filename}`;
-
-    const fileExists = await fileManager.getFileExists(outputFile);
-    if (!fileExists) {
-        return { fileFound: false, dataUrl: null };
-    }
-
-    const dataUrl = `local://${outputFile}`;
-    return { fileFound: true, dataUrl };
-}
-
-/**
- * Delete file
- */
-async function deleteFile(filename) {
-    const OUTPUT_PATH = store.get('settings.folder');
-    const outputFile = `${OUTPUT_PATH}/${filename}`;
-
-    const fileExists = await fileManager.getFileExists(outputFile);
-    if (!fileExists) {
-        return { fileDeleted: false };
-    }
-
-    await fileManager.deleteFile(outputFile);
-    return { fileDeleted: true };
-}
-
-/**
- * Select folder
- */
-async function selectFolder(win) {
-    const result = await dialog.showOpenDialog(win, {
-        properties: ['openDirectory'],
-    });
-    return result;
-}
-
-/**
  * Show window
  */
 async function showWindow(win) {
     win.show();
 }
 
-/**
- * Set default folder
- */
-async function setDefaultFolder() {
-    const VIDEO_PATH = require('electron').app.getPath('videos');
-    const RECORDING_FOLDER = 'enlyo';
-    const OUTPUT_PATH = path.join(VIDEO_PATH, RECORDING_FOLDER);
-    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
-
-    await fileManager.createDirIfNotExists(OUTPUT_PATH);
-    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
-
-    setStoreValue('settings.folder', OUTPUT_PATH);
-
-    screenRecorder.setFolder(RAW_RECORDING_PATH);
-
-    return OUTPUT_PATH;
-}
-
+module.exports.clipMoment = clipMoment;
+module.exports.clipMoments = clipMoments;
 module.exports.deleteFile = deleteFile;
+module.exports.deleteFileFromDefaultFolder = deleteFileFromDefaultFolder;
 module.exports.getActiveProcesses = getActiveProcesses;
 module.exports.getAvailableMicrophones = getAvailableMicrophones;
 module.exports.getAvailableScreens = getAvailableScreens;
 module.exports.getAvailableSpeakers = getAvailableSpeakers;
-module.exports.getFileUrl = getFileUrl;
-module.exports.getHasInstalledLibraryApp = getHasInstalledLibraryApp;
+module.exports.getFileFromDefaultFolder = getFileFromDefaultFolder;
+module.exports.getFileExists = getFileExists;
+module.exports.getFileFromFolder = getFileFromFolder;
+module.exports.getFileFromPicker = getFileFromPicker;
 module.exports.getSetting = getSetting;
 module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;
-module.exports.initializePusher = initializePusher;
 module.exports.initializeRecorder = initializeRecorder;
-module.exports.openLibraryVideo = openLibraryVideo;
 module.exports.openSystemPlayer = openSystemPlayer;
-module.exports.openSharingRoom = openSharingRoom;
 module.exports.openRecordingFolder = openRecordingFolder;
+module.exports.saveFileToDefaultFolder = saveFileToDefaultFolder;
 module.exports.selectFolder = selectFolder;
-module.exports.setAuthTokens = setAuthTokens;
 module.exports.setDefaultFolder = setDefaultFolder;
 module.exports.setSetting = setSetting;
 module.exports.setStoreValue = setStoreValue;
-module.exports.setUser = setUser;
+module.exports.showWindow = showWindow;
 module.exports.startProcessMonitor = startProcessMonitor;
 module.exports.startRecorder = startRecorder;
 module.exports.stopProcessMonitor = stopProcessMonitor;
-module.exports.stopPusher = stopPusher;
 module.exports.stopRecorder = stopRecorder;
 module.exports.storeEnvVariables = storeEnvVariables;
-module.exports.testLibraryAppConnection = testLibraryAppConnection;
-module.exports.setCredentials = setCredentials;
-module.exports.getCredentials = getCredentials;
-module.exports.showWindow = showWindow;

@@ -2,11 +2,16 @@ const fs = require('fs');
 const { promises: Fs } = require('fs');
 const path = require('path');
 
+/* -------------------------------------------------------------------------- */
+/*                                    FILES                                   */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Get file size
+ * Get most recent file
  */
-async function getFileSize(file) {
-    return (await fs.promises.stat(file)).size;
+function getMostRecentFile(dir) {
+    const files = orderRecentFiles(dir);
+    return files.length ? files[0] : undefined;
 }
 
 /**
@@ -22,10 +27,10 @@ async function getFileExists(path) {
 }
 
 /**
- * Delete file
+ * Get file size
  */
-async function deleteFile(path) {
-    fs.unlink(path);
+async function getFileSize(file) {
+    return (await fs.promises.stat(file)).size;
 }
 
 /**
@@ -43,35 +48,6 @@ async function getThumbnail(file) {
 }
 
 /**
- * getVideo
- */
-async function getVideo(file) {
-    return new Promise((resolve) => {
-        fs.readFile(file, (err, data) => {
-            if (err) {
-                return;
-            }
-            resolve(data);
-        });
-    });
-}
-
-/**
- * Get most recent file
- */
-function getMostRecentFile(dir) {
-    const files = orderRecentFiles(dir);
-    return files.length ? files[0] : undefined;
-}
-
-/**
- * Create dir if not exists
- */
-async function createDirIfNotExists(dirpath) {
-    await fs.promises.mkdir(dirpath, { recursive: true });
-}
-
-/**
  * Delete file
  */
 async function deleteFile(filePath) {
@@ -80,6 +56,17 @@ async function deleteFile(filePath) {
             resolve();
         });
     });
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 DIRECTORIES                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Create dir if not exists
+ */
+async function createDirIfNotExists(dirpath) {
+    await fs.promises.mkdir(dirpath, { recursive: true });
 }
 
 /**
@@ -102,4 +89,3 @@ module.exports.getFileExists = getFileExists;
 module.exports.getFileSize = getFileSize;
 module.exports.getMostRecentFile = getMostRecentFile;
 module.exports.getThumbnail = getThumbnail;
-module.exports.getVideo = getVideo;

@@ -1,37 +1,34 @@
 const { ipcMain } = require('electron');
 const {
+    clipMoment,
+    clipMoments,
     deleteFile,
-    initializePusher,
-    initializeRecorder,
-    startRecorder,
-    stopRecorder,
-    startProcessMonitor,
-    stopProcessMonitor,
-    setSetting,
+    getActiveProcesses,
+    getAvailableMicrophones,
     getAvailableScreens,
     getAvailableSpeakers,
-    getAvailableMicrophones,
-    getCredentials,
+    getFileExists,
+    getFileFromDefaultFolder,
+    getFileFromFolder,
+    getFileFromPicker,
+    getSetting,
     getStoreValue,
     getVersion,
-    getFileUrl,
-    getActiveProcesses,
-    storeEnvVariables,
-    setCredentials,
-    setUser,
-    selectFolder,
-    getHasInstalledLibraryApp,
-    testLibraryAppConnection,
-    openLibraryVideo,
-    openSharingRoom,
-    openSystemPlayer,
+    initializeRecorder,
     openRecordingFolder,
-    getSetting,
-    setStoreValue,
-    setAuthTokens,
+    openSystemPlayer,
+    saveFileToDefaultFolder,
+    selectFolder,
     setDefaultFolder,
-    stopPusher,
     showWindow,
+    startProcessMonitor,
+    startRecorder,
+    stopProcessMonitor,
+    stopRecorder,
+    setSetting,
+    setStoreValue,
+    storeEnvVariables,
+    deleteFileFromDefaultFolder,
 } = require('./ipcHandlers');
 
 /**
@@ -107,51 +104,62 @@ function setIpcListeners(win) {
     });
 
     /* -------------------------------------------------------------------------- */
-    /*                              LIBRARY INTERFACE                             */
+    /*                                VIDEO EDITING                               */
     /* -------------------------------------------------------------------------- */
 
-    ipcMain.handle('initialize-pusher', async (event, token) => {
-        return await initializePusher(token);
+    ipcMain.handle('clip-moment', async (event, data) => {
+        return await clipMoment(data);
     });
 
-    ipcMain.handle('stop-pusher', async (event, token) => {
-        return await stopPusher(token);
-    });
-
-    ipcMain.handle('get-has-installed-library-app', async () => {
-        return await getHasInstalledLibraryApp();
-    });
-
-    ipcMain.handle('test-library-app-connection', async () => {
-        return await testLibraryAppConnection();
-    });
-
-    ipcMain.handle('open-library-video', async (event, recording) => {
-        return await openLibraryVideo(recording);
-    });
-
-    ipcMain.handle('open-sharing-room', async () => {
-        return await openSharingRoom();
+    ipcMain.handle('clip-moments', async (event, data) => {
+        return await clipMoments(data);
     });
 
     /* -------------------------------------------------------------------------- */
-    /*                                    AUTH                                    */
+    /*                               FILE MANAGEMENT                              */
     /* -------------------------------------------------------------------------- */
 
-    ipcMain.handle('set-auth-tokens', async (event, tokens) => {
-        return setAuthTokens(tokens);
+    ipcMain.handle('get-file-exists', async (event, filePath) => {
+        return await getFileExists(filePath);
     });
 
-    ipcMain.handle('set-user', async (event, user) => {
-        return setUser(user);
+    ipcMain.handle('get-file-from-default-folder', async (event, filename) => {
+        return await getFileFromDefaultFolder(filename);
     });
 
-    ipcMain.handle('set-credentials', async (event, { email, password }) => {
-        return setCredentials(email, password);
+    ipcMain.handle('get-file-from-folder', async (event, filename) => {
+        return await getFileFromFolder(win, filename);
     });
 
-    ipcMain.handle('get-credentials', async () => {
-        return getCredentials();
+    ipcMain.handle('get-file-from-picker', async () => {
+        return await getFileFromPicker(win);
+    });
+
+    ipcMain.handle('delete-file', async (event, filePath) => {
+        return await deleteFile(filePath);
+    });
+
+    ipcMain.handle(
+        'delete-file-from-default-folder',
+        async (event, filePath) => {
+            return await deleteFileFromDefaultFolder(filePath);
+        }
+    );
+
+    ipcMain.handle('select-folder', async () => {
+        return await selectFolder(win);
+    });
+
+    ipcMain.handle('set-default-folder', async () => {
+        return await setDefaultFolder();
+    });
+
+    ipcMain.handle('open-recording-folder', async (event, recording) => {
+        return await openRecordingFolder(recording);
+    });
+
+    ipcMain.handle('save-file-to-default-folder', async (event, data) => {
+        return await saveFileToDefaultFolder(win, data);
     });
 
     /* -------------------------------------------------------------------------- */
@@ -170,28 +178,8 @@ function setIpcListeners(win) {
         return storeEnvVariables(variables);
     });
 
-    ipcMain.handle('open-recording-folder', async (event, recording) => {
-        return await openRecordingFolder(recording);
-    });
-
-    ipcMain.handle('get-file-url', async (event, filename) => {
-        return await getFileUrl(filename);
-    });
-
-    ipcMain.handle('delete-file', async (event, filename) => {
-        return await deleteFile(filename);
-    });
-
     ipcMain.handle('open-system-player', async (event, recording) => {
         return await openSystemPlayer(recording);
-    });
-
-    ipcMain.handle('select-folder', async () => {
-        return await selectFolder(win);
-    });
-
-    ipcMain.handle('set-default-folder', async () => {
-        return await setDefaultFolder();
     });
 }
 

@@ -7,7 +7,6 @@ const {
     setupTitlebar,
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
-const { libraryInterface } = require('./libraryInterface');
 
 protocol.registerSchemesAsPrivileged([
     { scheme: 'local', privileges: { bypassCSP: true, supportFetchAPI: true } },
@@ -141,8 +140,7 @@ async function createWindow() {
 
         if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
-        // Load the index.html when not in development
-        win.loadFile('./dist/index.html');
+        await win.loadURL('https://dev.app.enlyo.com/');
     }
 
     attachTitlebarToWindow(win);
@@ -198,12 +196,6 @@ function createTray(win) {
             label: 'Open recorder',
             click: function () {
                 win.show();
-            },
-        },
-        {
-            label: 'Open library',
-            click: function () {
-                libraryInterface.open();
             },
         },
         { type: 'separator' },
