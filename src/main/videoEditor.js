@@ -49,10 +49,12 @@ async function remux(inputFile, outputFile) {
 /**
  * Generate thumbnail
  */
-async function generateThumbnail(outputfile, folder) {
+async function generateThumbnail(outputfile, folder, duration) {
     if (!ffmpeg) {
         setUpFfmpeg();
     }
+
+    const thumbnailTime = Math.round(duration / 2);
 
     return new Promise((resolve) => {
         ffmpeg(outputfile)
@@ -60,6 +62,7 @@ async function generateThumbnail(outputfile, folder) {
                 resolve();
             })
             .screenshots({
+                timestamp: [thumbnailTime],
                 count: 1,
                 folder: folder,
                 size: '640x360',

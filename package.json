@@ -1,14 +1,14 @@
 {
-    "name": "enlyo-recorder",
-    "productName": "Enlyo Recorder",
-    "description": "Screen recording software for gaming",
+    "name": "enlyo",
+    "productName": "Enlyo",
+    "description": "VOD Recording and Analysis software for esports",
     "author": "Enlyo",
     "license": "GPL-2.0",
     "version": "0.9.21-beta",
     "private": false,
     "main": "src/main/main.js",
     "build": {
-        "appId": "enlyo.recorder.app",
+        "appId": "enlyo.app",
         "win": {
             "target": "nsis",
             "icon": "public/icons/icon.ico",
@@ -40,9 +40,9 @@
         ],
         "protocols": [
             {
-                "name": "enlyo-recorder",
+                "name": "enlyo",
                 "schemes": [
-                    "enlyo-recorder"
+                    "enlyo"
                 ]
             }
         ]

@@ -79,7 +79,6 @@ window.addEventListener('DOMContentLoaded', () => {
         backgroundColor: Color.fromHex('#202225'),
         itemBackgroundColor: Color.fromHex('#121212'),
         svgColor: Color.WHITE,
-        icon: './logo.svg',
         menu: null, // = do not automatically use Menu.applicationMenu
     });
 });

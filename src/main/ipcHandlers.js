@@ -89,7 +89,11 @@ async function stopRecorder() {
     // Enrich data
     data.folder = OUTPUT_PATH;
     data.name = outputName;
-    data.thumbnail = await _generateThumbnail(outputFile, RAW_RECORDING_PATH);
+    data.thumbnail = await _generateThumbnail(
+        outputFile,
+        RAW_RECORDING_PATH,
+        data.duration
+    );
     data.fileHandle = fileHandle;
 
     // Remove temp video

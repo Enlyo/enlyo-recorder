@@ -1,4 +1,4 @@
-# enlyo-recorder
+# enlyo
 
 ## Project setup
 ```

@@ -12,7 +12,6 @@ protocol.registerSchemesAsPrivileged([
     { scheme: 'local', privileges: { bypassCSP: true, supportFetchAPI: true } },
 ]);
 
-// And this anywhere:
 function registerLocalVideoProtocol() {
     protocol.registerFileProtocol('local', (request, callback) => {
         const url = request.url.replace(/^local:\/\//, '');
@@ -241,6 +240,7 @@ function launchAtStartup() {
                 '--process-start-args',
                 `"--hidden"`,
             ],
+            name: 'enlyo',
         });
     }
 }
