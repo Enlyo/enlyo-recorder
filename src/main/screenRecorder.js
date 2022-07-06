@@ -375,12 +375,13 @@ const screenRecorder = {
      * Set up scene
      */
     _setupScene() {
-        if (this.settings.captureMode === 'screen') {
-            return this._setupSceneScreenCapture();
-        }
-        if (this.settings.captureMode === 'game') {
-            return this._setupSceneGameCapture();
-        }
+        // if (this.settings.captureMode === 'screen') {
+        //     return this._setupSceneScreenCapture();
+        // }
+        // if (this.settings.captureMode === 'game') {
+        //     return this._setupSceneGameCapture();
+        // }
+        return this._setupSceneScreenCapture();
     },
 
     _setupSceneScreenCapture() {
