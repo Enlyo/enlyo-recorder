@@ -28,6 +28,7 @@ const {
     setSetting,
     setStoreValue,
     storeEnvVariables,
+    toggleFullScreen,
     deleteFileFromDefaultFolder,
 } = require('./ipcHandlers');
 
@@ -165,6 +166,10 @@ function setIpcListeners(win) {
     /* -------------------------------------------------------------------------- */
     /*                                    OTHER                                   */
     /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('toggle-full-screen', async () => {
+        return toggleFullScreen(win);
+    });
 
     ipcMain.handle('get-app-version', async () => {
         return getVersion();

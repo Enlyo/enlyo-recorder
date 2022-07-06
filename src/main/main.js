@@ -111,12 +111,10 @@ function registerProtocols() {
  */
 async function createWindow() {
     win = new BrowserWindow({
-        width: 600,
-        height: 900,
+        width: 900,
+        height: 600,
         frame: false,
         resizable: process.env.NODE_ENV === 'DEV',
-        maximizable: false,
-        fullscreenable: false,
         titleBarStyle: 'hidden',
         webPreferences: {
             nodeIntegration: false,
@@ -125,6 +123,7 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
+    win.maximize();
 
     if (process.argv.includes('--hidden')) {
         win.hide();
@@ -178,26 +177,59 @@ function createTray(win) {
     let appIcon = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
         {
+            id: 'start-recording',
             label: 'Start recording',
-            click: function () {
+            visible: true,
+            click: function (item) {
+                item.visible = false;
+                item.menu.getMenuItemById('stop-recording').visible = true;
                 win.webContents.send('start-recorder-request');
             },
         },
 
         {
+            id: 'stop-recording',
             label: 'Stop recording',
-            click: function () {
+            visible: false,
+            click: function (item) {
+                item.visible = false;
+                item.menu.getMenuItemById('start-recording').visible = true;
                 win.webContents.send('stop-recorder-request');
             },
         },
 
+        { type: 'separator' },
+
         {
-            label: 'Open recorder',
+            label: 'Videos',
             click: function () {
+                win.webContents.send('go-to-videos');
                 win.show();
             },
         },
+
+        {
+            label: 'Sharing room',
+            click: function () {
+                win.webContents.send('go-to-sharing-room');
+                win.show();
+            },
+        },
+
+        {
+            label: 'Settings',
+            click: function () {
+                win.webContents.send('go-to-settings');
+                win.show();
+            },
+        },
+
         { type: 'separator' },
+
+        {
+            eneabled: false,
+            label: appVersion,
+        },
 
         {
             label: 'Quit',
@@ -208,9 +240,15 @@ function createTray(win) {
         },
     ]);
 
-    appIcon.on('double-click', function (event) {
+    appIcon.on('click', () => {
         win.show();
     });
+
+    appIcon.on('double-click', () => {
+        win.webContents.send('go-to-latest-video');
+        win.show();
+    });
+
     appIcon.setToolTip('Enlyo');
     appIcon.setContextMenu(contextMenu);
     return appIcon;

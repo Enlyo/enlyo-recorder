@@ -10,7 +10,15 @@ const { Titlebar, Color } = require('custom-electron-titlebar');
  */
 const VALID_CHANNELS = {
     request: ['start-process-monitor', 'stop-process-monitor'],
-    response: ['start-recorder-request', 'stop-recorder-request', 'ping'],
+    response: [
+        'start-recorder-request',
+        'stop-recorder-request',
+        'ping',
+        'go-to-videos',
+        'go-to-settings',
+        'go-to-sharing-room',
+        'go-to-latest-video',
+    ],
     invoke: [
         'clip-moment',
         'clip-moments',
@@ -39,6 +47,7 @@ const VALID_CHANNELS = {
         'stop-recorder',
         'store-env-variables',
         'test-ipc-connection',
+        'toggle-full-screen',
     ],
 };
 
@@ -78,6 +87,7 @@ window.addEventListener('DOMContentLoaded', () => {
     new Titlebar({
         backgroundColor: Color.fromHex('#202225'),
         itemBackgroundColor: Color.fromHex('#121212'),
+        maximizable: false,
         svgColor: Color.WHITE,
         menu: null, // = do not automatically use Menu.applicationMenu
     });

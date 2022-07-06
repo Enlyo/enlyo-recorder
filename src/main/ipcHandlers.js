@@ -500,6 +500,15 @@ async function selectFolder(win) {
     const result = await dialog.showOpenDialog(win, {
         properties: ['openDirectory'],
     });
+
+    if (!result.canceled) {
+        const OUTPUT_PATH = result.filePaths[0];
+        const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
+
+        setStoreValue('settings.folder', OUTPUT_PATH);
+        screenRecorder.setFolder(RAW_RECORDING_PATH);
+    }
+
     return result;
 }
 
@@ -548,6 +557,13 @@ function saveFileToDefaultFolder(win, data) {
 /* -------------------------------------------------------------------------- */
 /*                                    OTHER                                   */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Toggle full screen
+ */
+function toggleFullScreen(win) {
+    win.setFullScreen(!win.fullScreen);
+}
 
 /**
  * Get get app version
@@ -606,3 +622,4 @@ module.exports.startRecorder = startRecorder;
 module.exports.stopProcessMonitor = stopProcessMonitor;
 module.exports.stopRecorder = stopRecorder;
 module.exports.storeEnvVariables = storeEnvVariables;
+module.exports.toggleFullScreen = toggleFullScreen;
