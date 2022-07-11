@@ -114,7 +114,6 @@ async function createWindow() {
         width: 900,
         height: 600,
         frame: false,
-        resizable: process.env.NODE_ENV === 'DEV',
         titleBarStyle: 'hidden',
         webPreferences: {
             nodeIntegration: false,
@@ -138,7 +137,8 @@ async function createWindow() {
 
         if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
-        await win.loadURL('https://dev.app.enlyo.com/');
+        // await win.loadURL('http://dev.app.enlyo.com');
+        await win.loadURL('http://app.enlyo.com');
     }
 
     attachTitlebarToWindow(win);
@@ -227,9 +227,11 @@ function createTray(win) {
         { type: 'separator' },
 
         {
-            eneabled: false,
+            enabled: false,
             label: appVersion,
         },
+
+        { type: 'separator' },
 
         {
             label: 'Quit',
@@ -278,7 +280,6 @@ function launchAtStartup() {
                 '--process-start-args',
                 `"--hidden"`,
             ],
-            name: 'enlyo',
         });
     }
 }
