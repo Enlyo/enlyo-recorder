@@ -111,8 +111,10 @@ function registerProtocols() {
  */
 async function createWindow() {
     win = new BrowserWindow({
-        width: 900,
-        height: 600,
+        width: 1200,
+        height: 800,
+        minWidth: 1200,
+        minHeight: 800,
         frame: false,
         titleBarStyle: 'hidden',
         webPreferences: {
@@ -121,12 +123,26 @@ async function createWindow() {
             enableRemoteModule: false,
             preload: path.join(__dirname, 'preload.js'),
         },
+        show: false,
     });
-    win.maximize();
 
-    if (process.argv.includes('--hidden')) {
-        win.hide();
-    }
+    splash = new BrowserWindow({
+        width: 500,
+        height: 500,
+        transparent: true,
+        frame: false,
+        alwaysOnTop: true,
+    });
+    splash.loadFile('splash.html');
+    splash.center();
+
+    win.webContents.on('did-finish-load', () => {
+        // win.once('ready-to-show', () => {
+        splash.destroy();
+        if (!process.argv.includes('--hidden')) {
+            win.maximize();
+        }
+    });
 
     let tray = createTray(win);
 
@@ -134,8 +150,6 @@ async function createWindow() {
         // Load the url of the dev server if in development mode
         await win.loadURL('http://localhost:3000/');
         require('vue-devtools').install();
-
-        if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
         // await win.loadURL('http://dev.app.enlyo.com');
         await win.loadURL('http://app.enlyo.com');
@@ -319,6 +333,10 @@ app.on('ready', async () => {
 
     // protocol.registerFileProtocol('enlyo-video', fileHandler);
     registerLocalVideoProtocol();
+
+    if (process.env.NODE_ENV !== 'production') {
+        require('vue-devtools').install();
+    }
 });
 
 // Quit when all windows are closed.

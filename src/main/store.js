@@ -40,6 +40,9 @@ const schema = {
             captureMode: {
                 type: 'string',
             },
+            storageLimit: {
+                type: 'number',
+            },
         },
         default: {
             screen: {},
@@ -53,6 +56,7 @@ const schema = {
             microphoneVolume: 1,
             folder: '',
             name: 'enlyo-recording',
+            storageLimit: 107374182400,
         },
     },
     env: {
@@ -83,6 +87,9 @@ const migrations = {
     },
     '0.9.14': (store) => {
         store.set('settings.captureMode', 'screen');
+    },
+    '0.9.21': (store) => {
+        store.set('settings.storageLimit', 107374182400);
     },
 };
 

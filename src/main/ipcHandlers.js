@@ -1,3 +1,4 @@
+const { BrowserWindow } = require('electron');
 const { Notification, dialog } = require('electron');
 const fileManager = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
@@ -7,8 +8,9 @@ const { getMostRecentFile } = require('./fileManager');
 const { generateOutputName, getAppVersion, getFileType } = require('./helpers');
 const { store } = require('./store');
 const path = require('path');
-const { clip } = require('./videoEditor');
 const { outputFile } = require('fs-extra');
+
+let cameraWin;
 
 /* -------------------------------------------------------------------------- */
 /*                               SCREEN RECORDER                              */
@@ -49,23 +51,8 @@ async function startRecorder() {
  */
 async function stopRecorder() {
     const OUTPUT_PATH = store.get('settings.folder');
-    const OUTPUT_APPEND_MESSAGE = store.get('settings.name');
-
-    const INPUT_FORMAT = 'mkv';
-    const OUTPUT_FORMAT = 'mp4';
-
     const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
     const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
-    const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
-
-    const outputName = generateOutputName(
-        rawRecordingName,
-        OUTPUT_APPEND_MESSAGE,
-        'front',
-        INPUT_FORMAT,
-        OUTPUT_FORMAT
-    );
-    const outputFile = `${OUTPUT_PATH}/${outputName}`;
 
     // Show notification
     new Notification({
@@ -75,12 +62,41 @@ async function stopRecorder() {
     // Stop recorder
     await screenRecorder.stop();
 
-    // Remux video
-    const data = await _remuxVideo(inputFile, outputFile);
+    return {
+        name: rawRecordingName,
+    };
+}
+
+/**
+ * Save recording
+ */
+async function saveRecording(value) {
+    console.debug(value);
+    const OUTPUT_PATH = store.get('settings.folder');
+
+    // Get tmp file
+    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
+    const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
+    const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
+
+    const name = value.name;
+    const folder = value.folder;
+    console.debug(folder);
+    console.debug(name);
+
+    // Save recording
+    const OUTPUT_FORMAT = 'mp4';
+    const outputPath = path.join(OUTPUT_PATH, folder);
+    fileManager.createDirIfNotExists(outputPath);
+    const outputName = `${name}.${OUTPUT_FORMAT}`;
+    const outputFile = path.join(outputPath, outputName);
+    const data = await videoEditor.remux(inputFile, outputFile);
+    data.size = await fileManager.getFileSize(outputFile);
+    data.file = outputFile;
 
     // Create file handle
     const fileHandle = {
-        filePath: outputFile,
+        path: outputFile,
         name: outputName,
         size: data.size,
         url: `local://${outputFile}`,
@@ -98,17 +114,6 @@ async function stopRecorder() {
 
     // Remove temp video
     await fileManager.deleteFile(inputFile);
-
-    return data;
-}
-
-/**
- * Remux video
- */
-async function _remuxVideo(inputFile, outputFile) {
-    const data = await videoEditor.remux(inputFile, outputFile);
-    data.size = await fileManager.getFileSize(outputFile);
-    data.file = outputFile;
 
     return data;
 }
@@ -145,6 +150,57 @@ function getAvailableSpeakers() {
  */
 function getAvailableMicrophones() {
     return screenRecorder.getAvailableMicrophones();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   CAMERA                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Show camera
+ */
+async function showCamera() {
+    const { screen } = require('electron');
+    let display = screen.getPrimaryDisplay();
+    const { height } = display.workAreaSize;
+
+    cameraWin = new BrowserWindow({
+        alwaysOnTop: true,
+        frame: false,
+        height: 174,
+        resizable: false,
+        skipTaskbar: true,
+        show: false,
+        transparent: true,
+        width: 174,
+        x: 10,
+        y: height - 10 - 174,
+    });
+
+    cameraWin.on('close', function () {
+        cameraWin = null;
+    });
+    cameraWin.webContents.on('did-finish-load', () => {
+        cameraWin.show();
+    });
+
+    if (process.env.NODE_ENV === 'DEV') {
+        // Load the url of the dev server if in development mode
+        await cameraWin.loadURL('http://localhost:3000/screen-recorder-active');
+    } else {
+        // await win.loadURL('http://dev.app.enlyo.com');
+        await cameraWin.loadURL('http://app.enlyo.com/screen-recorder-active');
+    }
+}
+
+/**
+ * Hide camera
+ */
+async function hideCamera() {
+    if (!cameraWin) return;
+
+    cameraWin.close();
+    cameraWin = null;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -282,15 +338,16 @@ async function _clipMoments({ moments }) {
 }
 
 /**
- * Clip moment
+ * Clip
  */
-async function clipMoment({ fileName, filePath, startTime, endTime }) {
+async function clip({ fileHandle, startTime, endTime, folder, outputName }) {
     try {
-        return await _clipMoment({
-            fileName,
-            filePath,
+        return await _clip({
+            fileHandle,
             startTime,
             endTime,
+            folder,
+            outputName,
         });
     } catch {
         return {
@@ -299,37 +356,54 @@ async function clipMoment({ fileName, filePath, startTime, endTime }) {
     }
 }
 
-async function _clipMoment({ fileName, filePath, startTime, endTime }) {
+async function _clip({ fileHandle, startTime, endTime, folder, outputName }) {
+    startTime = startTime / 1000;
+    endTime = endTime / 1000;
+
     const WORKSPACE_PATH = store.get('settings.folder');
+    const outputFolder = folder
+        ? path.join(WORKSPACE_PATH, folder)
+        : WORKSPACE_PATH;
+    await fileManager.createDirIfNotExists(outputFolder);
 
+    const fileName = fileHandle.name;
     const fileType = getFileType(fileName);
-    const inputFile = filePath;
+    const inputFile = fileHandle.path;
 
-    const outputFilename = generateOutputName(
-        fileName,
-        `${startTime}-${endTime}`,
-        'back',
-        fileType,
-        fileType
-    );
-    const outputFile = path.join(WORKSPACE_PATH, outputFilename);
+    const outputFilename = outputName
+        ? `${outputName}.${fileType}`
+        : generateOutputName(
+              fileName,
+              `${startTime}-${endTime}`,
+              'back',
+              fileType,
+              fileType
+          );
+    console.debug(outputFilename);
+    const outputFile = path.join(outputFolder, outputFilename);
+    console.debug(outputFile);
+    console.debug(inputFile);
+    console.debug(startTime);
+    console.debug(endTime);
 
-    await clip(inputFile, outputFile, startTime, endTime);
+    await videoEditor.clip(inputFile, outputFile, startTime, endTime);
 
     const size = await fileManager.getFileSize(outputFile);
-    const url = `local://${outputFile}`;
+    const dataUrl = `local://${outputFile}`;
 
     return {
         success: true,
-        fileHandle: {
-            path: outputFile,
-            name: outputFilename,
-            size,
-            url,
-        },
-        file: {
-            name: outputFilename,
-            size,
+        data: {
+            fileHandle: {
+                path: outputFile,
+                name: outputFilename,
+                url: dataUrl,
+                size,
+            },
+            file: {
+                name: outputFilename,
+                size,
+            },
         },
     };
 }
@@ -337,6 +411,42 @@ async function _clipMoment({ fileName, filePath, startTime, endTime }) {
 /* -------------------------------------------------------------------------- */
 /*                               FILE MANAGEMENT                              */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Copy file
+ */
+async function copyFile({ inputPath, outputFolder, outputName }) {
+    const fileType = getFileType(inputPath);
+
+    const workspace = store.get('settings.folder');
+    await fileManager.createDirIfNotExists(path.join(workspace, outputFolder));
+    const outputPath = path.join(
+        workspace,
+        outputFolder,
+        `${outputName}.${fileType}`
+    );
+    await fileManager.copyFile(inputPath, outputPath);
+
+    return {
+        success: true,
+        fileHandle: {
+            path: outputPath,
+            name: `${outputName}.${fileType}`,
+            size: await fileManager.getFileSize(outputPath),
+            url: `local://${outputPath}`,
+        },
+    };
+}
+
+/**
+ * Delete folder
+ */
+async function deleteFolder(folder) {
+    const workspace = store.get('settings.folder');
+    const toBeDeleted = path.join(workspace, folder);
+
+    return await fileManager.deleteFolder(toBeDeleted);
+}
 
 /**
  * Get file exists
@@ -467,13 +577,20 @@ async function _getFileFromDefaultFolder(filename) {
 /**
  * Delete file
  */
-async function deleteFile(filePath) {
+async function deleteFile({ filePath, deleteFolder }) {
     const fileExists = await fileManager.getFileExists(filePath);
     if (!fileExists) {
         return { fileDeleted: false };
     }
 
-    await fileManager.deleteFile(filePath);
+    console.debug(filePath);
+    console.debug(deleteFolder);
+    console.debug(path.dirname(filePath));
+
+    deleteFolder
+        ? await fileManager.deleteFolder(path.dirname(filePath))
+        : await fileManager.deleteFile(filePath);
+
     return { fileDeleted: true };
 }
 
@@ -554,6 +671,14 @@ function saveFileToDefaultFolder(win, data) {
     });
 }
 
+/**
+ * Get workspace size
+ */
+async function getWorkspaceSize() {
+    const DEFAULT_FOLDER = store.get('settings.folder');
+    return await fileManager.getFolderSize(DEFAULT_FOLDER);
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                    OTHER                                   */
 /* -------------------------------------------------------------------------- */
@@ -593,8 +718,10 @@ async function showWindow(win) {
     win.show();
 }
 
-module.exports.clipMoment = clipMoment;
+module.exports.clip = clip;
 module.exports.clipMoments = clipMoments;
+module.exports.copyFile = copyFile;
+module.exports.deleteFolder = deleteFolder;
 module.exports.deleteFile = deleteFile;
 module.exports.deleteFileFromDefaultFolder = deleteFileFromDefaultFolder;
 module.exports.getActiveProcesses = getActiveProcesses;
@@ -608,14 +735,18 @@ module.exports.getFileFromPicker = getFileFromPicker;
 module.exports.getSetting = getSetting;
 module.exports.getStoreValue = getStoreValue;
 module.exports.getVersion = getVersion;
+module.exports.getWorkspaceSize = getWorkspaceSize;
+module.exports.hideCamera = hideCamera;
 module.exports.initializeRecorder = initializeRecorder;
 module.exports.openSystemPlayer = openSystemPlayer;
 module.exports.openRecordingFolder = openRecordingFolder;
 module.exports.saveFileToDefaultFolder = saveFileToDefaultFolder;
+module.exports.saveRecording = saveRecording;
 module.exports.selectFolder = selectFolder;
 module.exports.setDefaultFolder = setDefaultFolder;
 module.exports.setSetting = setSetting;
 module.exports.setStoreValue = setStoreValue;
+module.exports.showCamera = showCamera;
 module.exports.showWindow = showWindow;
 module.exports.startProcessMonitor = startProcessMonitor;
 module.exports.startRecorder = startRecorder;

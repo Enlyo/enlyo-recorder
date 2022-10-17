@@ -67,6 +67,7 @@
         "ffprobe-static": "^3.0.0",
         "fluent-ffmpeg": "^2.1.2",
         "node-window-manager": "^2.2.4",
+        "get-folder-size": "^2.0.0",
         "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-0.0.0.tar.gz",
         "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.0.0-release.tar.gz",
         "rxjs": "^6.6.3",

@@ -1,5 +1,8 @@
+const { copy } = require('fluent-ffmpeg/lib/utils');
 const fs = require('fs');
 const { promises: Fs } = require('fs');
+const getSize = require('get-folder-size');
+
 const path = require('path');
 
 /* -------------------------------------------------------------------------- */
@@ -34,6 +37,21 @@ async function getFileSize(file) {
 }
 
 /**
+ * Get folder size
+ */
+async function getFolderSize(dir) {
+    return new Promise((resolve) => {
+        getSize(dir, (err, size) => {
+            if (err) {
+                throw err;
+            }
+
+            resolve(size);
+        });
+    });
+}
+
+/**
  * Get thumbnail
  */
 async function getThumbnail(file) {
@@ -43,6 +61,17 @@ async function getThumbnail(file) {
                 return;
             }
             resolve(`data:image/png;base64,${data.toString('base64')}`);
+        });
+    });
+}
+
+/**
+ * Copy File
+ */
+async function copyFile(inputPath, outputPath) {
+    return new Promise((resolve) => {
+        fs.copyFile(inputPath, outputPath, () => {
+            resolve();
         });
     });
 }
@@ -70,6 +99,19 @@ async function createDirIfNotExists(dirpath) {
 }
 
 /**
+ * Delete folder
+ */
+async function deleteFolder(path) {
+    console.debug('delete folder');
+    console.debug(path);
+    return new Promise((resolve) => {
+        fs.rm(path, { recursive: true }, () => {
+            resolve();
+        });
+    });
+}
+
+/**
  * Order recent files
  */
 function orderRecentFiles(dir) {
@@ -83,9 +125,12 @@ function orderRecentFiles(dir) {
         .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
 }
 
+module.exports.copyFile = copyFile;
 module.exports.createDirIfNotExists = createDirIfNotExists;
 module.exports.deleteFile = deleteFile;
+module.exports.deleteFolder = deleteFolder;
 module.exports.getFileExists = getFileExists;
 module.exports.getFileSize = getFileSize;
+module.exports.getFolderSize = getFolderSize;
 module.exports.getMostRecentFile = getMostRecentFile;
 module.exports.getThumbnail = getThumbnail;

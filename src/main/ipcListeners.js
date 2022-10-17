@@ -1,8 +1,10 @@
 const { ipcMain } = require('electron');
 const {
-    clipMoment,
+    clip,
     clipMoments,
+    copyFile,
     deleteFile,
+    deleteFolder,
     getActiveProcesses,
     getAvailableMicrophones,
     getAvailableScreens,
@@ -30,6 +32,10 @@ const {
     storeEnvVariables,
     toggleFullScreen,
     deleteFileFromDefaultFolder,
+    showCamera,
+    hideCamera,
+    getWorkspaceSize,
+    saveRecording,
 } = require('./ipcHandlers');
 
 /**
@@ -52,6 +58,10 @@ function setIpcListeners(win) {
         return await stopRecorder();
     });
 
+    ipcMain.handle('save-recording', async (event, data) => {
+        return await saveRecording(data);
+    });
+
     ipcMain.handle('get-available-screens', async (event) => {
         return await getAvailableScreens(event);
     });
@@ -62,6 +72,18 @@ function setIpcListeners(win) {
 
     ipcMain.handle('get-available-speakers', async (event) => {
         return await getAvailableSpeakers(event);
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                                   CAMERA                                   */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('show-camera', async () => {
+        return await showCamera();
+    });
+
+    ipcMain.handle('hide-camera', async () => {
+        return await hideCamera();
     });
 
     /* -------------------------------------------------------------------------- */
@@ -108,8 +130,8 @@ function setIpcListeners(win) {
     /*                                VIDEO EDITING                               */
     /* -------------------------------------------------------------------------- */
 
-    ipcMain.handle('clip-moment', async (event, data) => {
-        return await clipMoment(data);
+    ipcMain.handle('clip', async (event, data) => {
+        return await clip(data);
     });
 
     ipcMain.handle('clip-moments', async (event, data) => {
@@ -119,6 +141,10 @@ function setIpcListeners(win) {
     /* -------------------------------------------------------------------------- */
     /*                               FILE MANAGEMENT                              */
     /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('copy-file', async (event, data) => {
+        return await copyFile(data);
+    });
 
     ipcMain.handle('get-file-exists', async (event, filePath) => {
         return await getFileExists(filePath);
@@ -136,8 +162,8 @@ function setIpcListeners(win) {
         return await getFileFromPicker(win);
     });
 
-    ipcMain.handle('delete-file', async (event, filePath) => {
-        return await deleteFile(filePath);
+    ipcMain.handle('delete-file', async (event, data) => {
+        return await deleteFile(data);
     });
 
     ipcMain.handle(
@@ -146,6 +172,10 @@ function setIpcListeners(win) {
             return await deleteFileFromDefaultFolder(filePath);
         }
     );
+
+    ipcMain.handle('delete-folder', async (event, data) => {
+        return await deleteFolder(data);
+    });
 
     ipcMain.handle('select-folder', async () => {
         return await selectFolder(win);
@@ -161,6 +191,10 @@ function setIpcListeners(win) {
 
     ipcMain.handle('save-file-to-default-folder', async (event, data) => {
         return await saveFileToDefaultFolder(win, data);
+    });
+
+    ipcMain.handle('get-workspace-size', async () => {
+        return await getWorkspaceSize();
     });
 
     /* -------------------------------------------------------------------------- */
