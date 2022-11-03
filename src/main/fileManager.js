@@ -87,6 +87,24 @@ async function deleteFile(filePath) {
     });
 }
 
+/**
+ *
+ * @param {*} dirpath
+ */
+async function deleteOldFiles(folder, days) {
+    console.debug('Delete old files');
+    fs.readdirSync(folder).forEach((file) => {
+        const filePath = path.join(folder, file);
+        const isOlder =
+            fs.statSync(filePath).ctime <
+            Date.now() - days * 24 * 60 * 60 * 1000;
+
+        if (isOlder) {
+            fs.unlinkSync(filePath);
+        }
+    });
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                 DIRECTORIES                                */
 /* -------------------------------------------------------------------------- */
@@ -129,6 +147,7 @@ module.exports.copyFile = copyFile;
 module.exports.createDirIfNotExists = createDirIfNotExists;
 module.exports.deleteFile = deleteFile;
 module.exports.deleteFolder = deleteFolder;
+module.exports.deleteOldFiles = deleteOldFiles;
 module.exports.getFileExists = getFileExists;
 module.exports.getFileSize = getFileSize;
 module.exports.getFolderSize = getFolderSize;

@@ -51,8 +51,10 @@ async function startRecorder() {
  */
 async function stopRecorder() {
     const OUTPUT_PATH = store.get('settings.folder');
+    const OUTPUT_NAME = store.get('settings.name');
     const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
     const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
+    const name = OUTPUT_NAME + ' ' + rawRecordingName.replace('.mkv', '');
 
     // Show notification
     new Notification({
@@ -63,7 +65,7 @@ async function stopRecorder() {
     await screenRecorder.stop();
 
     return {
-        name: rawRecordingName,
+        name,
     };
 }
 
@@ -167,12 +169,12 @@ async function showCamera() {
     cameraWin = new BrowserWindow({
         alwaysOnTop: true,
         frame: false,
-        height: 174,
+        height: 176,
         resizable: false,
         skipTaskbar: true,
         show: false,
         transparent: true,
-        width: 174,
+        width: 176,
         x: 10,
         y: height - 10 - 174,
     });
@@ -184,13 +186,7 @@ async function showCamera() {
         cameraWin.show();
     });
 
-    if (process.env.NODE_ENV === 'DEV') {
-        // Load the url of the dev server if in development mode
-        await cameraWin.loadURL('http://localhost:3000/screen-recorder-active');
-    } else {
-        // await win.loadURL('http://dev.app.enlyo.com');
-        await cameraWin.loadURL('http://app.enlyo.com/screen-recorder-active');
-    }
+    await cameraWin.loadFile(path.join(__dirname, './webcam.html'));
 }
 
 /**
@@ -349,7 +345,8 @@ async function clip({ fileHandle, startTime, endTime, folder, outputName }) {
             folder,
             outputName,
         });
-    } catch {
+    } catch (error) {
+        console.debug(error);
         return {
             success: false,
         };
@@ -543,17 +540,20 @@ async function _getFileFromFolder(win, filename) {
 /**
  * Get file from default folder
  */
-async function getFileFromDefaultFolder(filename) {
+async function getFileFromDefaultFolder({ filename, folder }) {
     try {
-        return await _getFileFromDefaultFolder(filename);
+        return await _getFileFromDefaultFolder({ filename, folder });
     } catch (error) {
         return { fileFound: false, reason: error };
     }
 }
 
-async function _getFileFromDefaultFolder(filename) {
-    const folderPath = store.get('settings.folder');
-    const filePath = `${folderPath}/${filename}`;
+async function _getFileFromDefaultFolder({ filename, folder }) {
+    const DEFAULT_FOLDER = store.get('settings.folder');
+    const folderPath = folder
+        ? path.join(DEFAULT_FOLDER, folder)
+        : DEFAULT_FOLDER;
+    const filePath = path.join(folderPath, filename);
     const fileExists = await fileManager.getFileExists(filePath);
 
     if (!fileExists) {
@@ -592,6 +592,17 @@ async function deleteFile({ filePath, deleteFolder }) {
         : await fileManager.deleteFile(filePath);
 
     return { fileDeleted: true };
+}
+
+/**
+ * Delete old files
+ */
+async function deleteOldFiles({ folder, days }) {
+    const DEFAULT_FOLDER = store.get('settings.folder');
+    const folderPath = folder
+        ? path.join(DEFAULT_FOLDER, folder)
+        : DEFAULT_FOLDER;
+    await fileManager.deleteOldFiles(folderPath, days);
 }
 
 /**
@@ -658,9 +669,13 @@ function openRecordingFolder(recording) {
 /**
  * Save file to default folder
  */
-function saveFileToDefaultFolder(win, data) {
+async function saveFileToDefaultFolder(win, data) {
     const DEFAULT_FOLDER = store.get('settings.folder');
-    const filePath = path.join(DEFAULT_FOLDER, data.name);
+    const fileFolder = data.folder
+        ? path.join(DEFAULT_FOLDER, data.folder)
+        : DEFAULT_FOLDER;
+    await fileManager.createDirIfNotExists(fileFolder);
+    const filePath = path.join(fileFolder, data.name);
 
     outputFile(filePath, data.buffer, (err) => {
         if (err) {
@@ -721,6 +736,7 @@ async function showWindow(win) {
 module.exports.clip = clip;
 module.exports.clipMoments = clipMoments;
 module.exports.copyFile = copyFile;
+module.exports.deleteOldFiles = deleteOldFiles;
 module.exports.deleteFolder = deleteFolder;
 module.exports.deleteFile = deleteFile;
 module.exports.deleteFileFromDefaultFolder = deleteFileFromDefaultFolder;

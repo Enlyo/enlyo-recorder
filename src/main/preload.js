@@ -27,6 +27,7 @@ const VALID_CHANNELS = {
         'delete-file',
         'delete-file-from-default-folder',
         'delete-folder',
+        'delete-old-files',
         'get-active-processes',
         'get-available-microphones',
         'get-available-screens',
@@ -94,7 +95,7 @@ window.addEventListener('DOMContentLoaded', () => {
     new Titlebar({
         backgroundColor: Color.fromHex('#202225'),
         itemBackgroundColor: Color.fromHex('#121212'),
-        maximizable: false,
+        maximizable: true,
         svgColor: Color.WHITE,
         menu: null, // = do not automatically use Menu.applicationMenu
     });

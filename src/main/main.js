@@ -133,7 +133,7 @@ async function createWindow() {
         frame: false,
         alwaysOnTop: true,
     });
-    splash.loadFile('splash.html');
+    splash.loadFile(path.join(__dirname, '../../public/splash.html'));
     splash.center();
 
     win.webContents.on('did-finish-load', () => {
@@ -151,16 +151,23 @@ async function createWindow() {
         await win.loadURL('http://localhost:3000/');
         require('vue-devtools').install();
     } else {
-        // await win.loadURL('http://dev.app.enlyo.com');
-        await win.loadURL('http://app.enlyo.com');
+        await win.loadURL('http://dev.app.enlyo.com');
+        // await win.loadURL(process.env.VUE_APP_BASE);
     }
 
     attachTitlebarToWindow(win);
 
     // Open links with target="_blank" in default browser
-    win.webContents.on('new-window', function (e, url) {
-        e.preventDefault();
-        shell.openExternal(url);
+    // win.webContents.on('new-window', function (e, url) {
+    //     e.preventDefault();
+    //     shell.openExternal(url);
+    // });
+
+    win.webContents.setWindowOpenHandler((data) => {
+        console.debug(data);
+        // open url in a browser and prevent default
+        shell.openExternal(data.url);
+        return { action: 'deny' };
     });
 
     win.on('close', function (event) {

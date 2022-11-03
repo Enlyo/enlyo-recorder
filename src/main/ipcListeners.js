@@ -36,6 +36,7 @@ const {
     hideCamera,
     getWorkspaceSize,
     saveRecording,
+    deleteOldFiles,
 } = require('./ipcHandlers');
 
 /**
@@ -150,8 +151,8 @@ function setIpcListeners(win) {
         return await getFileExists(filePath);
     });
 
-    ipcMain.handle('get-file-from-default-folder', async (event, filename) => {
-        return await getFileFromDefaultFolder(filename);
+    ipcMain.handle('get-file-from-default-folder', async (event, data) => {
+        return await getFileFromDefaultFolder(data);
     });
 
     ipcMain.handle('get-file-from-folder', async (event, filename) => {
@@ -164,6 +165,10 @@ function setIpcListeners(win) {
 
     ipcMain.handle('delete-file', async (event, data) => {
         return await deleteFile(data);
+    });
+
+    ipcMain.handle('delete-old-files', async (event, data) => {
+        return await deleteOldFiles(data);
     });
 
     ipcMain.handle(

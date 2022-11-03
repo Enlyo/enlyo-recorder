@@ -1,0 +1,24 @@
+html, body {
+    background: none;
+    margin: 0px;
+    overflow: hidden; /* Hide scrollbars */
+}
+
+.container {
+    -webkit-app-region: drag;
+    background: #000;
+    border-radius: 100%;
+    height: 176px;
+    width: 176px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+video {
+    border-radius: 100%;
+    object-fit: cover;
+    height: 174px;
+    width: 174px;
+}
