@@ -73,7 +73,6 @@ async function stopRecorder() {
  * Save recording
  */
 async function saveRecording(value) {
-    console.debug(value);
     const OUTPUT_PATH = store.get('settings.folder');
 
     // Get tmp file
@@ -83,8 +82,6 @@ async function saveRecording(value) {
 
     const name = value.name;
     const folder = value.folder;
-    console.debug(folder);
-    console.debug(name);
 
     // Save recording
     const OUTPUT_FORMAT = 'mp4';
@@ -161,7 +158,7 @@ function getAvailableMicrophones() {
 /**
  * Show camera
  */
-async function showCamera() {
+async function showCamera(cam) {
     const { screen } = require('electron');
     let display = screen.getPrimaryDisplay();
     const { height } = display.workAreaSize;
@@ -170,8 +167,14 @@ async function showCamera() {
         alwaysOnTop: true,
         frame: false,
         height: 176,
-        resizable: false,
+        resizable: true,
         skipTaskbar: true,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            enableRemoteModule: false,
+            preload: path.join(__dirname, 'preloadWebcam.js'),
+        },
         show: false,
         transparent: true,
         width: 176,
@@ -187,6 +190,7 @@ async function showCamera() {
     });
 
     await cameraWin.loadFile(path.join(__dirname, './webcam.html'));
+    cameraWin.webContents.send('set-cam', cam);
 }
 
 /**
@@ -346,7 +350,6 @@ async function clip({ fileHandle, startTime, endTime, folder, outputName }) {
             outputName,
         });
     } catch (error) {
-        console.debug(error);
         return {
             success: false,
         };
@@ -376,14 +379,16 @@ async function _clip({ fileHandle, startTime, endTime, folder, outputName }) {
               fileType,
               fileType
           );
-    console.debug(outputFilename);
     const outputFile = path.join(outputFolder, outputFilename);
-    console.debug(outputFile);
-    console.debug(inputFile);
-    console.debug(startTime);
-    console.debug(endTime);
 
-    await videoEditor.clip(inputFile, outputFile, startTime, endTime);
+    if (inputFile === outputFile) {
+        const tmpOutputFile = path.join(outputFolder, 'tmp.' + fileType);
+        await videoEditor.clip(inputFile, tmpOutputFile, startTime, endTime);
+        fileManager.deleteFile(inputFile);
+        fileManager.renameFile(tmpOutputFile, outputFile);
+    } else {
+        await videoEditor.clip(inputFile, outputFile, startTime, endTime);
+    }
 
     const size = await fileManager.getFileSize(outputFile);
     const dataUrl = `local://${outputFile}`;
@@ -583,10 +588,6 @@ async function deleteFile({ filePath, deleteFolder }) {
         return { fileDeleted: false };
     }
 
-    console.debug(filePath);
-    console.debug(deleteFolder);
-    console.debug(path.dirname(filePath));
-
     deleteFolder
         ? await fileManager.deleteFolder(path.dirname(filePath))
         : await fileManager.deleteFile(filePath);
@@ -695,6 +696,175 @@ async function getWorkspaceSize() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                                  DOWNLOAD                                  */
+/* -------------------------------------------------------------------------- */
+
+async function downloadFiles({ files, folder }) {
+    return await new Promise(async (resolve) => {
+        let downloads = [];
+        let fileHandles = {};
+
+        const DEFAULT_FOLDER = folder
+            ? path.join(store.get('settings.folder'), folder)
+            : store.get('settings.folder');
+
+        for (let index = 0; index < files.length; index++) {
+            const { url, folder, name, key } = files[0];
+            const folderPath = folder
+                ? path.join(DEFAULT_FOLDER, folder)
+                : DEFAULT_FOLDER;
+            await fileManager.createDirIfNotExists(folderPath);
+            const filePath = path.join(folderPath, name);
+
+            downloads.push(fileManager.downloadFile(url, filePath));
+            fileHandles[key] = {
+                path: filePath,
+                name: name,
+                url: `local://${filePath}`,
+            };
+        }
+
+        Promise.all(downloads).then(async () => {
+            // Get filesizes
+            for (const key in fileHandles) {
+                fileHandles[key].size = await fileManager.getFileSize(
+                    fileHandles[key].path
+                );
+            }
+            resolve(fileHandles);
+        });
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   EXPORT                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Export single
+ */
+async function exportSingle(win, { fileHandle, title }) {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory'],
+    });
+
+    if (!result.canceled) {
+        const fileType = getFileType(fileHandle.name);
+        const outputFolder = result.filePaths[0];
+        const outputPath = path.join(outputFolder, `${title}.${fileType}`);
+
+        await fileManager.copyFile(fileHandle.path, outputPath);
+    }
+
+    return result;
+}
+
+/**
+ * Export multiple
+ */
+async function exportMultiple(win, { folder, files }) {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory'],
+    });
+
+    if (!result.canceled) {
+        let outputFolder = result.filePaths[0];
+        if (folder) {
+            outputFolder = path.join(outputFolder, folder);
+            fileManager.createDirIfNotExists(outputFolder);
+        }
+
+        for (let index = 0; index < files.length; index++) {
+            const { fileHandle, title } = files[index];
+            const fileType = getFileType(fileHandle.name);
+            const outputPath = path.join(outputFolder, `${title}.${fileType}`);
+            await fileManager.copyFile(fileHandle.path, outputPath);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * Export multiple clips
+ */
+async function exportMultipleClips(win, { clips, folder }) {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory'],
+    });
+
+    if (!result.canceled) {
+        let outputFolder = result.filePaths[0];
+        if (folder) {
+            outputFolder = path.join(outputFolder, folder);
+            fileManager.createDirIfNotExists(outputFolder);
+        }
+
+        for (let index = 0; index < clips.length; index++) {
+            const clip = clips[index];
+
+            await _exportClip({
+                ...clip,
+                outputFolder,
+            });
+        }
+    }
+
+    return result;
+}
+
+/**
+ * Export clip
+ */
+async function exportClip(
+    win,
+    { fileHandle, title, startTime, endTime, folder }
+) {
+    const result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory'],
+    });
+
+    if (!result.canceled) {
+        let outputFolder = result.filePaths[0];
+
+        await _exportClip({
+            fileHandle,
+            title,
+            startTime,
+            endTime,
+            outputFolder,
+            folder,
+        });
+    }
+
+    return result;
+}
+
+async function _exportClip({
+    fileHandle,
+    title,
+    startTime,
+    endTime,
+    outputFolder,
+    folder,
+}) {
+    startTime = startTime / 1000;
+    endTime = endTime / 1000;
+
+    console.debug(folder);
+
+    if (folder) {
+        outputFolder = path.join(outputFolder, folder);
+        fileManager.createDirIfNotExists(outputFolder);
+    }
+
+    const fileType = getFileType(fileHandle.name);
+    const outputPath = path.join(outputFolder, `${title}.${fileType}`);
+
+    await videoEditor.clip(fileHandle.path, outputPath, startTime, endTime);
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                    OTHER                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -740,6 +910,11 @@ module.exports.deleteOldFiles = deleteOldFiles;
 module.exports.deleteFolder = deleteFolder;
 module.exports.deleteFile = deleteFile;
 module.exports.deleteFileFromDefaultFolder = deleteFileFromDefaultFolder;
+module.exports.downloadFiles = downloadFiles;
+module.exports.exportClip = exportClip;
+module.exports.exportMultipleClips = exportMultipleClips;
+module.exports.exportMultiple = exportMultiple;
+module.exports.exportSingle = exportSingle;
 module.exports.getActiveProcesses = getActiveProcesses;
 module.exports.getAvailableMicrophones = getAvailableMicrophones;
 module.exports.getAvailableScreens = getAvailableScreens;

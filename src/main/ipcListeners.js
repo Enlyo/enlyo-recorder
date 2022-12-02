@@ -37,6 +37,11 @@ const {
     getWorkspaceSize,
     saveRecording,
     deleteOldFiles,
+    exportSingle,
+    exportClip,
+    exportMultipleClips,
+    exportMultiple,
+    downloadFiles,
 } = require('./ipcHandlers');
 
 /**
@@ -79,8 +84,9 @@ function setIpcListeners(win) {
     /*                                   CAMERA                                   */
     /* -------------------------------------------------------------------------- */
 
-    ipcMain.handle('show-camera', async () => {
-        return await showCamera();
+    ipcMain.handle('show-camera', async (event, data) => {
+        console.debug(data);
+        return await showCamera(data);
     });
 
     ipcMain.handle('hide-camera', async () => {
@@ -200,6 +206,36 @@ function setIpcListeners(win) {
 
     ipcMain.handle('get-workspace-size', async () => {
         return await getWorkspaceSize();
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                                   EXPORT                                   */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('export-single', async (event, data) => {
+        return await exportSingle(win, data);
+    });
+
+    ipcMain.handle('export-multiple', async (event, data) => {
+        return await exportMultiple(win, data);
+    });
+
+    ipcMain.handle('export-clip', async (event, data) => {
+        console.debug(data);
+        return await exportClip(win, data);
+    });
+
+    ipcMain.handle('export-multiple-clips', async (event, data) => {
+        console.debug(data);
+        return await exportMultipleClips(win, data);
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  DOWNLOAD                                  */
+    /* -------------------------------------------------------------------------- */
+
+    ipcMain.handle('download-files', async (event, data) => {
+        return await downloadFiles(data);
     });
 
     /* -------------------------------------------------------------------------- */

@@ -1,5 +1,6 @@
 const { copy } = require('fluent-ffmpeg/lib/utils');
 const fs = require('fs');
+const Https = require('https');
 const { promises: Fs } = require('fs');
 const getSize = require('get-folder-size');
 
@@ -105,6 +106,16 @@ async function deleteOldFiles(folder, days) {
     });
 }
 
+/**
+ * Rename file
+ */
+
+async function renameFile(oldPath, newPath) {
+    fs.rename(oldPath, newPath, function (err) {
+        if (err) console.log('ERROR: ' + err);
+    });
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                 DIRECTORIES                                */
 /* -------------------------------------------------------------------------- */
@@ -143,13 +154,58 @@ function orderRecentFiles(dir) {
         .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                  DOWNLOAD                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Download a file from the given `url` into the `targetFile`.
+ *
+ * @param {String} url
+ * @param {String} targetFile
+ *
+ * @returns {Promise<void>}
+ */
+async function downloadFile(url, targetFile) {
+    return await new Promise((resolve, reject) => {
+        Https.get(url, (response) => {
+            const code = response.statusCode ?? 0;
+
+            if (code >= 400) {
+                return reject(new Error(response.statusMessage));
+            }
+
+            // handle redirects
+            if (code > 300 && code < 400 && !!response.headers.location) {
+                return downloadFile(response.headers.location, targetFile);
+            }
+
+            console.debug('BOE');
+            console.debug(targetFile);
+
+            // save the file to disk
+            const fileWriter = fs
+                .createWriteStream(targetFile)
+                .on('finish', () => {
+                    resolve({});
+                });
+
+            response.pipe(fileWriter);
+        }).on('error', (error) => {
+            reject(error);
+        });
+    });
+}
+
 module.exports.copyFile = copyFile;
 module.exports.createDirIfNotExists = createDirIfNotExists;
 module.exports.deleteFile = deleteFile;
 module.exports.deleteFolder = deleteFolder;
 module.exports.deleteOldFiles = deleteOldFiles;
+module.exports.downloadFile = downloadFile;
 module.exports.getFileExists = getFileExists;
 module.exports.getFileSize = getFileSize;
 module.exports.getFolderSize = getFolderSize;
 module.exports.getMostRecentFile = getMostRecentFile;
 module.exports.getThumbnail = getThumbnail;
+module.exports.renameFile = renameFile;
