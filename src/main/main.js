@@ -140,6 +140,7 @@ async function createWindow() {
         // win.once('ready-to-show', () => {
         splash.destroy();
         if (!process.argv.includes('--hidden')) {
+            win.show();
             win.maximize();
         }
     });
