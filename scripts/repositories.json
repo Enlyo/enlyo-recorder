@@ -8,14 +8,6 @@
             "win64": true,
             "osx": true,
             "mac_version": "0.19.13"
-        },
-        {
-            "name": "node-window-rendering",
-            "url": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/",
-            "archive": "node-window-rendering-[VERSION]-[OS].tar.gz",
-            "version": "1.0.15",
-            "win64": false,
-            "osx": true
         }
     ]
 }
