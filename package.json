@@ -4,7 +4,7 @@
     "description": "VOD Recording and Analysis software for esports",
     "author": "Enlyo",
     "license": "GPL-2.0",
-    "version": "0.9.28-beta",
+    "version": "0.9.29-beta",
     "private": false,
     "main": "src/main/main.js",
     "build": {
@@ -70,6 +70,7 @@
         "get-folder-size": "^2.0.0",
         "node-window-manager": "^2.2.4",
         "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.0.0-release.tar.gz",
+        "rimraf": "^3.0.2",
         "rxjs": "^6.6.3",
         "uuid": "^8.3.0"
     },
