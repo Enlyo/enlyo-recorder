@@ -4,7 +4,7 @@
     "description": "VOD Recording and Analysis software for esports",
     "author": "Enlyo",
     "license": "GPL-2.0",
-    "version": "0.9.29-beta",
+    "version": "0.9.33-beta",
     "private": false,
     "main": "src/main/main.js",
     "build": {

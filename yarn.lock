@@ -6793,7 +6793,7 @@ mz@^2.4.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nan@^2.12.1, nan@^2.14.0:
+nan@^2.12.1:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
@@ -6930,12 +6930,6 @@ node-window-manager@^2.2.4:
     extract-file-icon "^0.3.2"
     node-addon-api "2.0.0"
     node-gyp-build "^4.2.1"
-
-"node-window-rendering@https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-0.0.0.tar.gz":
-  version "1.0.0"
-  resolved "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-0.0.0.tar.gz#114a25488e6133e712b7e6143a22a70f1b8bab57"
-  dependencies:
-    nan "^2.14.0"
 
 normalize-package-data@^2.5.0:
   version "2.5.0"

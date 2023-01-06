@@ -98,8 +98,8 @@ contextBridge.exposeInMainWorld('isNative', true);
 window.addEventListener('DOMContentLoaded', () => {
     // Title bar implemenation
     new Titlebar({
-        backgroundColor: Color.fromHex('#202225'),
-        itemBackgroundColor: Color.fromHex('#121212'),
+        backgroundColor: Color.fromHex('#0C0C0C'),
+        itemBackgroundColor: Color.fromHex('#0C0C0C'),
         maximizable: true,
         svgColor: Color.WHITE,
         menu: null, // = do not automatically use Menu.applicationMenu
