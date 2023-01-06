@@ -160,7 +160,7 @@ async function createWindow() {
         await win.loadURL('http://localhost:3000/');
         require('vue-devtools').install();
     } else {
-        await win.loadURL('http://dev.app.enlyo.com');
+        await win.loadURL('https://dev.app.enlyo.com');
         // await win.loadURL(process.env.VUE_APP_BASE);
     }
 

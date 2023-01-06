@@ -700,6 +700,7 @@ async function getWorkspaceSize() {
 /* -------------------------------------------------------------------------- */
 
 async function downloadFiles({ files, folder }) {
+    console.debug(files);
     return await new Promise(async (resolve) => {
         let downloads = [];
         let fileHandles = {};
@@ -709,7 +710,7 @@ async function downloadFiles({ files, folder }) {
             : store.get('settings.folder');
 
         for (let index = 0; index < files.length; index++) {
-            const { url, folder, name, key } = files[0];
+            const { url, folder, name, key } = files[index];
             const folderPath = folder
                 ? path.join(DEFAULT_FOLDER, folder)
                 : DEFAULT_FOLDER;

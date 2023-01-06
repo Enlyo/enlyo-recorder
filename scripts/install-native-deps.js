@@ -38,6 +38,7 @@ function executeCmd(cmd, options) {
 }
 
 function downloadFile(srcUrl, dstPath) {
+    log_info(`Inside download file`);
     const tmpPath = `${dstPath}.tmp`;
     return new Promise((resolve, reject) => {
         fetch(srcUrl)
@@ -47,6 +48,7 @@ function downloadFile(srcUrl, dstPath) {
                 return Promise.reject(response);
             })
             .then(({ body }) => {
+                log_info(`Inside download file - then`);
                 const fileStream = fs.createWriteStream(tmpPath);
                 stream.pipeline(body, fileStream, (e) => {
                     if (e) {
