@@ -1,4 +1,12 @@
-const { app, BrowserWindow, shell, Tray, Menu, protocol } = require('electron');
+const {
+    app,
+    BrowserWindow,
+    shell,
+    Tray,
+    Menu,
+    powerMonitor,
+    protocol,
+} = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
 const { getAppVersion } = require('./helpers');
@@ -184,6 +192,17 @@ async function createWindow() {
         }
 
         return false;
+    });
+
+    // Powermonitor listeners
+    powerMonitor.on('suspend', () => {
+        console.debug('system suspended');
+        win.webContents.send('system-suspended');
+    });
+
+    powerMonitor.on('resume', () => {
+        console.debug('system resumend');
+        win.webContents.send('system-resumed');
     });
 }
 

@@ -13,6 +13,8 @@ const VALID_CHANNELS = {
     response: [
         'start-recorder-request',
         'stop-recorder-request',
+        'system-resumed',
+        'system-suspended',
         'ping',
         'go-to-videos',
         'go-to-settings',
