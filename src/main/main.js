@@ -187,7 +187,7 @@ async function createWindow() {
             return;
         }
 
-        if (tray) {
+        if (tray && tray.destroy) {
             tray.destroy();
         }
 
