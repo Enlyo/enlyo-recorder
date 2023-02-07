@@ -214,7 +214,7 @@ function createTray(win) {
         return {};
     }
 
-    const iconPath = path.join(__dirname, '../../public/icons/icon.ico');
+    const iconPath = path.join(__dirname, '../../public/icons/icon-white.ico');
     let appIcon = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
         {
@@ -236,32 +236,6 @@ function createTray(win) {
                 item.visible = false;
                 item.menu.getMenuItemById('start-recording').visible = true;
                 win.webContents.send('stop-recorder-request');
-            },
-        },
-
-        { type: 'separator' },
-
-        {
-            label: 'Videos',
-            click: function () {
-                win.webContents.send('go-to-videos');
-                win.show();
-            },
-        },
-
-        {
-            label: 'Sharing room',
-            click: function () {
-                win.webContents.send('go-to-sharing-room');
-                win.show();
-            },
-        },
-
-        {
-            label: 'Settings',
-            click: function () {
-                win.webContents.send('go-to-settings');
-                win.show();
             },
         },
 
