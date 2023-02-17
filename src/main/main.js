@@ -6,6 +6,7 @@ const {
     Menu,
     powerMonitor,
     protocol,
+    systemPreferences,
 } = require('electron');
 const { setIpcListeners } = require('./ipcListeners');
 const { initUpdates } = require('./autoUpdater');
@@ -15,6 +16,12 @@ const {
     setupTitlebar,
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
+
+const microphone = systemPreferences.askForMediaAccess('microphone');
+const camera = systemPreferences.askForMediaAccess('camera');
+
+console.debug(microphone);
+console.debug(camera);
 
 protocol.registerSchemesAsPrivileged([
     { scheme: 'local', privileges: { bypassCSP: true, supportFetchAPI: true } },
@@ -135,8 +142,8 @@ async function createWindow() {
     });
 
     splash = new BrowserWindow({
-        width: 500,
-        height: 500,
+        width: 300,
+        height: 300,
         transparent: true,
         frame: false,
         alwaysOnTop: true,
@@ -149,7 +156,6 @@ async function createWindow() {
         splash.destroy();
         if (!process.argv.includes('--hidden')) {
             win.show();
-            win.maximize();
         }
     });
 
@@ -160,7 +166,7 @@ async function createWindow() {
         await win.loadURL('http://localhost:3000/');
         require('vue-devtools').install();
     } else {
-        await win.loadURL('https://dev.app.enlyo.com');
+        await win.loadURL('https://app.enlyo.com');
         // await win.loadURL(process.env.VUE_APP_BASE);
     }
 
@@ -355,9 +361,17 @@ app.on('activate', () => {
 
 // Handle open protocol
 app.on('open-url', (event, url) => {
+    console.debug(url);
+    const arg = url.replace('enlyo-recorder://', '');
+    console.debug(arg);
     if (win) {
         win.show();
         win.focus();
+    }
+
+    if (arg === 'refresh') {
+        console.debug('refresh');
+        win.reload();
     }
 });
 
