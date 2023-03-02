@@ -17,8 +17,9 @@ const {
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
 const { store } = require('./store');
+const { OS, getOS } = require('../../operating-systems');
 
-if (!store.get('settings').hasAskedForMediaAccess) {
+if (getOS() === OS.Mac && !store.get('settings').hasAskedForMediaAccess) {
     systemPreferences.askForMediaAccess('microphone');
     systemPreferences.askForMediaAccess('camera');
     store.set('settings.hasAskedForMediaAccess', true);
