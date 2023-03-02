@@ -286,7 +286,7 @@ const updateExe = path.resolve(appFolder, exeName);
 function launchAtStartup() {
     if (process.platform === 'darwin') {
         app.setLoginItemSettings({
-            openAtLogin: true,
+            openAtLogin: false,
             openAsHidden: true,
         });
     } else {
