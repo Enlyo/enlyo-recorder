@@ -20,7 +20,15 @@
             "forceCodeSigning": true
         },
         "mac": {
-            "icon": "public/icons/icon.icns"
+            "icon": "public/icons/icon.icns",
+            "hardenedRuntime": false,
+            "extendInfo": {
+                "NSMicrophoneUsageDescription": "Please give us access to your microphone",
+                "NSCameraUsageDescription": "Please give us access to your camera",
+                "com.apple.security.device.audio-input": true,
+                "com.apple.security.device.camera": true,
+                "com.apple.security.device.screen": true
+            }
         },
         "files": [
             "**/*",
@@ -52,6 +60,7 @@
         "dev": "NODE_ENV=DEV vue-cli-service serve --port 8001 & sleep 5 && NODE_ENV=DEV electron src/main/main.js",
         "devw": "node ./scripts/devwindows.js",
         "build": "vue-cli-service build --mode production && electron-builder build --win --publish never",
+        "buildm": "vue-cli-service build --mode production && electron-builder build --mac --publish never",
         "build-staging": "vue-cli-service build --mode staging && electron-builder build --win --publish never",
         "deploy": "vue-cli-service build --mode production && electron-builder build --win --publish always",
         "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
@@ -68,6 +77,7 @@
         "fluent-ffmpeg": "^2.1.2",
         "get-folder-size": "^2.0.0",
         "league-connect": "^6.0.0-rc10",
+        "node-abi": "^3.32.0",
         "node-window-manager": "^2.2.4",
         "node-window-rendering": "https://slobs-node-window-rendering.s3-us-west-2.amazonaws.com/node-window-rendering-0.0.0.tar.gz",
         "obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.0.0-release.tar.gz",
@@ -82,7 +92,7 @@
         "@vue/cli-service": "~4.5.0",
         "babel-eslint": "^10.1.0",
         "electron": "^16.0.5",
-        "electron-builder": "^22.14.5",
+        "electron-builder": "^23.0.2",
         "electron-devtools-installer": "^3.2.0",
         "electron-reloader": "^1.2.3",
         "eslint": "7.28.0",

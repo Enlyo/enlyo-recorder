@@ -20,6 +20,7 @@ const VALID_CHANNELS = {
         'go-to-settings',
         'go-to-sharing-room',
         'go-to-latest-video',
+        'go-to-page',
     ],
     invoke: [
         'clip',

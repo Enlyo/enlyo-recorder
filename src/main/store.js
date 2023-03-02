@@ -4,6 +4,9 @@ const schema = {
     settings: {
         type: 'object',
         properties: {
+            hasAskedForMediaAccess: {
+                type: 'boolean',
+            },
             screen: {
                 type: 'object',
             },
@@ -45,6 +48,7 @@ const schema = {
             },
         },
         default: {
+            hasAskedForMediaAccess: false,
             screen: {},
             resolution: 720,
             fps: 30,
