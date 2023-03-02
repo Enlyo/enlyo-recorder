@@ -16,12 +16,13 @@ const {
     setupTitlebar,
     attachTitlebarToWindow,
 } = require('custom-electron-titlebar/main');
+const { store } = require('./store');
 
-const microphone = systemPreferences.askForMediaAccess('microphone');
-const camera = systemPreferences.askForMediaAccess('camera');
-
-console.debug(microphone);
-console.debug(camera);
+if (!store.get('settings').hasAskedForMediaAccess) {
+    systemPreferences.askForMediaAccess('microphone');
+    systemPreferences.askForMediaAccess('camera');
+    store.set('settings.hasAskedForMediaAccess', true);
+}
 
 protocol.registerSchemesAsPrivileged([
     { scheme: 'local', privileges: { bypassCSP: true, supportFetchAPI: true } },

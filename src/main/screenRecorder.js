@@ -82,8 +82,6 @@ const screenRecorder = {
      * Set screen
      */
     setScreen(screen) {
-        if (!this.isInitialized) this.initialize();
-
         this.settings.screen = screen;
 
         this._scene = this._setupScene();
@@ -161,8 +159,6 @@ const screenRecorder = {
      * Get available screens
      */
     getAvailableScreens() {
-        if (!this.isInitialized) this.initialize();
-
         const videoSource = osn.InputFactory.create(
             byOS({
                 [OS.Windows]: 'monitor_capture',
@@ -205,6 +201,21 @@ const screenRecorder = {
                 : videoSource.properties.get('monitor').details;
 
         return windows.items[0];
+    },
+
+    /**
+     * Verify screen
+     */
+    verifyScreen() {
+        if (!this.settings.screen) {
+            this.settings.screen = this.getDefaultScreen();
+        }
+        const screenConnected = !!this.getAvailableScreens().find(
+            (screen) => screen.name === this.settings.screen.name
+        );
+        if (!screenConnected) {
+            this.settings.screen = this.getDefaultScreen();
+        }
     },
 
     /**
@@ -256,6 +267,8 @@ const screenRecorder = {
      */
     async start() {
         if (!this.isInitialized) this.initialize();
+
+        this.verifyScreen();
 
         osn.NodeObs.OBS_service_startRecording();
 
@@ -385,9 +398,7 @@ const screenRecorder = {
     },
 
     _setupSceneScreenCapture() {
-        if (!this.settings.screen) {
-            this.settings.screen = this.getDefaultScreen();
-        }
+        this.verifyScreen();
 
         const { width, height, aspectRatio } = this.parseResolution(
             this.settings.screen.name
@@ -402,8 +413,10 @@ const screenRecorder = {
             { monitor: this.settings.screen.value }
         );
 
+        let { screen } = require('electron');
         // Update source settings:
         const settings = videoSource.settings;
+        console.debug(settings);
         settings['width'] = width;
         settings['height'] = height;
         videoSource.update(settings);
@@ -637,10 +650,16 @@ const screenRecorder = {
         if (!value) {
             return { width: 1920, height: 1080, aspectRatio: 0 };
         }
+
+        const isRetina = value.toLowerCase().includes('retina');
+        console.debug(isRetina);
+
+        const scale = isRetina ? 2 : 1;
+
         let resolution = value.split(': ')[1];
         resolution = resolution.split(' ')[0];
-        const width = Number(resolution.split('x')[0]);
-        const height = Number(resolution.split('x')[1]);
+        const width = Number(resolution.split('x')[0]) * scale;
+        const height = Number(resolution.split('x')[1]) * scale;
         const aspectRatio = width / height;
 
         return { width, height, aspectRatio };

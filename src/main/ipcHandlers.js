@@ -167,7 +167,8 @@ async function showCamera(cam) {
         alwaysOnTop: true,
         frame: false,
         height: 176,
-        resizable: true,
+        resizable: false,
+        maximizable: false,
         skipTaskbar: true,
         webPreferences: {
             nodeIntegration: false,
