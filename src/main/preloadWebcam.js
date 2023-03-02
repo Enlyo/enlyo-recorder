@@ -9,8 +9,6 @@ const VALID_CHANNELS = {
     invoke: [],
 };
 
-console.debug('preload webcam');
-
 contextBridge.exposeInMainWorld('ipc', {
     send: (channel, data) => {
         if (VALID_CHANNELS.request.includes(channel)) {

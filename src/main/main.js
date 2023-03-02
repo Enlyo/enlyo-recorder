@@ -135,8 +135,8 @@ async function createWindow() {
     });
 
     splash = new BrowserWindow({
-        width: 500,
-        height: 500,
+        width: 300,
+        height: 300,
         transparent: true,
         frame: false,
         alwaysOnTop: true,
@@ -173,7 +173,6 @@ async function createWindow() {
     // });
 
     win.webContents.setWindowOpenHandler((data) => {
-        console.debug(data);
         // open url in a browser and prevent default
         shell.openExternal(data.url);
         return { action: 'deny' };
@@ -196,12 +195,10 @@ async function createWindow() {
 
     // Powermonitor listeners
     powerMonitor.on('suspend', () => {
-        console.debug('system suspended');
         win.webContents.send('system-suspended');
     });
 
     powerMonitor.on('resume', () => {
-        console.debug('system resumend');
         win.webContents.send('system-resumed');
     });
 }

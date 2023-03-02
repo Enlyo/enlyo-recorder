@@ -93,7 +93,6 @@ async function deleteFile(filePath) {
  * @param {*} dirpath
  */
 async function deleteOldFiles(folder, days) {
-    console.debug('Delete old files');
     fs.readdirSync(folder).forEach((file) => {
         const filePath = path.join(folder, file);
         const isOlder =
@@ -131,8 +130,6 @@ async function createDirIfNotExists(dirpath) {
  * Delete folder
  */
 async function deleteFolder(path) {
-    console.debug('delete folder');
-    console.debug(path);
     return new Promise((resolve) => {
         fs.rm(path, { recursive: true }, () => {
             resolve();
@@ -179,9 +176,6 @@ async function downloadFile(url, targetFile) {
             if (code > 300 && code < 400 && !!response.headers.location) {
                 return downloadFile(response.headers.location, targetFile);
             }
-
-            console.debug('BOE');
-            console.debug(targetFile);
 
             // save the file to disk
             const fileWriter = fs

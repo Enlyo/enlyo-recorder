@@ -10,6 +10,12 @@ const { store } = require('./store');
 const path = require('path');
 const { outputFile } = require('fs-extra');
 
+const {
+    authenticate,
+    createHttp1Request,
+    createWebSocketConnection,
+} = require('league-connect');
+
 let cameraWin;
 
 /* -------------------------------------------------------------------------- */
@@ -212,21 +218,114 @@ async function hideCamera() {
  */
 function startProcessMonitor(event) {
     processMonitor.startInterval(
-        () => _handleProcessStarted(event),
-        () => _handleProcessEnded(event)
+        async () => await _handleProcessStarted(event),
+        async () => await _handleProcessEnded(event)
     );
 }
 
-function _handleProcessStarted(event) {
+let interval = null;
+
+async function _handleProcessStarted(event) {
     if (!screenRecorder.isRecording) {
-        event.reply('start-recorder-request');
+        let startInterval = setInterval(async () => {
+            const gameStarted = await checkGameStarted();
+
+            if (gameStarted) {
+                clearInterval(startInterval);
+                startInterval = null;
+                event.reply('start-recorder-request');
+
+                interval = setInterval(async () => {
+                    await getGameData();
+                    console.debug(events);
+                }, 15000);
+            }
+        }, 1000);
     }
 }
 
-function _handleProcessEnded(event) {
-    if (screenRecorder.isRecording) {
-        event.reply('stop-recorder-request');
+async function checkGameStarted() {
+    try {
+        const credentials = await authenticate();
+        credentials.port = 2999;
+
+        const response = await createHttp1Request(
+            {
+                method: 'GET',
+                url: 'liveclientdata/allgamedata',
+            },
+            credentials
+        );
+        const data = response.json();
+        return !data.errorCode;
+    } catch (error) {
+        return false;
     }
+}
+
+async function _handleProcessEnded(event) {
+    if (screenRecorder.isRecording) {
+        clearInterval(interval);
+        interval = null;
+
+        console.debug(events);
+        const parsedEvents = parseEvents(events, summonerName);
+
+        event.reply('stop-recorder-request', { events: parsedEvents });
+    }
+}
+
+let summonerName = '';
+let events = [];
+async function getGameData() {
+    try {
+        const credentials = await authenticate();
+        credentials.port = 2999;
+
+        const response = await createHttp1Request(
+            {
+                method: 'GET',
+                url: 'liveclientdata/allgamedata',
+            },
+            credentials
+        );
+
+        const data = response.json();
+        summonerName = data['activePlayer']['summonerName'];
+        events = data['events']['Events'];
+    } catch (error) {
+        console.debug(error);
+    }
+}
+
+function parseEvents(events, summonerName) {
+    let parsedEvents = [];
+
+    events.forEach((event) => {
+        if (event.EventName === 'ChampionKill') {
+            if (event.KillerName === summonerName) {
+                parsedEvents.push({
+                    type: 'kill',
+                    icon: 'swords',
+                    time: event.EventTime * 1000,
+                });
+            } else if (event.VictimName === summonerName) {
+                parsedEvents.push({
+                    type: 'death',
+                    icon: 'tombstone',
+                    time: event.EventTime * 1000,
+                });
+            } else if (event.Assisters.includes(summonerName)) {
+                parsedEvents.push({
+                    type: 'assist',
+                    icon: 'handshake',
+                    time: event.EventTime * 1000,
+                });
+            }
+        }
+    });
+
+    return parsedEvents;
 }
 
 /**
@@ -700,7 +799,6 @@ async function getWorkspaceSize() {
 /* -------------------------------------------------------------------------- */
 
 async function downloadFiles({ files, folder }) {
-    console.debug(files);
     return await new Promise(async (resolve) => {
         let downloads = [];
         let fileHandles = {};
@@ -852,8 +950,6 @@ async function _exportClip({
     startTime = startTime / 1000;
     endTime = endTime / 1000;
 
-    console.debug(folder);
-
     if (folder) {
         outputFolder = path.join(outputFolder, folder);
         fileManager.createDirIfNotExists(outputFolder);
@@ -874,6 +970,7 @@ async function _exportClip({
  */
 function toggleFullScreen(win) {
     win.setFullScreen(!win.fullScreen);
+    // win.setAlwaysOnTop(!win.fullScreen, 'screen-saver');
 }
 
 /**

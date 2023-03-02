@@ -85,7 +85,6 @@ function setIpcListeners(win) {
     /* -------------------------------------------------------------------------- */
 
     ipcMain.handle('show-camera', async (event, data) => {
-        console.debug(data);
         return await showCamera(data);
     });
 
@@ -221,12 +220,10 @@ function setIpcListeners(win) {
     });
 
     ipcMain.handle('export-clip', async (event, data) => {
-        console.debug(data);
         return await exportClip(win, data);
     });
 
     ipcMain.handle('export-multiple-clips', async (event, data) => {
-        console.debug(data);
         return await exportMultipleClips(win, data);
     });
 
