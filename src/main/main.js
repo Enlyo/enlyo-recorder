@@ -18,6 +18,7 @@ const {
 } = require('custom-electron-titlebar/main');
 const { store } = require('./store');
 const { OS, getOS } = require('../../operating-systems');
+const { setLaunchAtStartup } = require('./app');
 
 if (getOS() === OS.Mac && !store.get('settings').hasAskedForMediaAccess) {
     systemPreferences.askForMediaAccess('microphone');
@@ -281,30 +282,6 @@ const exeName = path.basename(process.execPath);
 const updateExe = path.resolve(appFolder, exeName);
 
 /**
- * Launch at startup
- */
-function launchAtStartup() {
-    if (process.platform === 'darwin') {
-        app.setLoginItemSettings({
-            openAtLogin: true,
-            openAsHidden: true,
-        });
-    } else {
-        app.setLoginItemSettings({
-            openAtLogin: true,
-            openAsHidden: true,
-            path: updateExe,
-            args: [
-                '--processStart',
-                `"${exeName}"`,
-                '--process-start-args',
-                `"--hidden"`,
-            ],
-        });
-    }
-}
-
-/**
  * Request single instance
  */
 function requestSingleInstance() {
@@ -335,7 +312,10 @@ app.on('ready', async () => {
     createWindow();
     setIpcListeners(win);
     initUpdates(win);
-    launchAtStartup();
+
+    if (store.get('settings').launchAtStartup != 'yes') {
+        setLaunchAtStartup('no');
+    }
 
     // protocol.registerFileProtocol('enlyo-video', fileHandler);
     registerLocalVideoProtocol();
@@ -360,16 +340,13 @@ app.on('activate', () => {
 
 // Handle open protocol
 app.on('open-url', (event, url) => {
-    console.debug(url);
     const arg = url.replace('enlyo-recorder://', '');
-    console.debug(arg);
     if (win) {
         win.show();
         win.focus();
     }
 
     if (arg === 'refresh') {
-        console.debug('refresh');
         win.reload();
     }
 });

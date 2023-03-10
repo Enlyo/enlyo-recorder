@@ -1,20 +1,21 @@
-const { BrowserWindow } = require('electron');
-const { Notification, dialog } = require('electron');
-const fileManager = require('./fileManager');
-const { processMonitor } = require('./processMonitor');
-const { screenRecorder } = require('./screenRecorder');
-const videoEditor = require('./videoEditor');
-const { getMostRecentFile } = require('./fileManager');
-const { generateOutputName, getAppVersion, getFileType } = require('./helpers');
-const { store } = require('./store');
 const path = require('path');
+const { BrowserWindow, Notification, dialog } = require('electron');
 const { outputFile } = require('fs-extra');
 
+const { store } = require('./store');
 const {
     authenticate,
     createHttp1Request,
     createWebSocketConnection,
 } = require('league-connect');
+
+const fileManager = require('./fileManager');
+const videoEditor = require('./videoEditor');
+const { generateOutputName, getAppVersion, getFileType } = require('./helpers');
+const { getMostRecentFile } = require('./fileManager');
+const { processMonitor } = require('./processMonitor');
+const { screenRecorder } = require('./screenRecorder');
+const { setLaunchAtStartup } = require('./app');
 
 let cameraWin;
 
@@ -196,6 +197,8 @@ async function showCamera(cam) {
         cameraWin.show();
     });
 
+    cameraWin.setAlwaysOnTop(true, 'screen');
+
     await cameraWin.loadFile(path.join(__dirname, './webcam.html'));
     cameraWin.webContents.send('set-cam', cam);
 }
@@ -225,29 +228,67 @@ function startProcessMonitor(event) {
 }
 
 let interval = null;
+let gameAlreadyStarted = false;
+let credentials = null;
 
 async function _handleProcessStarted(event) {
     if (!screenRecorder.isRecording) {
         let startInterval = setInterval(async () => {
             const gameStarted = await checkGameStarted();
 
-            if (gameStarted) {
+            if (gameStarted && !gameAlreadyStarted) {
+                gameAlreadyStarted = true;
                 clearInterval(startInterval);
                 startInterval = null;
                 event.reply('start-recorder-request');
 
                 interval = setInterval(async () => {
                     await getGameData();
-                    console.debug(events);
                 }, 15000);
             }
         }, 1000);
     }
 }
 
+async function _handleProcessEnded(event) {
+    if (screenRecorder.isRecording) {
+        gameAlreadyStarted = false;
+        clearInterval(interval);
+        interval = null;
+
+        const summonerName = activePlayer['summonerName'];
+        const playerData = allPlayers.find(
+            (player) => player.summonerName === summonerName
+        );
+
+        let matchupData = null;
+        const position = playerData['position'];
+        if (position) {
+            matchupData = allPlayers.find(
+                (player) =>
+                    player.summonerName != summonerName &&
+                    player.position === position
+            );
+        }
+
+        event.reply('stop-recorder-request', {
+            events: events,
+            gameData: {
+                summonerName: summonerName,
+                champion: playerData['championName'],
+                position: playerData['position'],
+                matchup: matchupData ? matchupData['championName'] : null,
+                gameType:
+                    playerData['gameData'] &&
+                    playerData['gameData']['gameMode'],
+            },
+        });
+    }
+}
+
 async function checkGameStarted() {
     try {
-        const credentials = await authenticate();
+        credentials = credentials ? credentials : await authenticate();
         credentials.port = 2999;
 
         const response = await createHttp1Request(
@@ -258,29 +299,24 @@ async function checkGameStarted() {
             credentials
         );
         const data = response.json();
-        return !data.errorCode;
+        if (data.errorCode) {
+            return false;
+        }
+        return data['events'] && data['events']['Events'].length > 0;
     } catch (error) {
         return false;
     }
 }
 
-async function _handleProcessEnded(event) {
-    if (screenRecorder.isRecording) {
-        clearInterval(interval);
-        interval = null;
-
-        console.debug(events);
-        const parsedEvents = parseEvents(events, summonerName);
-
-        event.reply('stop-recorder-request', { events: parsedEvents });
-    }
-}
-
 let summonerName = '';
 let events = [];
+let activePlayer = null;
+let allPlayers = null;
+let gameData = null;
+
 async function getGameData() {
     try {
-        const credentials = await authenticate();
+        credentials = credentials ? credentials : await authenticate();
         credentials.port = 2999;
 
         const response = await createHttp1Request(
@@ -294,39 +330,12 @@ async function getGameData() {
         const data = response.json();
         summonerName = data['activePlayer']['summonerName'];
         events = data['events']['Events'];
+        activePlayer = activePlayer ? activePlayer : data['activePlayer'];
+        allPlayers = allPlayers ? allPlayers : data['allPlayers'];
+        gameData = data['gameData'];
     } catch (error) {
-        console.debug(error);
+        console.warn(error);
     }
-}
-
-function parseEvents(events, summonerName) {
-    let parsedEvents = [];
-
-    events.forEach((event) => {
-        if (event.EventName === 'ChampionKill') {
-            if (event.KillerName === summonerName) {
-                parsedEvents.push({
-                    type: 'kill',
-                    icon: 'swords',
-                    time: event.EventTime * 1000,
-                });
-            } else if (event.VictimName === summonerName) {
-                parsedEvents.push({
-                    type: 'death',
-                    icon: 'tombstone',
-                    time: event.EventTime * 1000,
-                });
-            } else if (event.Assisters.includes(summonerName)) {
-                parsedEvents.push({
-                    type: 'assist',
-                    icon: 'handshake',
-                    time: event.EventTime * 1000,
-                });
-            }
-        }
-    });
-
-    return parsedEvents;
 }
 
 /**
@@ -375,6 +384,8 @@ async function setSetting(key, value) {
             const RAW_RECORDING_PATH = path.join(value, 'tmp');
             await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
             return screenRecorder.setFolder(RAW_RECORDING_PATH);
+        } else if (key === 'launchAtStartup') {
+            setLaunchAtStartup(value);
         }
     } catch {
         console.warn('Could not set setting');

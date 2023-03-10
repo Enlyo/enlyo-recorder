@@ -4,62 +4,70 @@ const schema = {
     settings: {
         type: 'object',
         properties: {
-            hasAskedForMediaAccess: {
-                type: 'boolean',
-            },
-            screen: {
-                type: 'object',
-            },
-            resolution: {
-                enum: [480, 720, 1080],
-            },
-            fps: {
-                enum: [30, 60],
-            },
-            speaker: {
-                type: 'object',
-            },
-            microphone: {
-                type: 'object',
-            },
             autoRecordProcesses: {
                 type: 'array',
+            },
+            captureMode: {
+                type: 'string',
             },
             customRecordProcesses: {
                 type: 'array',
             },
-            speakerVolume: {
-                type: 'number',
+            folder: {
+                type: 'string',
+            },
+            fps: {
+                enum: [30, 60],
+            },
+            hasAskedForMediaAccess: {
+                type: 'boolean',
+            },
+            launchAtStartup: {
+                type: 'string',
+            },
+            microphone: {
+                type: 'object',
             },
             microphoneVolume: {
                 type: 'number',
             },
-            folder: {
-                type: 'string',
-            },
             name: {
                 type: 'string',
             },
-            captureMode: {
+            recordInMkv: {
                 type: 'string',
+            },
+            resolution: {
+                enum: [480, 720, 1080],
+            },
+            screen: {
+                type: 'object',
+            },
+            speaker: {
+                type: 'object',
+            },
+            speakerVolume: {
+                type: 'number',
             },
             storageLimit: {
                 type: 'number',
             },
         },
         default: {
-            hasAskedForMediaAccess: false,
-            screen: {},
-            resolution: 720,
-            fps: 30,
-            speaker: {},
-            microphone: {},
             autoRecordProcesses: [],
             customRecordProcesses: [],
-            speakerVolume: 1,
-            microphoneVolume: 1,
             folder: '',
+            fps: 30,
+            hasAskedForMediaAccess: false,
+            launchAtStartup: 'no',
+            microphone: {},
+            microphoneVolume: 1,
             name: 'enlyo-recording',
+            recordInMkv: 'no',
+            resolution: 720,
+            screen: {},
+            speaker: {},
+            speakerVolume: 1,
             storageLimit: 107374182400,
         },
     },
@@ -94,6 +102,10 @@ const migrations = {
     },
     '0.9.21': (store) => {
         store.set('settings.storageLimit', 107374182400);
+    },
+    '1.0.8': (store) => {
+        store.set('settings.recordInMkv', 'no');
+        store.set('settings.launchAtStartup', 'no');
     },
 };
 

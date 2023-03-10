@@ -209,12 +209,14 @@ const screenRecorder = {
     verifyScreen() {
         if (!this.settings.screen) {
             this.settings.screen = this.getDefaultScreen();
+            return false;
         }
         const screenConnected = !!this.getAvailableScreens().find(
             (screen) => screen.name === this.settings.screen.name
         );
         if (!screenConnected) {
             this.settings.screen = this.getDefaultScreen();
+            return false;
         }
     },
 
@@ -268,7 +270,10 @@ const screenRecorder = {
     async start() {
         if (!this.isInitialized) this.initialize();
 
-        this.verifyScreen();
+        if (!this.verifyScreen()) {
+            this._scene = this._setupScene();
+            this._setupSources();
+        }
 
         osn.NodeObs.OBS_service_startRecording();
 
@@ -416,7 +421,6 @@ const screenRecorder = {
         let { screen } = require('electron');
         // Update source settings:
         const settings = videoSource.settings;
-        console.debug(settings);
         settings['width'] = width;
         settings['height'] = height;
         videoSource.update(settings);
@@ -652,8 +656,6 @@ const screenRecorder = {
         }
 
         const isRetina = value.toLowerCase().includes('retina');
-        console.debug(isRetina);
-
         const scale = isRetina ? 2 : 1;
 
         let resolution = value.split(': ')[1];
