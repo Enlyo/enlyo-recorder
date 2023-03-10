@@ -856,6 +856,8 @@ async function downloadFiles({ files, folder }) {
  */
 async function exportSingle(win, { fileHandle, title }) {
     const result = await dialog.showOpenDialog(win, {
+        title: 'Select directory to export to',
+        buttonLabel: 'Select',
         properties: ['openDirectory'],
     });
 
