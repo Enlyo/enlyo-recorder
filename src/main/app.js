@@ -29,6 +29,27 @@ function setLaunchAtStartup(launchAtStartup) {
                 `"--hidden"`,
             ],
         });
+
+        // Required because of legacy reasons
+        // can be removed in the next update
+        if (!launchAtStartup) {
+            const settings = app.getLoginItemSettings();
+
+            settings.launchItems.forEach((item) => {
+                app.setLoginItemSettings({
+                    openAtLogin: launchAtStartup,
+                    openAsHidden: true,
+                    path: updateExe,
+                    name: item.name,
+                    args: [
+                        '--processStart',
+                        `"${exeName}"`,
+                        '--process-start-args',
+                        `"--hidden"`,
+                    ],
+                });
+            });
+        }
     }
 }
 
