@@ -85,7 +85,7 @@ function setIpcListeners(win) {
     /* -------------------------------------------------------------------------- */
 
     ipcMain.handle('show-camera', async (event, data) => {
-        return await showCamera(data);
+        return await showCamera(win, data);
     });
 
     ipcMain.handle('hide-camera', async () => {

@@ -4,10 +4,11 @@
     "description": "VOD Recording and Analysis software for esports",
     "author": "Enlyo",
     "license": "GPL-2.0",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "private": false,
     "main": "src/main/main.js",
     "build": {
+        "afterSign": "scripts/notarize.js",
         "appId": "enlyo.app",
         "win": {
             "target": "nsis",
@@ -21,7 +22,11 @@
         },
         "mac": {
             "icon": "public/icons/icon.icns",
-            "hardenedRuntime": false,
+            "hardenedRuntime": true,
+            "entitlements": "build/entitlements.mac.plist",
+            "entitlementsInherit": "build/entitlements.mac.plist",
+            "gatekeeperAssess": false,
+            "category": "public.app-category.developer-tools",
             "extendInfo": {
                 "NSMicrophoneUsageDescription": "Please give us access to your microphone",
                 "NSCameraUsageDescription": "Please give us access to your camera",
@@ -63,6 +68,7 @@
         "buildm": "vue-cli-service build --mode production && electron-builder build --mac --publish never",
         "build-staging": "vue-cli-service build --mode staging && electron-builder build --win --publish never",
         "deploy": "vue-cli-service build --mode production && electron-builder build --win --publish always",
+        "deploym": "vue-cli-service build --mode production && electron-builder build --mac --publish always",
         "pretty": "prettier --write \"./**/*.{js,jsx,json,vue}\""
     },
     "optionalDependencies": {
@@ -94,6 +100,7 @@
         "electron": "^16.0.5",
         "electron-builder": "^23.0.2",
         "electron-devtools-installer": "^3.2.0",
+        "electron-notarize": "^1.2.2",
         "electron-reloader": "^1.2.3",
         "eslint": "7.28.0",
         "eslint-config-prettier": "^8.3.0",

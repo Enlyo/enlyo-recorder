@@ -165,8 +165,9 @@ function getAvailableMicrophones() {
 /**
  * Show camera
  */
-async function showCamera(cam) {
+async function showCamera(win, cam) {
     const { screen } = require('electron');
+
     let display = screen.getPrimaryDisplay();
     const { height } = display.workAreaSize;
 
@@ -190,14 +191,18 @@ async function showCamera(cam) {
         y: height - 10 - 174,
     });
 
+    cameraWin.setAlwaysOnTop(true, 'floating');
+    cameraWin.setVisibleOnAllWorkspaces(true);
+    cameraWin.setFullScreenable(false);
+
     cameraWin.on('close', function () {
         cameraWin = null;
     });
+
     cameraWin.webContents.on('did-finish-load', () => {
         cameraWin.show();
+        win.show();
     });
-
-    cameraWin.setAlwaysOnTop(true, 'screen');
 
     await cameraWin.loadFile(path.join(__dirname, './webcam.html'));
     cameraWin.webContents.send('set-cam', cam);
