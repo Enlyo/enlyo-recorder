@@ -136,8 +136,8 @@ async function createWindow() {
     win = new BrowserWindow({
         width: 1200,
         height: 800,
-        minWidth: 1200,
-        minHeight: 800,
+        minWidth: 900,
+        minHeight: 600,
         frame: false,
         titleBarStyle: 'hidden',
         webPreferences: {
