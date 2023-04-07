@@ -79,6 +79,11 @@ app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.commandLine.appendSwitch('enable-experimental-web-platform-features');
 
 /**
+ * Disable user gesture required for videos with sound
+ */
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
+/**
  * Set Application User Model ID for Windows
  */
 app.setAppUserModelId('Enlyo.Recorder.v' + appVersion);
@@ -150,6 +155,7 @@ async function createWindow() {
         transparent: true,
         frame: false,
         alwaysOnTop: true,
+        resizable: false,
     });
     splash.loadFile(path.join(__dirname, '../../public/splash.html'));
     splash.center();

@@ -8,8 +8,8 @@ const { parseCaption, getUniqueListBy } = require('./helpers');
  * Process monitor
  */
 const processMonitor = {
-    handleProcessStarted: null,
-    handleProcessEnded: null,
+    _handleProcessStarted: null,
+    _handleProcessEnded: null,
     intervalTime: 2000,
     autoRecordProcesses: null,
     processExists: false,
@@ -21,13 +21,13 @@ const processMonitor = {
     startInterval(handleProcessStarted, handleProcessEnded) {
         if (this.interval) return;
 
-        this.handleProcessStarted = handleProcessStarted;
-        this.handleProcessEnded = handleProcessEnded;
+        this._handleProcessStarted = handleProcessStarted;
+        this._handleProcessEnded = handleProcessEnded;
 
         this.autoRecordProcesses = store.get('settings.autoRecordProcesses');
 
         this.interval = setInterval(
-            this.monitorProcess.bind(this),
+            this._monitorProcess.bind(this),
             this.intervalTime
         );
     },
@@ -36,8 +36,8 @@ const processMonitor = {
      * Stop interval
      */
     stopInterval() {
-        this.handleProcessStarted = null;
-        this.handleProcessEnded = null;
+        this._handleProcessStarted = null;
+        this._handleProcessEnded = null;
 
         clearInterval(this.interval);
         this.interval = null;
@@ -47,22 +47,64 @@ const processMonitor = {
     /**
      * Monitor process
      */
-    monitorProcess() {
+    _monitorProcess() {
         const previousProcessExists = this.processExists;
 
-        const { processExists, processId } = this.getProcessExists({
+        const { processExists, processId } = this._getProcessExists({
             processId: this.processId,
         });
         this.processExists = processExists;
         this.processId = processId;
 
         if (!previousProcessExists && this.processExists) {
-            this.handleProcessStarted();
+            this._handleProcessStarted();
         }
 
         if (previousProcessExists && !this.processExists) {
-            this.handleProcessEnded();
+            this._handleProcessEnded();
         }
+    },
+
+    /**
+     * Get process exists
+     */
+    _getProcessExists({ processId }) {
+        // Get process by ID is a quicker method that only looks
+        // for a specific, already-opened process
+        if (processId) {
+            return this._getProcessExistsById(processId);
+        }
+        return this._getProcessExistsByList();
+    },
+
+    _getProcessExistsById(id) {
+        try {
+            process.kill(id, 0);
+            return { processExists: true, processId: id };
+        } catch (e) {
+            return { processExists: false, processId: null };
+        }
+    },
+
+    _getProcessExistsByList() {
+        const windows = windowManager.getWindows();
+
+        if (!this.autoRecordProcesses) {
+            this.autoRecordProcesses = store.get(
+                'settings.autoRecordProcesses'
+            );
+        }
+
+        const process = windows.find((window) => {
+            return this.autoRecordProcesses.find((process) => {
+                return window.path.includes(process.name);
+            });
+        });
+
+        const processExists = Boolean(process);
+        const processId = processExists ? process.processId : null;
+
+        return { processExists, processId };
     },
 
     /**
@@ -109,48 +151,6 @@ const processMonitor = {
                 name: pathParse.base,
             };
         });
-    },
-
-    /**
-     * Get process exists
-     */
-    getProcessExists({ processId }) {
-        // Get process by ID is a quicker method that only looks
-        // for a specific, already-opened process
-        if (processId) {
-            return this._getProcessExistsById(processId);
-        }
-        return this._getProcessExists();
-    },
-
-    _getProcessExistsById(id) {
-        try {
-            process.kill(id, 0);
-            return { processExists: true, processId: id };
-        } catch (e) {
-            return { processExists: false, processId: null };
-        }
-    },
-
-    _getProcessExists() {
-        const windows = windowManager.getWindows();
-
-        if (!this.autoRecordProcesses) {
-            this.autoRecordProcesses = store.get(
-                'settings.autoRecordProcesses'
-            );
-        }
-
-        const process = windows.find((window) => {
-            return this.autoRecordProcesses.find((process) => {
-                return window.path.includes(process.name);
-            });
-        });
-
-        const processExists = Boolean(process);
-        const processId = processExists ? process.processId : null;
-
-        return { processExists, processId };
     },
 };
 

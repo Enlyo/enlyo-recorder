@@ -3,11 +3,6 @@ const { BrowserWindow, Notification, dialog } = require('electron');
 const { outputFile } = require('fs-extra');
 
 const { store } = require('./store');
-const {
-    authenticate,
-    createHttp1Request,
-    createWebSocketConnection,
-} = require('league-connect');
 
 const fileManager = require('./fileManager');
 const videoEditor = require('./videoEditor');
@@ -16,6 +11,8 @@ const { getMostRecentFile } = require('./fileManager');
 const { processMonitor } = require('./processMonitor');
 const { screenRecorder } = require('./screenRecorder');
 const { setLaunchAtStartup } = require('./app');
+const { createGameParser } = require('./gameParser');
+const { createProcessHandler } = require('./processHandler');
 
 let cameraWin;
 
@@ -226,121 +223,13 @@ async function hideCamera() {
  *  Start process monitor
  */
 function startProcessMonitor(event) {
+    const gameParser = createGameParser();
+    const processHandler = createProcessHandler(gameParser);
+
     processMonitor.startInterval(
-        async () => await _handleProcessStarted(event),
-        async () => await _handleProcessEnded(event)
+        async () => await processHandler.handleProcessStarted(event),
+        async () => await processHandler.handleProcessEnded(event)
     );
-}
-
-let interval = null;
-let gameAlreadyStarted = false;
-let credentials = null;
-
-async function _handleProcessStarted(event) {
-    if (!screenRecorder.isRecording) {
-        let startInterval = setInterval(async () => {
-            const gameStarted = await checkGameStarted();
-
-            if (gameStarted && !gameAlreadyStarted) {
-                gameAlreadyStarted = true;
-                clearInterval(startInterval);
-                startInterval = null;
-                event.reply('start-recorder-request');
-
-                interval = setInterval(async () => {
-                    await getGameData();
-                }, 15000);
-            }
-        }, 1000);
-    }
-}
-
-async function _handleProcessEnded(event) {
-    if (screenRecorder.isRecording) {
-        gameAlreadyStarted = false;
-        clearInterval(interval);
-        interval = null;
-
-        const summonerName = activePlayer['summonerName'];
-        const playerData = allPlayers.find(
-            (player) => player.summonerName === summonerName
-        );
-
-        let matchupData = null;
-        const position = playerData['position'];
-        if (position) {
-            matchupData = allPlayers.find(
-                (player) =>
-                    player.summonerName != summonerName &&
-                    player.position === position
-            );
-        }
-
-        event.reply('stop-recorder-request', {
-            events: events,
-            gameData: {
-                summonerName: summonerName,
-                champion: playerData['championName'],
-                position: playerData['position'],
-                matchup: matchupData ? matchupData['championName'] : null,
-                gameType:
-                    playerData['gameData'] &&
-                    playerData['gameData']['gameMode'],
-            },
-        });
-    }
-}
-
-async function checkGameStarted() {
-    try {
-        credentials = credentials ? credentials : await authenticate();
-        credentials.port = 2999;
-
-        const response = await createHttp1Request(
-            {
-                method: 'GET',
-                url: 'liveclientdata/allgamedata',
-            },
-            credentials
-        );
-        const data = response.json();
-        if (data.errorCode) {
-            return false;
-        }
-        return data['events'] && data['events']['Events'].length > 0;
-    } catch (error) {
-        return false;
-    }
-}
-
-let summonerName = '';
-let events = [];
-let activePlayer = null;
-let allPlayers = null;
-let gameData = null;
-
-async function getGameData() {
-    try {
-        credentials = credentials ? credentials : await authenticate();
-        credentials.port = 2999;
-
-        const response = await createHttp1Request(
-            {
-                method: 'GET',
-                url: 'liveclientdata/allgamedata',
-            },
-            credentials
-        );
-
-        const data = response.json();
-        summonerName = data['activePlayer']['summonerName'];
-        events = data['events']['Events'];
-        activePlayer = activePlayer ? activePlayer : data['activePlayer'];
-        allPlayers = allPlayers ? allPlayers : data['allPlayers'];
-        gameData = data['gameData'];
-    } catch (error) {
-        console.warn(error);
-    }
 }
 
 /**
