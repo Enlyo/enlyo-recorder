@@ -54,8 +54,6 @@ function createGameParser() {
                 );
 
                 this.data = response.json();
-
-                console.debug(this.data['activePlayer']);
             } catch (error) {
                 console.warn(error);
             }
@@ -109,9 +107,6 @@ function createGameParser() {
                         playerData['gameData']['gameMode'],
                 };
             }
-
-            console.debug(events);
-            console.debug(metaData);
 
             return { events, metaData };
         },

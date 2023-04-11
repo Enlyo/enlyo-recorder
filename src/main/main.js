@@ -175,7 +175,7 @@ async function createWindow() {
         await win.loadURL('http://localhost:3000/');
         require('vue-devtools').install();
     } else {
-        await win.loadURL('https://app.enlyo.com');
+        await win.loadURL('https://dev.app.enlyo.com');
         // await win.loadURL(process.env.VUE_APP_BASE);
     }
 
@@ -193,7 +193,7 @@ async function createWindow() {
         return { action: 'deny' };
     });
 
-    win.on('close', function(event) {
+    win.on('close', function (event) {
         if (!app.isQuiting) {
             event.preventDefault();
             win.hide();
@@ -233,7 +233,7 @@ function createTray(win) {
             id: 'start-recording',
             label: 'Start recording',
             visible: true,
-            click: function(item) {
+            click: function (item) {
                 item.visible = false;
                 item.menu.getMenuItemById('stop-recording').visible = true;
                 win.webContents.send('start-recorder-request');
@@ -244,7 +244,7 @@ function createTray(win) {
             id: 'stop-recording',
             label: 'Stop recording',
             visible: false,
-            click: function(item) {
+            click: function (item) {
                 item.visible = false;
                 item.menu.getMenuItemById('start-recording').visible = true;
                 win.webContents.send('stop-recorder-request');
@@ -262,7 +262,7 @@ function createTray(win) {
 
         {
             label: 'Quit',
-            click: function() {
+            click: function () {
                 app.isQuiting = true;
                 app.quit();
             },
@@ -357,7 +357,7 @@ app.on('open-url', (event, url) => {
     }
 });
 
-app.on('before-quit', function() {
+app.on('before-quit', function () {
     app.isQuiting = true;
 });
 

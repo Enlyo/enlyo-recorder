@@ -476,7 +476,6 @@ async function getFileFromPicker(win) {
 
 async function _getFileFromPicker(win) {
     const result = await dialog.showOpenDialog(win, {
-        defaultPath: store.get('settings.folder'),
         properties: ['openFile'],
     });
 
@@ -517,7 +516,6 @@ async function getFileFromFolder(win, filename) {
 
 async function _getFileFromFolder(win, filename) {
     const result = await dialog.showOpenDialog(win, {
-        defaultPath: store.get('settings.folder'),
         properties: ['openDirectory'],
     });
 
