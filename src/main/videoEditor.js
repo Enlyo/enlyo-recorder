@@ -73,18 +73,14 @@ async function generateThumbnail(outputfile, folder, duration) {
 /**
  * Clip
  */
-async function clip(inputFile, outputFile, startTime, endTime) {
+async function clip(inputFile, outputFile, startTime = null, endTime = null) {
     if (!ffmpeg) {
         setUpFfmpeg();
     }
 
-    const duration = endTime - startTime;
-
     return new Promise((resolve) => {
-        ffmpeg(inputFile)
+        const clipper = ffmpeg(inputFile)
             .output(outputFile)
-            .setStartTime(startTime)
-            .setDuration(duration)
             .withVideoCodec('copy')
             .withAudioCodec('copy')
             .on('end', function (err) {
@@ -92,10 +88,47 @@ async function clip(inputFile, outputFile, startTime, endTime) {
                     resolve();
                 }
             })
+            .on('error', function (err, stdout, stderr) {
+                console.log(err);
+                console.log('ffmpeg stdout:\n' + stdout);
+                console.log('ffmpeg stderr:\n' + stderr);
+            })
+            .on('start', (cmdline) => console.log(cmdline));
+
+        if (startTime && endTime) {
+            const duration = endTime - startTime;
+            clipper.setStartTime(startTime).setDuration(duration);
+        }
+
+        clipper.run();
+    });
+}
+
+/**
+ * Convert playlist to mp4
+ */
+async function convertPlaylistToMp4(inputFile, outputFile) {
+    if (!ffmpeg) {
+        setUpFfmpeg();
+    }
+
+    return new Promise((resolve) => {
+        ffmpeg(inputFile)
+            .output(outputFile)
+            .withVideoCodec('copy')
+            .withAudioCodec('copy')
+            .outputOptions(['-bsf:a aac_adtstoasc'])
+            .on('end', function (err) {
+                if (!err) {
+                    resolve();
+                }
+            })
+            .on('start', (cmdline) => console.log(cmdline))
             .run();
     });
 }
 
-module.exports.remux = remux;
-module.exports.generateThumbnail = generateThumbnail;
 module.exports.clip = clip;
+module.exports.convertPlaylistToMp4 = convertPlaylistToMp4;
+module.exports.generateThumbnail = generateThumbnail;
+module.exports.remux = remux;

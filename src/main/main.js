@@ -150,8 +150,8 @@ async function createWindow() {
     });
 
     splash = new BrowserWindow({
-        width: 300,
-        height: 300,
+        width: 310,
+        height: 310,
         transparent: true,
         frame: false,
         alwaysOnTop: true,

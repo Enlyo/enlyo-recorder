@@ -222,13 +222,14 @@ async function hideCamera() {
 /**
  *  Start process monitor
  */
-function startProcessMonitor(event) {
+function startProcessMonitor(event, { autoRecordProcesses }) {
     const gameParser = createGameParser();
     const processHandler = createProcessHandler(gameParser);
 
     processMonitor.startInterval(
         async () => await processHandler.handleProcessStarted(event),
-        async () => await processHandler.handleProcessEnded(event)
+        async () => await processHandler.handleProcessEnded(event),
+        autoRecordProcesses
     );
 }
 
@@ -719,7 +720,7 @@ async function downloadFiles({ files, folder }) {
             await fileManager.createDirIfNotExists(folderPath);
             const filePath = path.join(folderPath, name);
 
-            downloads.push(fileManager.downloadFile(url, filePath));
+            downloads.push(videoEditor.convertPlaylistToMp4(url, filePath));
             fileHandles[key] = {
                 path: filePath,
                 name: name,
@@ -758,7 +759,7 @@ async function exportSingle(win, { fileHandle, title }) {
         const outputFolder = result.filePaths[0];
         const outputPath = path.join(outputFolder, `${title}.${fileType}`);
 
-        await fileManager.copyFile(fileHandle.path, outputPath);
+        await videoEditor.clip(fileHandle.path, outputPath);
     }
 
     return result;
@@ -783,7 +784,8 @@ async function exportMultiple(win, { folder, files }) {
             const { fileHandle, title } = files[index];
             const fileType = getFileType(fileHandle.name);
             const outputPath = path.join(outputFolder, `${title}.${fileType}`);
-            await fileManager.copyFile(fileHandle.path, outputPath);
+
+            await videoEditor.clip(fileHandle.path, outputPath);
         }
     }
 

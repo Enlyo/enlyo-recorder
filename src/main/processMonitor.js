@@ -18,13 +18,17 @@ const processMonitor = {
     /**
      * Start interval
      */
-    startInterval(handleProcessStarted, handleProcessEnded) {
+    startInterval(
+        handleProcessStarted,
+        handleProcessEnded,
+        autoRecordProcesses
+    ) {
         if (this.interval) return;
 
         this._handleProcessStarted = handleProcessStarted;
         this._handleProcessEnded = handleProcessEnded;
 
-        this.autoRecordProcesses = store.get('settings.autoRecordProcesses');
+        this.autoRecordProcesses = autoRecordProcesses;
 
         this.interval = setInterval(
             this._monitorProcess.bind(this),
@@ -88,12 +92,6 @@ const processMonitor = {
 
     _getProcessExistsByList() {
         const windows = windowManager.getWindows();
-
-        if (!this.autoRecordProcesses) {
-            this.autoRecordProcesses = store.get(
-                'settings.autoRecordProcesses'
-            );
-        }
 
         const process = windows.find((window) => {
             return this.autoRecordProcesses.find((process) => {
