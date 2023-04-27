@@ -51,7 +51,7 @@ function createProcessHandler(gameParser = null) {
          * Handle process ended
          */
         async handleProcessEnded(event) {
-            this.processStarted = true;
+            this.processStarted = false;
 
             this.clearCheckGameDataInterval();
             this.gameStarted = false;
