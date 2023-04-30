@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const { Titlebar, Color } = require('custom-electron-titlebar');
+const { getLocalIp } = require('./streamingServer');
 
 /* -------------------------------------------------------------------------- */
 /*                               CONTEXT BRIDGE                               */
@@ -93,6 +94,8 @@ contextBridge.exposeInMainWorld('ipc', {
 });
 
 contextBridge.exposeInMainWorld('isNative', true);
+
+contextBridge.exposeInMainWorld('localIp', getLocalIp());
 
 /* -------------------------------------------------------------------------- */
 /*                                  TITLEBAR                                  */

@@ -19,7 +19,7 @@ const {
 const { store } = require('./store');
 const { OS, getOS } = require('../../operating-systems');
 const { setLaunchAtStartup } = require('./app');
-const { startServer } = require('./streamingServer');
+const { startServer, getLocalIp } = require('./streamingServer');
 
 if (getOS() === OS.Mac && !store.get('settings').hasAskedForMediaAccess) {
     systemPreferences.askForMediaAccess('microphone');
@@ -73,6 +73,7 @@ setupTitlebar();
  * Start server
  */
 startServer();
+console.debug(getLocalIp());
 
 /**
  * Disable background timer throttling

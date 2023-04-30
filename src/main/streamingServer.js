@@ -6,6 +6,23 @@ const express = require('express');
 const { store } = require('./store');
 const { getMostRecentFile } = require('./fileManager');
 
+function getLocalIp() {
+    return Object.values(require('os').networkInterfaces()).reduce(
+        (r, list) =>
+            r.concat(
+                list.reduce(
+                    (rr, i) =>
+                        rr.concat(
+                            (i.family === 'IPv4' && !i.internal && i.address) ||
+                                []
+                        ),
+                    []
+                )
+            ),
+        []
+    )[0];
+}
+
 function startServer() {
     const app = express();
 
@@ -93,4 +110,5 @@ function startServer() {
     });
 }
 
+module.exports.getLocalIp = getLocalIp;
 module.exports.startServer = startServer;
