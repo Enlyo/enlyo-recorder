@@ -7,6 +7,7 @@ const { store } = require('./store');
 const { getMostRecentFile } = require('./fileManager');
 
 function getLocalIp() {
+    console.log(require('os').networkInterfaces());
     return Object.values(require('os').networkInterfaces()).reduce(
         (r, list) =>
             r.concat(
@@ -28,6 +29,10 @@ function startServer() {
 
     app.get('/', function (req, res) {
         console.log('works index');
+    });
+
+    router.get('/ping', (req, res) => {
+        res.status(200).send('Ok');
     });
 
     app.get('/stream', function (req, res) {
@@ -83,7 +88,7 @@ function startServer() {
         let videoSize = fs.statSync(videoPath).size;
 
         const CHUNK_SIZE = 10 ** 6; // 1MB
-        const start = Number(range.replace(/\D/g, ''));
+        let start = Number(range.replace(/\D/g, ''));
         const end = Math.min(start + CHUNK_SIZE, videoSize - 1);
 
         // Create headers
@@ -103,6 +108,16 @@ function startServer() {
 
         // Stream the video chunk to the client
         videoStream.pipe(res);
+    });
+
+    app.get('/videos/:id/download', function (req, res) {
+        const OUTPUT_PATH = store.get('settings.folder');
+        const videoPath = path.join(
+            OUTPUT_PATH,
+            `/Videos/${req.params.id}/${req.params.id}.mp4`
+        );
+
+        res.download(videoPath);
     });
 
     app.listen(8002, function () {
