@@ -31,7 +31,7 @@ function startServer() {
         console.log('works index');
     });
 
-    router.get('/ping', (req, res) => {
+    app.get('/ping', (req, res) => {
         res.status(200).send('Ok');
     });
 
