@@ -20,12 +20,16 @@ const { store } = require('./store');
 const { OS, getOS } = require('../../operating-systems');
 const { setLaunchAtStartup } = require('./app');
 const { startServer, getLocalIp } = require('./streamingServer');
+const { downloadHttp } = require('./fileManager');
+const { downloadFiles } = require('./ipcHandlers');
 
 if (getOS() === OS.Mac && !store.get('settings').hasAskedForMediaAccess) {
     systemPreferences.askForMediaAccess('microphone');
     systemPreferences.askForMediaAccess('camera');
     store.set('settings.hasAskedForMediaAccess', true);
 }
+
+console.debug(require('os').networkInterfaces());
 
 protocol.registerSchemesAsPrivileged([
     { scheme: 'local', privileges: { bypassCSP: true, supportFetchAPI: true } },
@@ -73,7 +77,6 @@ setupTitlebar();
  * Start server
  */
 startServer();
-console.debug(getLocalIp());
 
 /**
  * Disable background timer throttling
