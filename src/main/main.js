@@ -29,13 +29,23 @@ if (getOS() === OS.Mac && !store.get('settings').hasAskedForMediaAccess) {
     store.set('settings.hasAskedForMediaAccess', true);
 }
 
-console.debug(require('os').networkInterfaces());
-
 protocol.registerSchemesAsPrivileged([
-    { scheme: 'local', privileges: { bypassCSP: true, supportFetchAPI: true } },
+    {
+        scheme: 'local',
+        privileges: { bypassCSP: true, supportFetchAPI: true },
+    },
+    {
+        scheme: 'network',
+        privileges: {
+            bypassCSP: true,
+            supportFetchAPI: true,
+            corsEnabled: true,
+            secure: true,
+        },
+    },
 ]);
 
-function registerLocalVideoProtocol() {
+function registerLocalProtocols() {
     protocol.registerFileProtocol('local', (request, callback) => {
         const url = request.url.replace(/^local:\/\//, '');
         // Decode URL to prevent errors when loading filenames with UTF-8 chars or chars like "#"
@@ -48,6 +58,26 @@ function registerLocalVideoProtocol() {
         } catch (error) {
             console.error(
                 'ERROR: registerLocalVideoProtocol: Could not get file path:',
+                error
+            );
+        }
+    });
+
+    protocol.registerHttpProtocol('network', (request, callback) => {
+        console.debug(request);
+        let url = request.url.replace(/^network:\/\//, '');
+        url = 'http://' + url;
+        console.debug(url);
+        // Decode URL to prevent errors when loading filenames with UTF-8 chars or chars like "#"
+        const decodedUrl = decodeURI(url); // Needed in case URL contains spaces
+        try {
+            // eslint-disable-next-line no-undef
+            return callback({
+                url: decodedUrl,
+            });
+        } catch (error) {
+            console.error(
+                'ERROR: registerLocalNetworkProtocol: Could not get url:',
                 error
             );
         }
@@ -182,8 +212,9 @@ async function createWindow() {
 
     if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
-        await win.loadURL('http://localhost:3000/');
-        require('vue-devtools').install();
+        await win.loadURL('https://dev.app.enlyo.com');
+        // await win.loadURL('http://localhost:3000/');
+        // require('vue-devtools').install();
     } else {
         await win.loadURL('https://dev.app.enlyo.com');
         // await win.loadURL(process.env.VUE_APP_BASE);
@@ -334,7 +365,7 @@ app.on('ready', async () => {
     }
 
     // protocol.registerFileProtocol('enlyo-video', fileHandler);
-    registerLocalVideoProtocol();
+    registerLocalProtocols();
 
     if (process.env.NODE_ENV !== 'production') {
         require('vue-devtools').install();
