@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const cors = require('cors');
 
 const express = require('express');
 
@@ -25,7 +27,18 @@ function getLocalIp() {
 }
 
 function startServer() {
+    let key = fs.readFileSync('./selfsigned.key');
+    let cert = fs.readFileSync('./selfsigned.crt');
+    let options = {
+        key: key,
+        cert: cert,
+    };
+
     const app = express();
+
+    let server = https.createServer(options, app);
+
+    app.use(cors());
 
     app.get('/', function (req, res) {
         console.log('works index');
@@ -120,7 +133,7 @@ function startServer() {
         res.download(videoPath);
     });
 
-    app.listen(8002, function () {
+    server.listen(8002, function () {
         console.log('Listening on port 8002!');
     });
 }

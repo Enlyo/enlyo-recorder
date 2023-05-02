@@ -19,9 +19,7 @@ const {
 const { store } = require('./store');
 const { OS, getOS } = require('../../operating-systems');
 const { setLaunchAtStartup } = require('./app');
-const { startServer, getLocalIp } = require('./streamingServer');
-const { downloadHttp } = require('./fileManager');
-const { downloadFiles } = require('./ipcHandlers');
+const { startServer } = require('./streamingServer');
 
 if (getOS() === OS.Mac && !store.get('settings').hasAskedForMediaAccess) {
     systemPreferences.askForMediaAccess('microphone');
@@ -47,6 +45,7 @@ protocol.registerSchemesAsPrivileged([
 
 function registerLocalProtocols() {
     protocol.registerFileProtocol('local', (request, callback) => {
+        console.debug('file protocol');
         const url = request.url.replace(/^local:\/\//, '');
         // Decode URL to prevent errors when loading filenames with UTF-8 chars or chars like "#"
         const decodedUrl = decodeURI(url); // Needed in case URL contains spaces
@@ -64,12 +63,14 @@ function registerLocalProtocols() {
     });
 
     protocol.registerHttpProtocol('network', (request, callback) => {
+        console.debug('http protocol');
         console.debug(request);
         let url = request.url.replace(/^network:\/\//, '');
         url = 'http://' + url;
         console.debug(url);
         // Decode URL to prevent errors when loading filenames with UTF-8 chars or chars like "#"
         const decodedUrl = decodeURI(url); // Needed in case URL contains spaces
+        console.debug(url);
         try {
             // eslint-disable-next-line no-undef
             return callback({
@@ -212,9 +213,9 @@ async function createWindow() {
 
     if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
-        await win.loadURL('https://dev.app.enlyo.com');
-        // await win.loadURL('http://localhost:3000/');
-        // require('vue-devtools').install();
+        // await win.loadURL('https://dev.app.enlyo.com');
+        await win.loadURL('http://localhost:3000/');
+        require('vue-devtools').install();
     } else {
         await win.loadURL('https://dev.app.enlyo.com');
         // await win.loadURL(process.env.VUE_APP_BASE);
