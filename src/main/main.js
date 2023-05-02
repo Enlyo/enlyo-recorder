@@ -403,6 +403,20 @@ app.on('before-quit', function () {
     app.isQuiting = true;
 });
 
+// SSL/TSL: this is the self signed certificate support
+app.on(
+    'certificate-error',
+    (event, webContents, url, error, certificate, callback) => {
+        // On certificate error we disable default behaviour (stop loading the page)
+        // and we then say "it is all fine - true" to the callback
+        //
+        console.debug(certificate);
+        console.debug(webContents);
+        event.preventDefault();
+        callback(true);
+    }
+);
+
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
     if (process.platform === 'win32') {
