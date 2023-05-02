@@ -212,9 +212,8 @@ async function createWindow() {
 
     if (process.env.NODE_ENV === 'DEV') {
         // Load the url of the dev server if in development mode
-        await win.loadURL('https://dev.app.enlyo.com');
-        // await win.loadURL('http://localhost:3000/');
-        // require('vue-devtools').install();
+        await win.loadURL('http://localhost:3000/');
+        require('vue-devtools').install();
     } else {
         await win.loadURL('https://dev.app.enlyo.com');
         // await win.loadURL(process.env.VUE_APP_BASE);
@@ -401,6 +400,20 @@ app.on('open-url', (event, url) => {
 app.on('before-quit', function () {
     app.isQuiting = true;
 });
+
+// SSL/TSL: this is the self signed certificate support
+app.on(
+    'certificate-error',
+    (event, webContents, url, error, certificate, callback) => {
+        // On certificate error we disable default behaviour (stop loading the page)
+        // and we then say "it is all fine - true" to the callback
+        //
+        console.debug(certificate);
+        console.debug(webContents);
+        event.preventDefault();
+        callback(true);
+    }
+);
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
