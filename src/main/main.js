@@ -20,6 +20,8 @@ const { store } = require('./store');
 const { OS, getOS } = require('../../operating-systems');
 const { setLaunchAtStartup } = require('./app');
 const { startServer } = require('./streamingServer');
+const fs = require('fs');
+const { screenRecorder } = require('./screenRecorder');
 
 if (getOS() === OS.Mac && !store.get('settings').hasAskedForMediaAccess) {
     systemPreferences.askForMediaAccess('microphone');
@@ -32,20 +34,10 @@ protocol.registerSchemesAsPrivileged([
         scheme: 'local',
         privileges: { bypassCSP: true, supportFetchAPI: true },
     },
-    {
-        scheme: 'network',
-        privileges: {
-            bypassCSP: true,
-            supportFetchAPI: true,
-            corsEnabled: true,
-            secure: true,
-        },
-    },
 ]);
 
 function registerLocalProtocols() {
     protocol.registerFileProtocol('local', (request, callback) => {
-        console.debug('file protocol');
         const url = request.url.replace(/^local:\/\//, '');
         // Decode URL to prevent errors when loading filenames with UTF-8 chars or chars like "#"
         const decodedUrl = decodeURI(url); // Needed in case URL contains spaces
@@ -57,28 +49,6 @@ function registerLocalProtocols() {
         } catch (error) {
             console.error(
                 'ERROR: registerLocalVideoProtocol: Could not get file path:',
-                error
-            );
-        }
-    });
-
-    protocol.registerHttpProtocol('network', (request, callback) => {
-        console.debug('http protocol');
-        console.debug(request);
-        let url = request.url.replace(/^network:\/\//, '');
-        url = 'http://' + url;
-        console.debug(url);
-        // Decode URL to prevent errors when loading filenames with UTF-8 chars or chars like "#"
-        const decodedUrl = decodeURI(url); // Needed in case URL contains spaces
-        console.debug(url);
-        try {
-            // eslint-disable-next-line no-undef
-            return callback({
-                url: decodedUrl,
-            });
-        } catch (error) {
-            console.error(
-                'ERROR: registerLocalNetworkProtocol: Could not get url:',
                 error
             );
         }
@@ -217,7 +187,7 @@ async function createWindow() {
         await win.loadURL('http://localhost:3000/');
         require('vue-devtools').install();
     } else {
-        await win.loadURL('https://dev.app.enlyo.com');
+        await win.loadURL('https://app.enlyo.com');
         // await win.loadURL(process.env.VUE_APP_BASE);
     }
 
@@ -242,6 +212,8 @@ async function createWindow() {
 
             return;
         }
+
+        screenRecorder.shutdown();
 
         if (tray && tray.destroy) {
             tray.destroy();
@@ -268,7 +240,7 @@ function createTray(win) {
         return {};
     }
 
-    const iconPath = path.join(__dirname, '../../public/icons/icon-white.ico');
+    const iconPath = path.join(__dirname, '../../public/icons/tray.ico');
     let appIcon = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
         {
@@ -407,11 +379,16 @@ app.on('before-quit', function () {
 app.on(
     'certificate-error',
     (event, webContents, url, error, certificate, callback) => {
-        // On certificate error we disable default behaviour (stop loading the page)
-        // and we then say "it is all fine - true" to the callback
-        //
-        console.debug(certificate);
-        console.debug(webContents);
+        let cert = fs.readFileSync(path.join(__dirname, 'selfsigned.crt'));
+
+        if (!url.includes('https://')) {
+            return callback(false);
+        }
+
+        if (!certificate.data === cert.toString()) {
+            return callback(false);
+        }
+
         event.preventDefault();
         callback(true);
     }

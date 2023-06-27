@@ -14,7 +14,7 @@ function createProcessHandler(gameParser = null) {
         /**
          * Handle process started
          */
-        async handleProcessStarted(event) {
+        async handleProcessStarted(event, win) {
             if (this.processStarted) return;
 
             this.processStarted = true;

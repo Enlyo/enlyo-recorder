@@ -15,7 +15,7 @@ const screenRecorder = {
     settings: {
         bitRate: 12000,
         captureMode: 'screen',
-        format: 'mkv',
+        format: 'm3u8',
         fps: 60,
         microphone: null,
         microphoneVolume: 1,
@@ -377,16 +377,22 @@ const screenRecorder = {
             'Recording',
             'RecEncoder'
         );
-        this.setSetting(
-            'Output',
-            'RecEncoder',
-            availableEncoders.slice(-1)[0] || 'x264'
-        );
+
+        if (availableEncoders.includes('jim_nvenc')) {
+            this.setSetting('Output', 'RecEncoder', 'ffmpeg_nvenc');
+        } else if (availableEncoders.includes('h264_texture_amf')) {
+            this.setSetting('Output', 'RecEncoder', 'h264_texture_amf');
+        } else {
+            this.setSetting('Output', 'RecEncoder', 'obs_x264');
+        }
 
         this.setSetting('Output', 'RecFilePath', settings.outputPath);
         this.setSetting('Output', 'RecFormat', settings.format);
         this.setSetting('Output', 'VBitrate', settings.bitRate);
+        this.setSetting('Output', 'RecPreset', 0);
         this.setSetting('Video', 'FPSCommon', settings.fps);
+
+        // this.logAvailableValues('Output', 'Recording', null, true);
     },
 
     /**
@@ -626,6 +632,7 @@ const screenRecorder = {
     getAvailableValues(category, subcategory, parameter) {
         const categorySettings =
             osn.NodeObs.OBS_settings_getSettings(category).data;
+
         if (!categorySettings) {
             return [];
         }
@@ -647,6 +654,30 @@ const screenRecorder = {
         return parameterSettings.values.map((value) => Object.values(value)[0]);
     },
 
+    logAvailableValues(category, subcategory, parameter = null, all = false) {
+        const categorySettings =
+            osn.NodeObs.OBS_settings_getSettings(category).data;
+
+        const subcategorySettings = categorySettings.find(
+            (sub) => sub.nameSubCategory === subcategory
+        );
+
+        if (all) {
+            subcategorySettings.parameters.forEach((param) =>
+                console.debug(param)
+            );
+            return;
+        }
+
+        if (!parameter || !subcategorySettings) {
+            return;
+        }
+
+        const parameterSettings = subcategorySettings.parameters.find(
+            (param) => param.name === parameter
+        );
+    },
+
     /**
      * Parse resolution
      */
@@ -665,6 +696,24 @@ const screenRecorder = {
         const aspectRatio = width / height;
 
         return { width, height, aspectRatio };
+    },
+
+    findSetting(settings, category, setting) {
+        let inputModel;
+        settings.find((subCategory) => {
+            if (subCategory.nameSubCategory === category) {
+                subCategory.parameters.find((param) => {
+                    if (param.name === setting) {
+                        inputModel = param;
+                        return true;
+                    }
+                });
+
+                return true;
+            }
+        });
+
+        return inputModel;
     },
 };
 

@@ -1,6 +1,7 @@
 const path = require('path');
 const { BrowserWindow, Notification, dialog } = require('electron');
 const { outputFile } = require('fs-extra');
+const fs = require('fs');
 
 const { store } = require('./store');
 
@@ -13,8 +14,31 @@ const { screenRecorder } = require('./screenRecorder');
 const { setLaunchAtStartup } = require('./app');
 const { createGameParser } = require('./gameParser');
 const { createProcessHandler } = require('./processHandler');
+const { createM3u8Writer } = require('./m3u8Writer');
 
 let cameraWin;
+let m3u8Writer;
+
+const OUTPUT_FORMAT = 'mp4';
+const RECORDING_DIR = path.join('tmp', 'recording');
+
+/* -------------------------------------------------------------------------- */
+/*                                   HELPERS                                  */
+/* -------------------------------------------------------------------------- */
+
+async function getDir(relativeDir) {
+    let baseDir = store.get('settings.folder');
+    if (!baseDir) {
+        baseDir = await setDefaultFolder();
+    }
+    const dir = path.join(baseDir, relativeDir);
+    await fileManager.createDirIfNotExists(dir);
+    return dir;
+}
+
+async function getRecordingDir() {
+    return await getDir(RECORDING_DIR);
+}
 
 /* -------------------------------------------------------------------------- */
 /*                               SCREEN RECORDER                              */
@@ -24,12 +48,11 @@ let cameraWin;
  * Initialize recorder
  */
 async function initializeRecorder() {
-    const OUTPUT_PATH = store.get('settings.folder');
-    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
-
     const settings = store.get('settings');
-    screenRecorder.setSettings({ outputPath: RAW_RECORDING_PATH, ...settings });
-
+    screenRecorder.setSettings({
+        outputPath: await getRecordingDir(),
+        ...settings,
+    });
     screenRecorder.initialize();
 }
 
@@ -37,15 +60,10 @@ async function initializeRecorder() {
  * Start recorder
  */
 async function startRecorder() {
-    new Notification({
-        title: 'Started recording',
-    }).show();
+    const recordingDir = await getRecordingDir();
 
-    const OUTPUT_PATH = store.get('settings.folder');
-    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
-
-    await fileManager.createDirIfNotExists(OUTPUT_PATH);
-    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+    m3u8Writer = createM3u8Writer(recordingDir);
+    m3u8Writer.start();
 
     return await screenRecorder.start();
 }
@@ -54,79 +72,75 @@ async function startRecorder() {
  * Stop recorder
  */
 async function stopRecorder() {
-    const OUTPUT_PATH = store.get('settings.folder');
-    const OUTPUT_NAME = store.get('settings.name');
-    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
-    const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
-    const name = OUTPUT_NAME + ' ' + rawRecordingName.replace('.mkv', '');
-
-    // Show notification
-    new Notification({
-        title: 'Stopped recording',
-    }).show();
-
-    // Stop recorder
     await screenRecorder.stop();
-
-    return {
-        name,
-    };
+    await m3u8Writer.stop();
 }
 
 /**
  * Save recording
  */
-async function saveRecording(value) {
-    const OUTPUT_PATH = store.get('settings.folder');
+async function saveRecording({ name, folder }) {
+    const outputDir = await getDir(folder);
+    recordingDir = await getRecordingDir();
+    const inputPath = path.join(recordingDir, 'index.m3u8');
 
-    // Get tmp file
-    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
-    const rawRecordingName = getMostRecentFile(RAW_RECORDING_PATH).file;
-    const inputFile = `${RAW_RECORDING_PATH}/${rawRecordingName}`;
-
-    const name = value.name;
-    const folder = value.folder;
+    console.debug('---');
+    console.debug('Remuxing recording...');
+    const index = fs.readFileSync(inputPath, {
+        encoding: 'utf8',
+        flag: 'r',
+    });
+    console.debug(index);
+    console.debug('---');
 
     // Save recording
-    const OUTPUT_FORMAT = 'mp4';
-    const outputPath = path.join(OUTPUT_PATH, folder);
-    fileManager.createDirIfNotExists(outputPath);
     const outputName = `${name}.${OUTPUT_FORMAT}`;
-    const outputFile = path.join(outputPath, outputName);
-    const data = await videoEditor.remux(inputFile, outputFile);
-    data.size = await fileManager.getFileSize(outputFile);
-    data.file = outputFile;
+    const outputPath = path.join(outputDir, outputName);
+    let data = await videoEditor.remux(inputPath, outputPath);
 
-    // Create file handle
-    const fileHandle = {
-        path: outputFile,
-        name: outputName,
-        size: data.size,
-        url: `local://${outputFile}`,
-    };
+    // Retry mechanism for remuxing the video (Let's see if we can find a better method)
+    if (!data) {
+        console.debug('retry');
+        data = await videoEditor.remux(inputPath, outputPath);
+    }
+    if (!data) {
+        console.debug('retry');
+        data = await videoEditor.remux(inputPath, outputPath);
+    }
 
-    // Enrich data
-    data.folder = OUTPUT_PATH;
-    data.name = outputName;
-    data.thumbnail = await _generateThumbnail(
-        outputFile,
-        RAW_RECORDING_PATH,
+    // Calculate file specifics
+    const size = await fileManager.getFileSize(outputPath);
+    const thumbnail = await _generateThumbnail(
+        outputPath,
+        recordingDir,
         data.duration
     );
-    data.fileHandle = fileHandle;
 
-    // Remove temp video
-    await fileManager.deleteFile(inputFile);
+    // Remove temp files
+    fileManager.deleteAllFiles(recordingDir);
 
-    return data;
+    return {
+        dir: outputDir,
+        duration: data.duration,
+        fileHandle: {
+            duration: data.duration,
+            name: outputName,
+            path: outputPath,
+            size: size,
+            url: `local://${outputPath}`,
+        },
+        name: outputName,
+        path: outputPath,
+        size: size,
+        thumbnail: thumbnail,
+    };
 }
 
 /**
  * Generate thumbnail
  */
-async function _generateThumbnail(video, path) {
-    // Generate thumbnail
-    await videoEditor.generateThumbnail(video, path);
+async function _generateThumbnail(video, path, duration) {
+    await videoEditor.generateThumbnail(video, path, duration);
     const tmpThumbnail = getMostRecentFile(path);
     const tmpThumbnailFile = `${path}/${tmpThumbnail.file}`;
     const thumbnail = await fileManager.getThumbnail(tmpThumbnailFile);
@@ -222,12 +236,12 @@ async function hideCamera() {
 /**
  *  Start process monitor
  */
-function startProcessMonitor(event, { autoRecordProcesses }) {
+function startProcessMonitor(event, { autoRecordProcesses }, win) {
     const gameParser = createGameParser();
     const processHandler = createProcessHandler(gameParser);
 
     processMonitor.startInterval(
-        async () => await processHandler.handleProcessStarted(event),
+        async () => await processHandler.handleProcessStarted(event, win),
         async () => await processHandler.handleProcessEnded(event),
         autoRecordProcesses
     );
@@ -276,9 +290,7 @@ async function setSetting(key, value) {
         } else if (key === 'microphoneVolume') {
             return screenRecorder.setMicrophoneVolume(value);
         } else if (key === 'folder') {
-            const RAW_RECORDING_PATH = path.join(value, 'tmp');
-            await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
-            return screenRecorder.setFolder(RAW_RECORDING_PATH);
+            return screenRecorder.setFolder(await getRecordingDir());
         } else if (key === 'launchAtStartup') {
             setLaunchAtStartup(value);
         }
@@ -635,11 +647,12 @@ async function selectFolder(win) {
     });
 
     if (!result.canceled) {
-        const OUTPUT_PATH = result.filePaths[0];
-        const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
+        const defaultDir = result.filePaths[0];
 
-        setStoreValue('settings.folder', OUTPUT_PATH);
-        screenRecorder.setFolder(RAW_RECORDING_PATH);
+        setStoreValue('settings.folder', defaultDir);
+
+        const recordingDir = await getRecordingDir();
+        screenRecorder.setFolder(recordingDir);
     }
 
     return result;
@@ -649,19 +662,13 @@ async function selectFolder(win) {
  * Set default folder
  */
 async function setDefaultFolder() {
-    const VIDEO_PATH = require('electron').app.getPath('videos');
-    const RECORDING_FOLDER = 'enlyo';
-    const OUTPUT_PATH = path.join(VIDEO_PATH, RECORDING_FOLDER);
-    const RAW_RECORDING_PATH = path.join(OUTPUT_PATH, 'tmp');
+    const videoDir = require('electron').app.getPath('videos');
+    const defaultDir = path.join(videoDir, 'Enlyo');
 
-    await fileManager.createDirIfNotExists(OUTPUT_PATH);
-    await fileManager.createDirIfNotExists(RAW_RECORDING_PATH);
+    await fileManager.createDirIfNotExists(defaultDir);
+    setStoreValue('settings.folder', defaultDir);
 
-    setStoreValue('settings.folder', OUTPUT_PATH);
-
-    screenRecorder.setFolder(RAW_RECORDING_PATH);
-
-    return OUTPUT_PATH;
+    return defaultDir;
 }
 
 /**
@@ -906,7 +913,11 @@ function openSystemPlayer(recording) {
  * Show window
  */
 async function showWindow(win) {
+    if (win.isMinimized()) win.restore();
+
+    win.setAlwaysOnTop(true);
     win.show();
+    win.setAlwaysOnTop(false);
 }
 
 module.exports.clip = clip;

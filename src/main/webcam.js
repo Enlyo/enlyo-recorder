@@ -18,10 +18,7 @@ function initialize() {
             .then((devices) => {
                 devices.forEach((device) => {
                     if (device.kind === 'videoinput') {
-                        console.log(device.label);
-                        console.log(data.label);
                         if (device.label === data.label) {
-                            console.log('the same');
                             selectedDevice = {
                                 label: device.label,
                                 deviceId: device.deviceId,
@@ -29,8 +26,6 @@ function initialize() {
                         }
                     }
                 });
-
-                console.log(selectedDevice);
 
                 if (!selectedDevice) return;
 

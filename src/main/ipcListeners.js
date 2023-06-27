@@ -97,7 +97,7 @@ function setIpcListeners(win) {
     /* -------------------------------------------------------------------------- */
 
     ipcMain.on('start-process-monitor', async (event, data) => {
-        startProcessMonitor(event, data);
+        startProcessMonitor(event, data, win);
     });
 
     ipcMain.on('stop-process-monitor', async (event) => {

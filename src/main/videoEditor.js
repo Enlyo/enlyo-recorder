@@ -29,18 +29,25 @@ async function remux(inputFile, outputFile) {
         setUpFfmpeg();
     }
 
-    let duration;
-    ffmpeg.ffprobe(inputFile, (error, metadata) => {
-        duration = Math.round(metadata.format.duration);
-    });
-
     return new Promise((resolve) => {
         ffmpeg(inputFile)
             .output(outputFile)
             .withVideoCodec('copy')
             .withAudioCodec('copy')
             .on('end', function () {
-                resolve({ duration });
+                ffmpeg.ffprobe(outputFile, (error, metadata) => {
+                    let duration;
+
+                    duration = Math.round(metadata.format.duration);
+
+                    resolve({ duration });
+                });
+            })
+            .on('error', (error, stdout, stderr) => {
+                console.debug(error);
+                console.debug(stdout);
+                console.debug(stderr);
+                resolve(false);
             })
             .run();
     });
@@ -90,8 +97,6 @@ async function clip(inputFile, outputFile, startTime = null, endTime = null) {
             })
             .on('error', function (err, stdout, stderr) {
                 console.log(err);
-                console.log('ffmpeg stdout:\n' + stdout);
-                console.log('ffmpeg stderr:\n' + stderr);
             })
             .on('start', (cmdline) => console.log(cmdline));
 

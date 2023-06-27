@@ -83,9 +83,22 @@ async function copyFile(inputPath, outputPath) {
  */
 async function deleteFile(filePath) {
     return new Promise((resolve) => {
-        fs.unlink(filePath, () => {
+        try {
+            fs.unlink(filePath, () => {
+                resolve();
+            });
+        } catch {
             resolve();
-        });
+        }
+    });
+}
+
+/**
+ * Delete all files
+ */
+function deleteAllFiles(directory) {
+    fs.readdirSync(directory).forEach((file) => {
+        fs.unlink(path.join(directory, file), () => {});
     });
 }
 
@@ -221,6 +234,7 @@ const downloadLocalFile = (url, dest, cb = () => {}) => {
 module.exports.copyFile = copyFile;
 module.exports.createDirIfNotExists = createDirIfNotExists;
 module.exports.deleteFile = deleteFile;
+module.exports.deleteAllFiles = deleteAllFiles;
 module.exports.deleteFolder = deleteFolder;
 module.exports.deleteOldFiles = deleteOldFiles;
 module.exports.downloadFile = downloadFile;
