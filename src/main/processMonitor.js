@@ -61,7 +61,7 @@ const processMonitor = {
         this.processId = processId;
 
         if (!previousProcessExists && this.processExists) {
-            this._handleProcessStarted();
+            this._handleProcessStarted(this.processId);
         }
 
         if (previousProcessExists && !this.processExists) {

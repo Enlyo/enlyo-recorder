@@ -26,6 +26,7 @@ const screenRecorder = {
         speakerVolume: 1,
     },
     _scene: null,
+    _sceneEmpty: null,
     _signals: new Subject(),
 
     /* -------------------------------------------------------------------------- */
@@ -424,7 +425,6 @@ const screenRecorder = {
             { monitor: this.settings.screen.value }
         );
 
-        let { screen } = require('electron');
         // Update source settings:
         const settings = videoSource.settings;
         settings['width'] = width;
@@ -484,6 +484,51 @@ const screenRecorder = {
         scene.add(gameSource);
 
         return scene;
+    },
+
+    /**
+     * Set up scene empty
+     */
+    _setupSceneEmpty() {
+        this.verifyScreen();
+
+        const source = osn.InputFactory.create('image_source', 'empty', {
+            file: this.fixPathWhenPackaged(
+                path.join(__dirname, '../../public/empty.png')
+            ),
+        });
+
+        let scene = osn.SceneFactory.create('empty-scene');
+        let sceneItem = scene.add(source);
+
+        const { aspectRatio } = this.parseResolution(this.settings.screen.name);
+        const outputWidth = Math.round(this.settings.resolution / 0.5625); // 16:9 ratio
+        const outputHeight = Math.round(outputWidth / aspectRatio);
+
+        let settings = source.settings;
+        settings['width'] = 164;
+        settings['height'] = 49;
+        source.update(settings);
+        source.save();
+
+        sceneItem.position = {
+            x: outputWidth / 2 - 82,
+            y: outputHeight / 2 + 25,
+        };
+
+        return scene;
+    },
+
+    changeScene(type) {
+        if (!this._scene) this._scene = this._setupScene();
+        if (!this._sceneEmpty) this._sceneEmpty = this._setupSceneEmpty();
+
+        // Set up video source
+        const VIDEO_TRACK = 1;
+        osn.Global.setOutputSource(
+            VIDEO_TRACK,
+            type === 'default' ? this._scene : this._sceneEmpty
+        );
     },
 
     /**

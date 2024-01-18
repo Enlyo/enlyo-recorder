@@ -1,3 +1,5 @@
+const { screenRecorder } = require('./screenRecorder');
+
 /**
  * Create process handler
  */
@@ -11,11 +13,22 @@ function createProcessHandler(gameParser = null) {
 
         processStarted: false,
 
+        windowManager: null,
+
         /**
          * Handle process started
          */
-        async handleProcessStarted(event, win) {
+        async handleProcessStarted(event, win, processId) {
             if (this.processStarted) return;
+
+            const { windowManager } = require('node-window-manager');
+            this.windowManager = windowManager;
+            this.windowManager.requestAccessibility();
+            this.windowManager.on('window-activated', (win) => {
+                screenRecorder.changeScene(
+                    win.processId === processId ? 'default' : 'empty'
+                );
+            });
 
             this.processStarted = true;
 
@@ -51,6 +64,12 @@ function createProcessHandler(gameParser = null) {
          * Handle process ended
          */
         async handleProcessEnded(event) {
+            this.windowManager.off('window-activated', (win) => {
+                screenRecorder.changeScene(
+                    win.processId === processId ? 'default' : 'empty'
+                );
+            });
+
             this.processStarted = false;
 
             this.clearCheckGameDataInterval();

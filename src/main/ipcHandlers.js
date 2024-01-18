@@ -84,14 +84,10 @@ async function saveRecording({ name, folder }) {
     recordingDir = await getRecordingDir();
     const inputPath = path.join(recordingDir, 'index.m3u8');
 
-    console.debug('---');
-    console.debug('Remuxing recording...');
     const index = fs.readFileSync(inputPath, {
         encoding: 'utf8',
         flag: 'r',
     });
-    console.debug(index);
-    console.debug('---');
 
     // Save recording
     const outputName = `${name}.${OUTPUT_FORMAT}`;
@@ -100,11 +96,9 @@ async function saveRecording({ name, folder }) {
 
     // Retry mechanism for remuxing the video (Let's see if we can find a better method)
     if (!data) {
-        console.debug('retry');
         data = await videoEditor.remux(inputPath, outputPath);
     }
     if (!data) {
-        console.debug('retry');
         data = await videoEditor.remux(inputPath, outputPath);
     }
 
@@ -241,7 +235,8 @@ function startProcessMonitor(event, { autoRecordProcesses }, win) {
     const processHandler = createProcessHandler(gameParser);
 
     processMonitor.startInterval(
-        async () => await processHandler.handleProcessStarted(event, win),
+        async (processId) =>
+            await processHandler.handleProcessStarted(event, win, processId),
         async () => await processHandler.handleProcessEnded(event),
         autoRecordProcesses
     );

@@ -343,6 +343,8 @@ app.on('ready', async () => {
     if (process.env.NODE_ENV !== 'production') {
         require('vue-devtools').install();
     }
+
+    console.debug('BOE');
 });
 
 // Quit when all windows are closed.
